@@ -72,8 +72,8 @@ EOF
 }
 
 function ian-debvars-luser {
-	TMP=$(mktemp)
-	need_vars=0
+	local TMP=$(mktemp)
+	local need_vars=0
 
 	if ! sc-var-defined DEBFULLNAME; then
 		echo "export DEBFULLNAME=$USERNAME" >> $TMP
@@ -159,7 +159,7 @@ function _ian-vcs {
 }
 
 function _ian-version-upstream-uscan {
-	output=$(uscan --report --verbose 2> /dev/null)
+	local output=$(uscan --report --verbose 2> /dev/null)
 	if [ $? -ne 0 ]; then
 		echo "error: run \"uscan --verbose\" for details"
 		return
@@ -180,7 +180,7 @@ function ian-new-release {
 function ian-new-release-date-version {
     (
     _ian-assert-preconditions
-    CHLOG=$(mktemp)
+    local CHLOG=$(mktemp)
     echo $(_ian-source-name) \(0.$(date +%Y%m%d-1)\) unstable\; urgency=low > $CHLOG
     echo -e "\n  * New release\n\n -- \n" >> $CHLOG
     cat debian/changelog >> $CHLOG
@@ -291,10 +291,10 @@ function ian-orig-uscan {
 function ian-orig-from-local {
     sc-log-info "orig-from-local"
 
-    orig_tmp=$(_ian-source-name)-$(_ian-version-upstream)
+    local orig_tmp=$(_ian-source-name)-$(_ian-version-upstream)
     mkdir -p $orig_tmp
 
-    EXCLUDE="--exclude=$orig_tmp --exclude=./debian --exclude=\*~ --exclude-vcs --exclude=\*.pyc --exclude .pc"
+    local EXCLUDE="--exclude=$orig_tmp --exclude=./debian --exclude=\*~ --exclude-vcs --exclude=\*.pyc --exclude .pc"
 
     tar $EXCLUDE -cf - . | ( cd $orig_tmp && tar xf - )
     tar -czf $(_ian-orig-path) $orig_tmp
@@ -363,10 +363,10 @@ function ian-clean-svn {
 
 function ian-clean-uscan {
 	sc-log-info "clean-uscan"
-	nline=$(uscan --report --verbose | grep -n "^Newest version on remote" | cut -d":" -f 1)
-	nline=$(echo $nline - 1 | bc)
-	url=$(uscan --report --verbose | tail -n +$nline | head -n 1)
-	upstream_fname=$(basename $url)
+	local nline=$(uscan --report --verbose | grep -n "^Newest version on remote" | cut -d":" -f 1)
+	local nline=$(echo $nline - 1 | bc)
+	local url=$(uscan --report --verbose | tail -n +$nline | head -n 1)
+	local upstream_fname=$(basename $url)
 	rm -fv $(_ian-orig-dir)/$upstream_fname
 }
 
@@ -404,9 +404,9 @@ function ian-clean-build-and-install {
 
 function ian-upload {
     (
-	TMP=$(mktemp)
+	local TMP=$(mktemp)
 	sc-assert-files-exist $(_ian-changes-path) $(_ian-binary-paths)
-    changes=$(_ian-changes-path)
+    local changes=$(_ian-changes-path)
     debsign $changes
     dupload -f $changes 2> $TMP
 	echo "--- out is $TMP"
@@ -503,7 +503,7 @@ function _ian-arch-build {
 
 function _ian-arch-control {
 	# $1: package name
-	index=$(grep "Package:" debian/control | grep -n $1 | cut -f1 -d":"  | head -n1)
+	local index=$(grep "Package:" debian/control | grep -n $1 | cut -f1 -d":"  | head -n1)
     grep "Architecture:" debian/control | tail -n +$index | head -n1 | cut -f2 -d:  | tr -d " "
 }
 
@@ -525,7 +525,7 @@ function _ian-binary-filenames {
 }
 
 function _ian-binary-paths {
-    build_path=".."
+    local build_path=".."
     if _ian-uses-svn; then
 		build_path="../build-area"
     fi
@@ -555,7 +555,7 @@ function _ian-generated-filenames {
     _ian-orig-filename
     _ian-changes-filename
     _ian-dsc-filename
-    deb_prefix=$(_ian-source-name)_$(_ian-version)
+    local deb_prefix=$(_ian-source-name)_$(_ian-version)
     echo $deb_prefix.debian.tar.gz
     echo $deb_prefix.diff.gz
 	echo $deb_prefix.upload
@@ -590,7 +590,7 @@ function ian-binary-contents {
 }
 
 function ian-py-version-to-setup {
-	version=$(_ian-version-upstream)
+	local version=$(_ian-version-upstream)
 	sed -i -e "s/\( *version *= *\)'[0-9\.]\+'/\1'$version'/g" setup.py
 	sc-log-info "setting version to $version"
 }
@@ -601,7 +601,7 @@ function _ian-builddeps {
 }
 
 function _ian-builddeps-assure {
-	deps=$(_ian-builddeps)
+	local deps=$(_ian-builddeps)
 	sc-log-info "installing build deps: $deps"
 
 	if [ "$deps" ]; then
@@ -612,10 +612,11 @@ function _ian-builddeps-assure {
 
 #-- multiarch support --
 
-JAIL_CONFIG=/etc/schroot/chroot.d/ian-386
+JAIL_CONFIG=/etc/schroot/chroot.d/ian
+JAIL_CONFIGD=/etc/schroot/ian
+JAIL_FSTAB=$JAIL_CONFIGD/fstab
 JAIL_DIR=/var/jails/ian
 JAIL_NAME=sid-386
-IAN_FSTAB=/etc/schroot/ian/fstab
 USER_FSTAB=$HOME/.config/ian/fstab
 
 function _ian-schroot-setup() {
@@ -628,9 +629,9 @@ personality=linux32
 setup.fstab=ian/fstab
 EOF
 
-    mkdir -p /etc/schroot/ian
+    mkdir -p $JAIL_CONFIGD
 
-    cat <<EOF > $IAN_FSTAB
+    cat <<EOF > $JAIL_FSTAB
 /proc           /proc           none    rw,bind         0       0
 /sys            /sys            none    rw,bind         0       0
 /dev            /dev            none    rw,bind         0       0
@@ -640,7 +641,7 @@ EOF
 EOF
 
     if [ -e $USER_FSTAB ]; then
-		cat $USER_FSTAB >> $IAN_FSTAB
+		cat $USER_FSTAB >> $JAIL_FSTAB
     fi
 }
 
@@ -650,11 +651,11 @@ function _ian-jail-create() {
 }
 
 function _ian-chroot-sudo() {
-    sudo schroot -c $JAIL_NAME bash $@
+    sudo schroot -c $JAIL_NAME $@
 }
 
 function _ian-chroot-run() {
-    sudo schroot -u $USER -c $JAIL_NAME bash $@
+    sudo schroot -u $USER -c $JAIL_NAME $@
 }
 
 function _ian-jail-setup() {
@@ -668,6 +669,10 @@ function _ian-jail-setup() {
 }
 
 function _ian-jail-destroy() {
+	rm -f $JAIL_CONFIG
+	rm -f $JAIL_CONFIGD/*
+	rmdir -f $JAIL_CONFIGD
+
     if ! [ -d $JAIL_DIR ]; then
 		return
     fi
@@ -682,6 +687,8 @@ function ian-386() {
 
     _ian-chroot-run ian-help-reference > /dev/null
     if [ $? != 0 ]; then
+		sc-log-warning "jail $JAIL_NAME is broken, rebuilding..."
+
 		_ian-jail-destroy
 		_ian-jail-create
 		_ian-schroot-setup
@@ -689,7 +696,6 @@ function ian-386() {
     fi
     _ian-chroot-run $@
 }
-
 
 
 eval $(basename $0) $@
