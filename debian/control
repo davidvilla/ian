@@ -1,0 +1,12 @@
+Source: ian
+Section: shells
+Priority: extra
+Maintainer: David Villa Alises <David.Villa@gmail.com>
+Build-Depends: debhelper (>= 7.0.50~), quilt
+Standards-Version: 3.9.6
+Homepage: https://bitbucket.org/DavidVilla/ian
+
+Package: ian
+Architecture: all
+Depends: ${misc:Depends}, quilt, gnupg, dupload
+Description: command line helper to maintain debian packages
