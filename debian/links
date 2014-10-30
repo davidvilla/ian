@@ -26,6 +26,7 @@ usr/share/ian/ian-packaging.sh usr/bin/_ian-uses-svn
 usr/share/ian/ian-packaging.sh usr/bin/_ian-uses-uscan
 usr/share/ian/ian-packaging.sh usr/bin/_ian-version
 usr/share/ian/ian-packaging.sh usr/bin/_ian-version-upstream
+usr/share/ian/ian-packaging.sh usr/bin/ian-386
 usr/share/ian/ian-packaging.sh usr/bin/ian-binary-contents
 usr/share/ian/ian-packaging.sh usr/bin/ian-build
 usr/share/ian/ian-packaging.sh usr/bin/ian-build-and-install

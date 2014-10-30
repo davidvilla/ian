@@ -1,3 +1,4 @@
+#!/bin/bash
 # -*- coding:utf-8; tab-width:4; mode:shell-script -*-
 
 source /usr/share/ian/shell-commodity.sh
@@ -644,8 +645,8 @@ EOF
 }
 
 function _ian-jail-create() {
-    mkdir -p /var/jails
-    debootstrap --arch=i386 sid $JAIL_DIR http://ftp.debian.org/debian
+    sudo mkdir -p /var/jails
+    sudo debootstrap --arch=i386 sid $JAIL_DIR http://ftp.debian.org/debian
 }
 
 function _ian-chroot-sudo() {
@@ -671,13 +672,13 @@ function _ian-jail-destroy() {
 		return
     fi
 
-    local OLD=$JAIL_DIR-discarded-$(mktemp --dry-run)
+    local OLD=$JAIL_DIR-discarded-$(uuidgen)
     sc-log-warning "old jail was moved to $OLD"
     sudo mv $JAIL_DIR $OLD
 }
 
 function ian-386() {
-    sc-log-info "Running '$@' in the jail '$JAIL_NAME'"
+    sc-log-info "Running $@ in the jail $JAIL_NAME"
 
     _ian-chroot-run ian-help-reference > /dev/null
     if [ $? != 0 ]; then
@@ -691,4 +692,4 @@ function ian-386() {
 
 
 
-eval $(basename $0)
+eval $(basename $0) $@

@@ -8,5 +8,5 @@ Homepage: https://bitbucket.org/DavidVilla/ian
 
 Package: ian
 Architecture: all
-Depends: ${misc:Depends}, quilt, gnupg, dupload
+Depends: ${misc:Depends}, quilt, gnupg, dupload, uuid-runtime, build-essential
 Description: command line helper to maintain debian packages
