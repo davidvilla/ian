@@ -89,28 +89,28 @@ function ian-debvars-luser {
 	local need_vars=0
 
 	if ! sc-var-defined DEBFULLNAME; then
-		echo "export DEBFULLNAME=$USERNAME" >> $TMP
+		echo "DEBFULLNAME=$USERNAME" >> $TMP
 		sc-log-warning "exporting placeholder DEBFULLNAME=$USERNAME"
 		need_vars=1
 	fi
 
 	if ! sc-var-defined DEBEMAIL; then
 		fakemail="$LOGNAME@$HOSTNAME"
-		echo "export DEBEMAIL=\"$fakemail\"" >> $TMP
+		echo "DEBEMAIL=\"$fakemail\"" >> $TMP
 		sc-log-warning "exporting placeholder DEBEMAIL=$fakemail"
 		need_vars=1
 	fi
 
 	if ! sc-var-defined DEBSIGN_KEYID; then
 		fakeid="DEADBEE"
-		echo "export DEBSIGN_KEYID=$fakeid" >> $TMP
+		echo "DEBSIGN_KEYID=$fakeid" >> $TMP
 		sc-log-warning "exporting placeholder DEBSIGN_KEYID=$fakeid"
 		need_vars=1
 	fi
 
 	if ! sc-var-defined DEBREPO_URL; then
 		fakepath="$USERNAME@your.server.net/path/to/repo"
-		echo "export DEBREPO_URL=$fakepath" >> $TMP
+		echo "DEBREPO_URL=$fakepath" >> $TMP
 		sc-log-warning "exporting placeholder DEBREPO_URL=$fakepath"
 		need_vars=1
 	fi
@@ -132,10 +132,10 @@ function ian-debvars {
 function ian-help-debvars-examples {
 	sc-log-info "Define variables bellow in your ~/.config/ian/config using your info:"
     cat <<EOF
-export DEBFULLNAME="John Doe"
-export DEBEMAIL=john.doe@email.com
-export DEBSIGN_KEYID=D0FE7AFB  # man debsign
-export DEBREPO_URL=john.doe@debian.repository.org/var/repo
+DEBFULLNAME="John Doe"
+DEBEMAIL=john.doe@email.com
+DEBSIGN_KEYID=D0FE7AFB  # man debsign
+DEBREPO_URL=john.doe@debian.repository.org/var/repo
 EOF
 }
 
