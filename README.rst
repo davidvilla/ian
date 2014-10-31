@@ -13,6 +13,13 @@ Compiling a simple package with **ian**::
   $ apt-get source hello
   $ cd hello-2.9
   hello-2.9$ ian-build
+  hello-2.9$ ls -la ../hello*
+  -rw-r--r--  1 david david   1798 oct 31 16:02 ../hello_2.9-1_amd64.changes
+  -rw-r--r--  1 david david  50462 oct 31 16:02 ../hello_2.9-1_amd64.deb
+  -rw-r--r--  1 david david   8584 oct 31 16:02 ../hello_2.9-1.debian.tar.xz
+  -rw-r--r--  1 david david    793 oct 31 16:02 ../hello_2.9-1.dsc
+  -rw-r--r--  1 david david 730504 oct 31 16:02 ../hello_2.9.orig.tar.gz
+
 
 commands
 ========
