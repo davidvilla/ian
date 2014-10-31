@@ -681,8 +681,12 @@ function _ian-chroot-run() {
 function _ian-jail-setup() {
 	local repo=$(mktemp)
 	echo "deb http://babel.esi.uclm.es/arco sid main" > $repo
-
     sudo cp $repo $JAIL_DIR/etc/apt/sources.list.d/arco.list
+
+	local sudoers=$(mktemp)
+	echo "$USER ALL=NOPASSWD: ALL" > $sudoers
+	sudo cp $sudoers $JAIL_DIR/etc/sudoers.d/ian
+
     _ian-chroot-sudo bash -c "wget -O- http://babel.esi.uclm.es/arco/key.asc | apt-key add -"
     _ian-chroot-sudo apt-get update
     _ian-chroot-sudo apt-get install -y ian
