@@ -11,6 +11,19 @@ if [ -e $IAN_CONFIG ]; then
 	source  $IAN_CONFIG
 fi
 
+#-- common --
+
+function _ian-rm {
+    if ! sc-file-exists $1; then
+		echo rm: missing $1
+		return
+	fi
+	rm -fv $1
+}
+
+
+#-- doc --
+
 function ian-help-reference {
     cat <<EOF
 ian-summary         show package info
@@ -367,10 +380,8 @@ function ian-clean-uscan {
 	local nline=$(echo $nline - 1 | bc)
 	local url=$(uscan --report --verbose | tail -n +$nline | head -n 1)
 	local upstream_fname=$(basename $url)
-	rm -fv $(_ian-orig-dir)/$upstream_fname
+	_ian-rm $(_ian-orig-dir)/$upstream_fname
 }
-
-
 
 #-- install ----------------------------------------------------------
 
@@ -400,7 +411,7 @@ function ian-clean-build-and-install {
 }
 
 
-#-- repo actions ---------------------------------------------------
+#-- repo actions -----------------------------------------------------
 
 function ian-upload {
     (
@@ -610,17 +621,20 @@ function _ian-builddeps-assure {
 }
 
 
-#-- multiarch support --
+#-- multiarch support ------------------------------------------------
 
 JAIL_CONFIG=/etc/schroot/chroot.d/ian
-JAIL_CONFIGD=/etc/schroot/ian
-JAIL_FSTAB=$JAIL_CONFIGD/fstab
+JAIL_DCONFIG=/etc/schroot/ian
 JAIL_DIR=/var/jails/ian
 JAIL_NAME=sid-386
 USER_FSTAB=$HOME/.config/ian/fstab
 
 function _ian-schroot-setup() {
-    cat <<EOF > $JAIL_CONFIG
+	local JAIL_FSTAB=$JAIL_DCONFIG/fstab
+
+	local config=$(mktemp)
+
+    cat <<EOF > $config
 [$JAIL_NAME]
 description=Debian testing 32 bits
 directory=$JAIL_DIR
@@ -629,9 +643,13 @@ personality=linux32
 setup.fstab=ian/fstab
 EOF
 
-    mkdir -p $JAIL_CONFIGD
+	sudo mv $config $JAIL_CONFIG
+	sudo chown root.root $JAIL_CONFIG
 
-    cat <<EOF > $JAIL_FSTAB
+    sudo mkdir -p $JAIL_DCONFIG
+
+	local fstab=$(mktemp)
+    cat <<EOF > $fstab
 /proc           /proc           none    rw,bind         0       0
 /sys            /sys            none    rw,bind         0       0
 /dev            /dev            none    rw,bind         0       0
@@ -640,8 +658,10 @@ EOF
 /tmp            /tmp            none    rw,bind         0       0
 EOF
 
+	sudo bash -c "mv $fstab $JAIL_FSTAB"
+
     if [ -e $USER_FSTAB ]; then
-		cat $USER_FSTAB >> $JAIL_FSTAB
+		sudo cat $USER_FSTAB >> $JAIL_FSTAB
     fi
 }
 
@@ -659,19 +679,22 @@ function _ian-chroot-run() {
 }
 
 function _ian-jail-setup() {
-    local REPO="deb http://babel.esi.uclm.es/arco sid main"
+	local repo=$(mktemp)
+	echo "deb http://babel.esi.uclm.es/arco sid main" > $repo
 
-    echo $REPO > $JAIL_DIR/etc/apt/sources.list.d/arco.list
+    sudo cp $repo $JAIL_DIR/etc/apt/sources.list.d/arco.list
     _ian-chroot-sudo apt-get update
     _ian-chroot-sudo apt-get install -- -y --force-yes arco-archive-keyring
     _ian-chroot-sudo apt-get update
-    _ian-chroot-sudo apt-get install -- -y arco-devel
+    _ian-chroot-sudo apt-get install -- -y ian
 }
 
 function _ian-jail-destroy() {
-	rm -f $JAIL_CONFIG
-	rm -f $JAIL_CONFIGD/*
-	rmdir -f $JAIL_CONFIGD
+	sudo rm -f $JAIL_CONFIG
+	sudo rm -f $JAIL_DCONFIG/*
+	if ! sc-file-exists $JAIL_DCONFIG; then
+		sudo rmdir
+	fi
 
     if ! [ -d $JAIL_DIR ]; then
 		return
@@ -682,18 +705,23 @@ function _ian-jail-destroy() {
     sudo mv $JAIL_DIR $OLD
 }
 
+export -f		_ian-jail-destroy
+export -f		_ian-jail-create
+export -f		_ian-schroot-setup
+export -f		_ian-jail-setup
+
 function ian-386() {
     sc-log-info "Running $@ in the jail $JAIL_NAME"
 
     _ian-chroot-run ian-help-reference > /dev/null
     if [ $? != 0 ]; then
-		sc-log-warning "jail $JAIL_NAME is broken, rebuilding..."
-
 		_ian-jail-destroy
+
+		sc-log-warning "jail $JAIL_NAME is broken, rebuilding..."
 		_ian-jail-create
 		_ian-schroot-setup
 		_ian-jail-setup
-    fi
+	fi
     _ian-chroot-run $@
 }
 
