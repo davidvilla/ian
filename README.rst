@@ -10,6 +10,10 @@ in a glance
 
 Compiling a simple package with **ian**:
 
+  $ apt-get source hello
+  $ cd hello-2.9
+  hello-2.9$ ian-build
+
 commands
 ========
 
