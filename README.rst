@@ -9,12 +9,6 @@ in a glance
 =========
 
 
-```
-#!python
-
-apt-get source hello
-```
-
 
 
 commands
