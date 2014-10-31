@@ -5,7 +5,7 @@ ian
 *simple tool for the lazy package maintainers*
 
 
-in a glance
+at a glance
 ===========
 
 Compiling a simple package with **ian**::
