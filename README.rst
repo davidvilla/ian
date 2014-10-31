@@ -10,7 +10,7 @@ in a glance
 
 
 ```
-#!bash
+#!shell
 
 apt-get source hello
 ```
