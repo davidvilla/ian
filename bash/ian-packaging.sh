@@ -616,7 +616,7 @@ function _ian-builddeps-assure {
 	sc-log-info "installing build deps: $deps"
 
 	if [ "$deps" ]; then
-		sc-assure-deb-pkg-installed $deps
+		sudo mk-build-deps --tool "apt-get -y" --install --remove debian/control
 	fi
 }
 
@@ -671,11 +671,11 @@ function _ian-jail-create() {
 }
 
 function _ian-chroot-sudo() {
-    sudo schroot -c $JAIL_NAME $@
+    sudo schroot -c $JAIL_NAME -- $@
 }
 
 function _ian-chroot-run() {
-    sudo schroot -u $USER -c $JAIL_NAME $@
+    sudo schroot -u $USER -c $JAIL_NAME -- $@
 }
 
 function _ian-jail-setup() {
@@ -683,10 +683,9 @@ function _ian-jail-setup() {
 	echo "deb http://babel.esi.uclm.es/arco sid main" > $repo
 
     sudo cp $repo $JAIL_DIR/etc/apt/sources.list.d/arco.list
+    _ian-chroot-sudo bash -c "wget -O- http://babel.esi.uclm.es/arco/key.asc | apt-key add -"
     _ian-chroot-sudo apt-get update
-    _ian-chroot-sudo apt-get install -- -y --force-yes arco-archive-keyring
-    _ian-chroot-sudo apt-get update
-    _ian-chroot-sudo apt-get install -- -y ian
+    _ian-chroot-sudo apt-get install -y ian
 }
 
 function _ian-jail-destroy() {
@@ -702,15 +701,17 @@ function _ian-jail-destroy() {
 
     local OLD=$JAIL_DIR-discarded-$(uuidgen)
     sc-log-warning "old jail was moved to $OLD"
-    sudo mv $JAIL_DIR $OLD
+	if sc-file-exists $JAIL_DIR; then
+       sudo mv $JAIL_DIR $OLD
+	fi
 }
 
-export -f		_ian-jail-destroy
-export -f		_ian-jail-create
-export -f		_ian-schroot-setup
-export -f		_ian-jail-setup
-
 function ian-386() {
+	if [ -z "$@" ]; then
+		sc-log-error "usage: ian-386 <ian-command>"
+		return
+	fi
+
     sc-log-info "Running $@ in the jail $JAIL_NAME"
 
     _ian-chroot-run ian-help-reference > /dev/null
