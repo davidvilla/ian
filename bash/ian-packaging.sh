@@ -687,7 +687,9 @@ function _ian-jail-setup() {
 	echo "$USER ALL=NOPASSWD: ALL" > $sudoers
 	sudo cp $sudoers $JAIL_DIR/etc/sudoers.d/ian
 
-    _ian-chroot-sudo bash -c "wget -O- http://babel.esi.uclm.es/arco/key.asc | apt-key add -"
+	local key=$(mktemp)
+ 	wget -O $key http://babel.esi.uclm.es/arco/key.asc
+    _ian-chroot-sudo apt-key add $key
     _ian-chroot-sudo apt-get update
     _ian-chroot-sudo apt-get install -y ian
 }
@@ -708,6 +710,11 @@ function _ian-jail-destroy() {
 	if sc-file-exists $JAIL_DIR; then
        sudo mv $JAIL_DIR $OLD
 	fi
+}
+
+function ian-386-upgrade() {
+	_ian-chroot-sudo apt-key update
+	_ian-chroot-sudo apt-key upgrade
 }
 
 function ian-386() {
