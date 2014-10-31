@@ -24,55 +24,72 @@ Compiling a simple package with **ian**::
 commands
 ========
 
-summary:
-  print information about the current directory Debian package.
+summary
+-------
+
+prints information about the current directory Debian package.
 
 
-orig: 
-  create or download the .orig file
+orig
+----
 
-  backends:
+create or download the .orig file
 
-  * orig-from-rule:  execute the rule "get-orig" in the debian/rules
-  * orig-uscan:      download latest upstream with uscan
-  * orig-from-local: generates .orig from current directory files
+backends:
+
+* orig-from-rule:  execute the rule "get-orig" in the debian/rules
+* orig-uscan:      download latest upstream with uscan
+* orig-from-local: generates .orig from current directory files
 
 
-build:
-  compile Debian sources to generate binary packages.
+build
+-----
+
+compiles Debian sources to generate binary packages.
 
 * applies quilt patches if present
 * automatically install missing build depends
 
-  backends:
+backends:
 
-  * build-standard: compile with dpkg-buildpackage
-  * build-svn:      compile with svn-buildpackage
+* build-standard: compile with dpkg-buildpackage
+* build-svn:      compile with svn-buildpackage
 
-binary-contens: 
-  list files on generated binary packages
 
-clean:
-  remove all generated files and artifacts
+binary-contens
+--------------
 
-  * reverts quilt patches if present
+list files on generated binary packages
 
-  backends:
+clean
+-----
 
-  * clean-common: remove deb, orig, changes, dsc, diff, upload, debian.tar.gz
-  * clean-svn:    remove svn-buildpackage artifacts: tarballs/*, build-area/*
-  * clean-uscan:  remove uscan downloaded files
+removes all generated files and artifacts
 
-install:
-  installs all generated binary packages in the system.
+* reverts quilt patches if present
 
-upload:
-  upload binary packages to a remote package repository
+backends:
 
-  * runs debsign and dupload
+* clean-common: remove deb, orig, changes, dsc, diff, upload, debian.tar.gz
+* clean-svn:    remove svn-buildpackage artifacts: tarballs/*, build-area/*
+* clean-uscan:  remove uscan downloaded files
 
-remove: 
-  remove package from a remote package repository
+install
+-------
+
+installs all generated binary packages in the system.
+
+upload
+------
+
+upload binary packages to a remote package repository
+
+* runs debsign and dupload
+
+remove
+------
+
+remove package from a remote package repository
 
 .. Local Variables:
 ..  coding: utf-8
