@@ -6,7 +6,7 @@ ian
 
 
 in a glance
-=========
+===========
 
 Compiling a simple package with **ian**::
 
