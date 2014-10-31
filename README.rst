@@ -49,11 +49,16 @@ clean:
   * clean-svn:    remove svn-buildpackage artifacts: tarballs/*, build-area/*
   * clean-uscan:  remove uscan downloaded files
 
-* upload: upload binary packages to a remote package repository
+install:
+  installs all generated binary packages in the system.
+
+upload:
+  upload binary packages to a remote package repository
 
   * runs debsign and dupload
 
-* remove: remove package from a remote package repository
+remove: 
+  remove package from a remote package repository
 
 .. Local Variables:
 ..  coding: utf-8
