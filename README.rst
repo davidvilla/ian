@@ -10,8 +10,7 @@ ian
 commands
 ========
 
-summary
-
+summary:
   print information about the current directory Debian package.
 
 
