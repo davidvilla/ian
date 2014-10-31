@@ -15,7 +15,7 @@ commands
 
 * orig: create or download the .orig file
 
-backends:
+  backends:
 
   * orig-from-rule:  execute the rule "get-orig" in the debian/rules
   * orig-uscan:      download latest upstream with uscan
@@ -27,7 +27,7 @@ backends:
   * applies quilt patches if present
   * automatically install missing build depends
 
-backends:
+  backends:
 
   * build-standard: compile with dpkg-buildpackage
   * build-svn:      compile with svn-buildpackage
