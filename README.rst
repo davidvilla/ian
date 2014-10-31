@@ -14,7 +14,8 @@ summary:
   print information about the current directory Debian package.
 
 
-* orig: create or download the .orig file
+orig: 
+  create or download the .orig file
 
   backends:
 
@@ -23,7 +24,8 @@ summary:
   * orig-from-local: generates .orig from current directory files
 
 
-* build: compile Debian sources to generate binary packages.
+build:
+  compile Debian sources to generate binary packages.
 
   * applies quilt patches if present
   * automatically install missing build depends
