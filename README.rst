@@ -10,7 +10,9 @@ ian
 commands
 ========
 
-* summary: print information about the current directory Debian package.
+summary
+
+  print information about the current directory Debian package.
 
 
 * orig: create or download the .orig file
