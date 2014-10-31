@@ -28,7 +28,16 @@ commands
 summary
 -------
 
-prints information about the current directory Debian package.
+prints information about the current directory Debian package::
+
+  hello-2.9$ ian-summary 
+  source:              hello
+  uptream:             2.9
+  version:             2.9-1
+  orig:                hello_2.9.orig.tar.gz
+  changes:             hello_2.9-1_amd64.changes
+  binaries:            hello
+  pkg vcs:             none
 
 
 orig
