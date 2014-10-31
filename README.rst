@@ -35,9 +35,11 @@ build:
   * build-standard: compile with dpkg-buildpackage
   * build-svn:      compile with svn-buildpackage
 
-* binary-contens: list files on generated binary packages
+binary-contens: 
+  list files on generated binary packages
 
-* clean
+clean:
+  remove all generated files and artifacts
 
   * reverts quilt patches if present
 
