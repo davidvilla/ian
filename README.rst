@@ -4,6 +4,12 @@ ian
 
 *simple tool for the lazy package maintainers*
 
+
+in a glance
+=========
+
+Compiling a simple package with **ian**:
+
 commands
 ========
 
