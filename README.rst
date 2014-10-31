@@ -10,7 +10,7 @@ in a glance
 
 
 ```
-#!shell
+#!python
 
 apt-get source hello
 ```
