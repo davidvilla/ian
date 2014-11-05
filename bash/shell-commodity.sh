@@ -89,11 +89,21 @@ function sc-assert {
 	# $1: function
     # $2: argument
     # $3: error message
-    msg=${3:-"Assertion failed: $1 $2"}
+    local msg=${3:-"Assertion failed: $1 $2"}
     if ! eval $1 $2; then
 		sc-log-error "$msg"
 		exit 1
     fi
+}
+
+function sc-assert-run {
+	# $1: command
+    # $2: message prefix
+	local msg="${2:-"run"}: $1"
+	sc-log-info "$msg"
+	if ! eval $1; then
+		sc-log-fail "$msg"
+	fi
 }
 
 #-- specific assertions --

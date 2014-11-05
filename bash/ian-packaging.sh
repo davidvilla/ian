@@ -2,13 +2,14 @@
 # -*- coding:utf-8; tab-width:4; mode:shell-script -*-
 
 source /usr/share/ian/shell-commodity.sh
+source /usr/share/ian/jail.sh
 #source bash/shell-commodity.sh
 
 LANG=C
 IAN_CONFIG=$HOME/.config/ian/config
 
 if [ -e $IAN_CONFIG ]; then
-	source  $IAN_CONFIG
+	source $IAN_CONFIG
 fi
 
 #-- common --
@@ -25,16 +26,7 @@ function _ian-rm {
 #-- doc --
 
 function ian-help-reference {
-    cat <<EOF
-ian-summary         show package info
-ian-new-release     add a new changelog entry
-ian-clean           clean generated packaging files
-ian-build           build all binary packages
-ian-binary-contents show binary package content
-ian-install         install (with sudo dpkg) all binary packages
-ian-upload          upload package to configured debian repository
-ian-remove          remove pacakge from configured debian repository
-EOF
+    grep "^\##:doc:" /usr/share/ian/ian-packaging.sh | sed -e 's/^"//'  -e 's/"$//' | sort -n | awk  -F ":" '{printf "%-19s %s\n", $4, $5}'
 }
 
 function ian-help-setup {
@@ -90,28 +82,28 @@ function ian-debvars-luser {
 
 	if ! sc-var-defined DEBFULLNAME; then
 		echo "DEBFULLNAME=$USERNAME" >> $TMP
-		sc-log-warning "exporting placeholder DEBFULLNAME=$USERNAME"
+		sc-log-warning "ian: exporting placeholder DEBFULLNAME=$USERNAME"
 		need_vars=1
 	fi
 
 	if ! sc-var-defined DEBEMAIL; then
 		fakemail="$LOGNAME@$HOSTNAME"
 		echo "DEBEMAIL=\"$fakemail\"" >> $TMP
-		sc-log-warning "exporting placeholder DEBEMAIL=$fakemail"
+		sc-log-warning "ian: exporting placeholder DEBEMAIL=$fakemail"
 		need_vars=1
 	fi
 
 	if ! sc-var-defined DEBSIGN_KEYID; then
 		fakeid="DEADBEE"
 		echo "DEBSIGN_KEYID=$fakeid" >> $TMP
-		sc-log-warning "exporting placeholder DEBSIGN_KEYID=$fakeid"
+		sc-log-warning "ian: exporting placeholder DEBSIGN_KEYID=$fakeid"
 		need_vars=1
 	fi
 
 	if ! sc-var-defined DEBREPO_URL; then
 		fakepath="$USERNAME@your.server.net/path/to/repo"
 		echo "DEBREPO_URL=$fakepath" >> $TMP
-		sc-log-warning "exporting placeholder DEBREPO_URL=$fakepath"
+		sc-log-warning "ian: exporting placeholder DEBREPO_URL=$fakepath"
 		need_vars=1
 	fi
 
@@ -130,7 +122,7 @@ function ian-debvars {
 }
 
 function ian-help-debvars-examples {
-	sc-log-info "Define variables bellow in your ~/.config/ian/config using your info:"
+	sc-log-info "ian: define variables bellow in your ~/.config/ian/config using your info:"
     cat <<EOF
 DEBFULLNAME="John Doe"
 DEBEMAIL=john.doe@email.com
@@ -140,6 +132,7 @@ EOF
 }
 
 function ian-summary {
+##:doc:01:ian-summary: show package info
     (
     _ian-assert-preconditions
     echo "source:             " $(_ian-source-name)
@@ -184,6 +177,7 @@ function _ian-version-upstream-uscan {
 #-- new release ------------------------------------------------------
 
 function ian-new-release {
+##:doc:02:ian-new-release: add a new changelog entry
     (
     _ian-assert-preconditions
 	dch -i
@@ -206,12 +200,13 @@ function ian-new-release-date-version {
 #-- build ------------------------------------------------------------
 
 function ian-build {
+##:doc:04:ian-build: build all binary packages
     (
     _ian-assert-preconditions
 	sc-assert ian-orig
 
 	_ian-builddeps-assure
-	sc-log-info "build"
+	sc-log-info "ian: build"
 
     if _ian-uses-svn; then
 		ian-build-svn
@@ -220,7 +215,7 @@ function ian-build {
     fi
 
 	sc-assert-files-exist $(_ian-binary-paths)
-	sc-log-info "build [DONE]"
+	sc-log-ok "ian: build"
     )
 }
 
@@ -230,7 +225,7 @@ function ian-build-standard {
     dpkg-buildpackage -uc -us
 
     changes=$(_ian-changes-path)
-	sc-log-info "LINTIAN: $changes"
+	sc-log-info "ian: LINTIAN: $changes"
     lintian -I $changes
     )
 }
@@ -269,11 +264,11 @@ function ian-orig {
     (
     _ian-assert-preconditions
 	if [ -f $(_ian-orig-path) ]; then
-		sc-log-warning "orig: $(_ian-orig-path) already exists"
+		sc-log-warning "ian: orig $(_ian-orig-path) already exists"
 		return
 	fi
 
-	sc-log-warning "orig: $(_ian-orig-path) DOES NOT exists, getting/creating it"
+	sc-log-warning "ian: orig $(_ian-orig-path) DOES NOT exists, getting/creating it"
 
 	ian-clean
 
@@ -287,22 +282,23 @@ function ian-orig {
 		ian-orig-from-local
     fi
     sc-assert-files-exist $(_ian-orig-path)
+	sc-log-ok "ian: orig"
     )
 }
 
 function ian-orig-from-rule {
-	sc-log-info "orig-from-rule"
+	sc-log-info "ian: orig-from-rule"
     make -f ./debian/rules get-orig-source
     mv -v $(_ian-orig-filename) $(_ian-orig-dir)/
 }
 
 function ian-orig-uscan {
-	sc-log-info "orig-uscan"
+	sc-log-info "ian: orig-uscan"
     uscan --verbose --download-current-version --force-download --repack --destdir $(_ian-orig-dir)
 }
 
 function ian-orig-from-local {
-    sc-log-info "orig-from-local"
+    sc-log-info "ian: orig-from-local"
 
     local orig_tmp=$(_ian-source-name)-$(_ian-version-upstream)
     mkdir -p $orig_tmp
@@ -310,9 +306,9 @@ function ian-orig-from-local {
     local EXCLUDE="--exclude=$orig_tmp --exclude=./debian --exclude=\*~ --exclude-vcs --exclude=\*.pyc --exclude .pc"
 
     tar $EXCLUDE -cf - . | ( cd $orig_tmp && tar xf - )
-    tar -czf $(_ian-orig-path) $orig_tmp
+    tar czf $(_ian-orig-path) $orig_tmp
     \rm -rf $orig_tmp
-	sc-log-info "orig file created: $(_ian-orig-path)"
+	sc-log-ok "ian: orig file created: $(_ian-orig-path)"
 }
 
 function _ian-orig-dir {
@@ -335,9 +331,12 @@ function _ian-orig-path {
 #-- clean ------------------------------------------------------------
 
 function ian-clean {
+##:doc:03:ian-clean: clean generated packaging files and revert patches
     (
     _ian-assert-preconditions
-	sc-log-info "clean"
+	_ian-builddeps-assure
+
+	sc-log-info "ian: clean"
 
     fakeroot make -f ./debian/rules clean
 
@@ -351,6 +350,7 @@ function ian-clean {
 		ian-clean-uscan
 	fi
 
+	sc-log-ok "ian: clean"
 	return 0
     )
 }
@@ -358,7 +358,7 @@ function ian-clean {
 function ian-clean-common {
     (
     _ian-assert-preconditions
-    sc-log-info "clean-common"
+    sc-log-info "ian: clean-common"
 
 	rm -vf $(_ian-generated-paths)
     rm -vf $(_ian-binary-paths)
@@ -368,14 +368,14 @@ function ian-clean-common {
 function ian-clean-svn {
 	(
     _ian-assert-preconditions
-    sc-log-info "clean-svn"
+    sc-log-info "ian: clean-svn"
 
     rm -vrf ../tarballs/* ../build-area/*
 	)
 }
 
 function ian-clean-uscan {
-	sc-log-info "clean-uscan"
+	sc-log-info "ian: clean-uscan"
 	local nline=$(uscan --report --verbose | grep -n "^Newest version on remote" | cut -d":" -f 1)
 	local nline=$(echo $nline - 1 | bc)
 	local url=$(uscan --report --verbose | tail -n +$nline | head -n 1)
@@ -386,13 +386,15 @@ function ian-clean-uscan {
 #-- install ----------------------------------------------------------
 
 function ian-install {
+##:doc:07:ian-install: install (with sudo dpkg) all binary packages
 	(
 	_ian-assert-preconditions
 	sc-assert-files-exist $(_ian-binary-paths)
 
-	sc-log-info "install"
-    sc-assert "sudo dpkg -i $(_ian-binary-paths)"
-	sc-log-info "install [DONE]"
+	sc-log-info "ian: install"
+	_ian-sudo "dpkg -i $(_ian-binary-paths)"
+	sc-log-ok "ian: install"
+	beep
 	)
 }
 
@@ -414,18 +416,21 @@ function ian-clean-build-and-install {
 #-- repo actions -----------------------------------------------------
 
 function ian-upload {
+##:doc:09:ian-upload: sign and upload binary packages to configured package repository
     (
+	sc-assert-files-exist ~/.gnupg/secring.gpg
+
 	local TMP=$(mktemp)
 	sc-assert-files-exist $(_ian-changes-path) $(_ian-binary-paths)
+
     local changes=$(_ian-changes-path)
-    debsign $changes
+    sc-assert-run "debsign $changes"
     dupload -f $changes 2> $TMP
 	echo "--- out is $TMP"
 	cat $TMP
 
 #   dupload errors:
 #   - file '$name.tar.gz' is needed for '$name.dsc', not yet registered in the pool and not found in '$changes'
-#   -
 
 # 	if grep "not yet registered in the pool" $TMP; then
 # 		dpkg-genchanges -sa > $changes
@@ -435,6 +440,7 @@ function ian-upload {
 }
 
 function ian-remove {
+##:doc:10:ian-remove: remove package from configured package repository
     for pkg in $(_ian-binary-names) $(_ian-source-name); do
 		ian-remove-package $pkg
     done
@@ -594,6 +600,7 @@ function _ian-has-rule {
 }
 
 function ian-binary-contents {
+##:doc:06:ian-binary-contents: show binary package file listings
     (
     _ian-assert-preconditions
 	debc $(_ian-changes-path)
@@ -603,139 +610,54 @@ function ian-binary-contents {
 function ian-py-version-to-setup {
 	local version=$(_ian-version-upstream)
 	sed -i -e "s/\( *version *= *\)'[0-9\.]\+'/\1'$version'/g" setup.py
-	sc-log-info "setting version to $version"
+	sc-log-info "ian: setting version to $version"
 }
 
 function _ian-builddeps {
-    dpkg-checkbuilddeps 2>&1 | cut -f3 -d":"| sed 's/)//g' | sed 's/ (//g' | sed 's/= /=/g'
+    dpkg-checkbuilddeps 2>&1 | cut -f3 -d':'| sed 's/)//g' | sed 's/ (//g' | sed 's/= /=/g'
 	return ${PIPESTATUS[0]}
 }
 
 function _ian-builddeps-assure {
 	local deps=$(_ian-builddeps)
-	sc-log-info "installing build deps: $deps"
-
-	if [ "$deps" ]; then
-		sudo mk-build-deps --tool "apt-get -y" --install --remove debian/control
-	fi
-}
-
-
-#-- multiarch support ------------------------------------------------
-
-JAIL_CONFIG=/etc/schroot/chroot.d/ian
-JAIL_DCONFIG=/etc/schroot/ian
-JAIL_DIR=/var/jails/ian
-JAIL_NAME=sid-386
-USER_FSTAB=$HOME/.config/ian/fstab
-
-function _ian-schroot-setup() {
-	local JAIL_FSTAB=$JAIL_DCONFIG/fstab
-
-	local config=$(mktemp)
-
-    cat <<EOF > $config
-[$JAIL_NAME]
-description=Debian testing 32 bits
-directory=$JAIL_DIR
-type=directory
-personality=linux32
-setup.fstab=ian/fstab
-EOF
-
-	sudo mv $config $JAIL_CONFIG
-	sudo chown root.root $JAIL_CONFIG
-
-    sudo mkdir -p $JAIL_DCONFIG
-
-	local fstab=$(mktemp)
-    cat <<EOF > $fstab
-/proc           /proc           none    rw,bind         0       0
-/sys            /sys            none    rw,bind         0       0
-/dev            /dev            none    rw,bind         0       0
-/dev/pts        /dev/pts        none    rw,bind         0       0
-/home           /home           none    rw,bind         0       0
-/tmp            /tmp            none    rw,bind         0       0
-EOF
-
-	sudo bash -c "mv $fstab $JAIL_FSTAB"
-
-    if [ -e $USER_FSTAB ]; then
-		sudo cat $USER_FSTAB >> $JAIL_FSTAB
-    fi
-}
-
-function _ian-jail-create() {
-    sudo mkdir -p /var/jails
-    sudo debootstrap --arch=i386 sid $JAIL_DIR http://ftp.debian.org/debian
-}
-
-function _ian-chroot-sudo() {
-    sudo schroot -c $JAIL_NAME -- $@
-}
-
-function _ian-chroot-run() {
-    sudo schroot -u $USER -c $JAIL_NAME -- $@
-}
-
-function _ian-jail-setup() {
-	local repo=$(mktemp)
-	echo "deb http://babel.esi.uclm.es/arco sid main" > $repo
-    sudo cp $repo $JAIL_DIR/etc/apt/sources.list.d/arco.list
-
-	local sudoers=$(mktemp)
-	echo "$USER ALL=NOPASSWD: ALL" > $sudoers
-	sudo cp $sudoers $JAIL_DIR/etc/sudoers.d/ian
-
-	local key=$(mktemp)
- 	wget -O $key http://babel.esi.uclm.es/arco/key.asc
-    _ian-chroot-sudo apt-key add $key
-    _ian-chroot-sudo apt-get update
-    _ian-chroot-sudo apt-get install -y ian
-}
-
-function _ian-jail-destroy() {
-	sudo rm -f $JAIL_CONFIG
-	sudo rm -f $JAIL_DCONFIG/*
-	if ! sc-file-exists $JAIL_DCONFIG; then
-		sudo rmdir
-	fi
-
-    if ! [ -d $JAIL_DIR ]; then
-		return
-    fi
-
-    local OLD=$JAIL_DIR-discarded-$(uuidgen)
-    sc-log-warning "old jail was moved to $OLD"
-	if sc-file-exists $JAIL_DIR; then
-       sudo mv $JAIL_DIR $OLD
-	fi
-}
-
-function ian-386-upgrade() {
-	_ian-chroot-sudo apt-key update
-	_ian-chroot-sudo apt-key upgrade
-}
-
-function ian-386() {
-	if [ -z "$@" ]; then
-		sc-log-error "usage: ian-386 <ian-command>"
+	if [ -z "$deps" ]; then
 		return
 	fi
 
-    sc-log-info "Running $@ in the jail $JAIL_NAME"
+	sc-log-info "ian: installing build deps: $deps"
 
-    _ian-chroot-run ian-help-reference > /dev/null
-    if [ $? != 0 ]; then
-		_ian-jail-destroy
-
-		sc-log-warning "jail $JAIL_NAME is broken, rebuilding..."
-		_ian-jail-create
-		_ian-schroot-setup
-		_ian-jail-setup
+	if [ -n "$deps" ]; then
+		_ian-sudo "mk-build-deps --tool \"apt-get -y\" --install --remove debian/control"
 	fi
-    _ian-chroot-run $@
+
+	local deps=$(_ian-builddeps)
+	if [ -n "$deps" ]; then
+	    _ian-sudo "apt-get install $deps"
+	fi
+
+	local deps=$(_ian-builddeps)
+	if [ -n "$deps" ]; then
+		sc-log-error "Unmet build dependencies: $deps"
+		exit 1
+	fi
+
+	sc-log-ok "ian: build deps"
 }
 
+function _ian-sudo() {
+	sc-assert-run "sudo $@" "ian exec"
+}
+
+function _ian-run() {
+	sc-assert-run "$@" "ian exec"
+}
+
+
+#-- mirror --
+
+function ian-mirror-create {
+	debmirror --host=$MIRROR --root=debian --cleanup --nosource --ignore-missing-release --progress --ignore-release-gpg \
+		--arch=i386,amd64 --dist=sid --method=http --section=main debian-root
+}
 
 eval $(basename $0) $@
