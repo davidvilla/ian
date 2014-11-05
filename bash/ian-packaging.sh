@@ -150,7 +150,7 @@ function ian-summary {
 
 	missing_deps=$(_ian-builddeps)
 	if [ $? -ne 0 ]; then
-	echo "missing build deps: " $missing_deps
+		echo "missing build deps: " $missing_deps
 	fi
     )
 }

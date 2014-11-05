@@ -1,0 +1,20 @@
+[sid-i386-ian]
+description=Debian sid/i386
+type=file
+file=/var/jails/sid-i386-ian.tar
+personality=linux32
+setup.fstab=ian/fstab
+groups=root,sbuild
+root-groups=root,sbuild
+source-groups=root,sbuild
+source-root-groups=root,sbuild
+
+[sid-amd64-ian]
+description=Debian sid/amd64
+type=file
+file=/var/jails/sid-amd64-ian.tar
+setup.fstab=ian/fstab
+groups=root,sbuild
+root-groups=root,sbuild
+source-groups=root,sbuild
+source-root-groups=root,sbuild
