@@ -99,7 +99,8 @@ function sc-assert {
 function sc-assert-run {
 	# $1: command
     # $2: message prefix
-	local msg="${2:-"run"}: $1"
+	local default="run"
+	local msg="${2:-$default}: $1"
 	sc-log-info "$msg"
 	if ! eval $1; then
 		sc-log-fail "$msg"
@@ -109,7 +110,9 @@ function sc-assert-run {
 #-- specific assertions --
 
 function sc-assert-var-defined {
-    sc-assert sc-var-defined $1 "Environment variable $1 must be defined"
+	local default="Environment variable $1 must be defined"
+	local msg="${2:-$default}"
+    sc-assert sc-var-defined $1 "$msg"
 }
 
 function sc-assert-files-exist {
@@ -192,6 +195,10 @@ function sc-log-notify {
 	sc-log-notify-hook "$1" "$message"
 }
 
+function sc-bold {
+	echo $bold$1$norm
+}
+
 function sc-log-notify-hook {
 	# override this function to show status notification
 	# $1 is level: information, warning, error
@@ -218,4 +225,32 @@ function sc-log-fail {
 
 function sc-log-ok {
 	sc-log-notify OK "$1"
+}
+
+
+# how to use sc-call-out-err
+#
+# function test {
+#     local -a outputs
+#     sc-call-out-err outputs "command-line"
+#     echo "--stdout" ${outputs[1]}
+#     echo "--stderr" ${outputs[2]}
+# }
+function sc-call-out-err {
+	local _outputs=$1
+
+	local stdout=$(mktemp)
+	local stderr=$(mktemp)
+
+	$2 1> >(tee $stdout >&1) 2> >(tee $stderr >&2)
+
+	local retcode=$?
+
+	_out[0]=''
+	_out[1]=$(cat $stdout)
+	_out[2]=$(cat $stderr)
+
+	rm $stdout $stderr
+	eval $_outputs='("${_out[@]}")'
+	return $retcode
 }

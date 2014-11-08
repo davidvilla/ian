@@ -14,6 +14,26 @@ fi
 
 #-- common --
 
+function log-info {
+	sc-log-notify II "ian: $1"
+}
+
+function log-warning {
+	sc-log-notify WW "ian: $1"
+}
+
+function log-error {
+	sc-log-notify EE "ian: $1"
+}
+
+function log-fail {
+	sc-log-notify FF "ian: $1"
+}
+
+function log-ok {
+	sc-log-notify OK "ian: $1"
+}
+
 function _ian-rm {
     if ! sc-file-exists $1; then
 		echo rm: missing $1
@@ -25,10 +45,26 @@ function _ian-rm {
 
 #-- doc --
 
-function ian-help-reference {
-    grep "^\##:doc:" /usr/share/ian/ian-packaging.sh | sed -e 's/^"//'  -e 's/"$//' | sort -n | awk  -F ":" '{printf "%-19s %s\n", $4, $5}'
+function cmd:help {
+##:doc:000:help: show this help
+	echo -e "usage: ian <cmd>"
+
+	echo -e "\ncommands:"
+	print_command_doc "^\##:doc:"
+
+	echo -e "\naliases:"
+	print_command_doc "^\##:alias:"
+
+#	echo "--"
+#	grep "^function cmd:" $__file__
 }
 
+function print_command_doc {
+    grep "$1" $__file__ | sort -n | awk  -F ":" '{printf "  %-26s %s\n", $4, $5}'
+
+}
+
+#FIXME
 function ian-help-setup {
 	cat <<EOF
 New maintainer process
@@ -42,14 +78,14 @@ New maintainer process
 - Submit your GPG public key: gpg --send-keys
 
 - Create a SSH key pair: ssh-keygen
-- Copy SSH public key to repo server: ssh-copy-id \$(_ian-repo-path)
+- Copy SSH public key to repo server: ssh-copy-id \$(repo-path)
 
 In the repository server
 ------------------------
 
 - Log in as repo owner.
 - Import GPG key: gpg --keyserver pgp.mit.edu --recv-key <key-ID>
-- Add your key-ID in allowed package uploaders: \$(_ian-repo-path)/conf/uploaders
+- Add your key-ID in allowed package uploaders: \$(repo-path)/conf/uploaders
 
 References
 ----------
@@ -60,6 +96,7 @@ References
 EOF
 }
 
+#FIXME
 function ian-help-workflow {
 	cat <<EOF
 New package release
@@ -82,28 +119,28 @@ function ian-debvars-luser {
 
 	if ! sc-var-defined DEBFULLNAME; then
 		echo "DEBFULLNAME=$USERNAME" >> $TMP
-		sc-log-warning "ian: exporting placeholder DEBFULLNAME=$USERNAME"
+		log-warning "exporting placeholder DEBFULLNAME=$USERNAME"
 		need_vars=1
 	fi
 
 	if ! sc-var-defined DEBEMAIL; then
 		fakemail="$LOGNAME@$HOSTNAME"
 		echo "DEBEMAIL=\"$fakemail\"" >> $TMP
-		sc-log-warning "ian: exporting placeholder DEBEMAIL=$fakemail"
+		log-warning "exporting placeholder DEBEMAIL=$fakemail"
 		need_vars=1
 	fi
 
 	if ! sc-var-defined DEBSIGN_KEYID; then
 		fakeid="DEADBEE"
 		echo "DEBSIGN_KEYID=$fakeid" >> $TMP
-		sc-log-warning "ian: exporting placeholder DEBSIGN_KEYID=$fakeid"
+		log-warning "exporting placeholder DEBSIGN_KEYID=$fakeid"
 		need_vars=1
 	fi
 
 	if ! sc-var-defined DEBREPO_URL; then
 		fakepath="$USERNAME@your.server.net/path/to/repo"
 		echo "DEBREPO_URL=$fakepath" >> $TMP
-		sc-log-warning "ian: exporting placeholder DEBREPO_URL=$fakepath"
+		log-warning "exporting placeholder DEBREPO_URL=$fakepath"
 		need_vars=1
 	fi
 
@@ -114,6 +151,7 @@ function ian-debvars-luser {
 	fi
 }
 
+#FIXME
 function ian-debvars {
 	echo "DEBFULLNAME:  " $DEBFULLNAME
 	echo "DEBEMAIL:     " $DEBEMAIL
@@ -121,8 +159,9 @@ function ian-debvars {
 	echo "DEBREPO_URL:  " $DEBREPO_URL
 }
 
+#FIXME
 function ian-help-debvars-examples {
-	sc-log-info "ian: define variables bellow in your ~/.config/ian/config using your info:"
+	log-info "define variables bellow in your ~/.config/ian/config using your info:"
     cat <<EOF
 DEBFULLNAME="John Doe"
 DEBEMAIL=john.doe@email.com
@@ -131,64 +170,67 @@ DEBREPO_URL=john.doe@debian.repository.org/var/repo
 EOF
 }
 
-function ian-summary {
-##:doc:01:ian-summary: show package info
+function cmd:summary {
+##:doc:010:summary: show package info
     (
-    _ian-assert-preconditions
-    echo "source:             " $(_ian-source-name)
-    echo "uptream:            " $(_ian-version-upstream)
-    echo "version:            " $(_ian-version)
-    echo "orig:               " $(_ian-orig-filename)
-    echo "changes:            " $(_ian-changes-filename)
+    assert-preconditions
+    echo "source:             " $(source-name)
+    echo "uptream:            " $(version-upstream)
+    echo "version:            " $(pkg-version)
+    echo "orig:               " $(orig-path)
+    echo "changes:            " $(changes-path)
 
-	if _ian-uses-uscan; then
-	echo "watch:              " $(_ian-version-upstream-uscan)
+	if uses-uscan; then
+	echo "watch:              " $(version-upstream-uscan)
 	fi
 
-	echo "binaries:           " $(_ian-binary-names)
-    echo "pkg vcs:            " $(_ian-vcs)
+	echo "binaries:           " $(binary-names)
+    echo "pkg vcs:            " $(pkg-vcs)
 
-	missing_deps=$(_ian-builddeps)
+	local missing_deps=$(builddeps)
 	if [ $? -ne 0 ]; then
-		echo "missing build deps: " $missing_deps
+	echo "missing build deps: " $missing_deps
 	fi
     )
 }
 
-function _ian-vcs {
+function pkg-vcs {
 	# the <VCS-buildpackage> that the maintainer uses to manage de package
-	if _ian-uses-svn; then
+	if uses-svn; then
 		echo "svn"
 		return
 	fi
 	echo "none"
 }
 
-function _ian-version-upstream-uscan {
-	local output=$(uscan --report --verbose 2> /dev/null)
+function version-upstream-uscan {
+	local -a outputs
+	sc-call-out-err outputs "uscan --report --verbose"
+
 	if [ $? -ne 0 ]; then
-		echo "error: run \"uscan --verbose\" for details"
+		log-warning "error: run \"uscan --verbose\" for details"
 		return
 	fi
-	echo $output | grep "Newest" | cut -d"," -f1 | sed "s/site is /@/g" | cut -d@ -f2
+	grep "Newest" ${outputs[1]} | cut -d"," -f1 | sed "s/site is /@/g" | cut -d@ -f2
 }
 
 
 #-- new release ------------------------------------------------------
 
-function ian-new-release {
-##:doc:02:ian-new-release: add a new changelog entry
+function cmd:new-release {
+##:doc:020:new-release: add a new changelog entry
     (
-    _ian-assert-preconditions
+    assert-preconditions
 	dch -i
     )
 }
 
-function ian-new-release-date-version {
+function cmd:new-release-date-version {
+##:doc:021:  new-release-date-version: add a new package version based on date: 0.20010101
     (
-    _ian-assert-preconditions
+    assert-preconditions
     local CHLOG=$(mktemp)
-    echo $(_ian-source-name) \(0.$(date +%Y%m%d-1)\) unstable\; urgency=low > $CHLOG
+    echo $(source-name) \(0.$(date +%Y%m%d-1)\) unstable\; urgency=low > $CHLOG
     echo -e "\n  * New release\n\n -- \n" >> $CHLOG
     cat debian/changelog >> $CHLOG
     mv $CHLOG debian/changelog
@@ -199,42 +241,42 @@ function ian-new-release-date-version {
 
 #-- build ------------------------------------------------------------
 
-function ian-build {
-##:doc:04:ian-build: build all binary packages
+function cmd:build {
+##:doc:040:build: build all binary packages
     (
-    _ian-assert-preconditions
-	sc-assert ian-orig
+    assert-preconditions
+	sc-assert cmd:orig
 
-	_ian-builddeps-assure
-	sc-log-info "ian: build"
+	builddeps-assure
+	log-info "build"
 
-    if _ian-uses-svn; then
-		ian-build-svn
+    if uses-svn; then
+		build-svn
     else
-		ian-build-standard
+		build-standard
     fi
 
-	sc-assert-files-exist $(_ian-binary-paths)
-	sc-log-ok "ian: build"
+	sc-assert-files-exist $(binary-paths)
+	log-ok "build"
     )
 }
 
-function ian-build-standard {
+function build-standard {
     (
-    _ian-assert-preconditions
+    assert-preconditions
     dpkg-buildpackage -uc -us
 
-    changes=$(_ian-changes-path)
-	sc-log-info "ian: LINTIAN: $changes"
+    changes=$(changes-path)
+	log-info "LINTIAN: $changes"
     lintian -I $changes
     )
 }
 
 # http://people.debian.org/~piotr/uscan-dl
-function ian-build-svn {
+function build-svn {
     (
-    _ian-assert-preconditions
-	_ian-assert-uses-svn
+    assert-preconditions
+	assert-uses-svn
 	sc-assure-dir ../build-area
     svn-buildpackage -rfakeroot -us -uc --svn-ignore --svn-ignore-new --svn-lintian
     )
@@ -244,8 +286,8 @@ function ian-build-svn {
 #
 # }
 
-function _ian-build-dir {
-    if _ian-uses-svn; then
+function build-dir {
+    if uses-svn; then
 		echo "../build-area"
 		return
     fi
@@ -260,59 +302,63 @@ function _ian-build-dir {
 # - from-rule: regenerated by "debian/rules get-orig-source"
 # - uscan
 # - from "local" files
-function ian-orig {
+function cmd:orig {
+##:doc:015:orig: generate or download .orig. file
     (
-    _ian-assert-preconditions
-	if [ -f $(_ian-orig-path) ]; then
-		sc-log-warning "ian: orig $(_ian-orig-path) already exists"
+    assert-preconditions
+	if [ -f $(orig-path) ]; then
+		log-warning "orig $(orig-path) already exists"
 		return
 	fi
 
-	sc-log-warning "ian: orig $(_ian-orig-path) DOES NOT exists, getting/creating it"
+	log-warning "orig $(orig-path) DOES NOT exists, getting/creating it"
 
-	ian-clean
+	cmd:clean
 
-	sc-assure-dir $(_ian-orig-dir)
+	sc-assure-dir $(orig-dir)
 
-    if _ian-has-rule get-orig-source; then
-		ian-orig-from-rule
-    elif _ian-uses-uscan; then
-		ian-orig-uscan
+    if has-rule get-orig-source; then
+		cmd:orig-from-rule
+    elif uses-uscan; then
+		cmd:orig-uscan
     else
-		ian-orig-from-local
+		cmd:orig-from-local
     fi
-    sc-assert-files-exist $(_ian-orig-path)
-	sc-log-ok "ian: orig"
+    sc-assert-files-exist $(orig-path)
+	log-ok "orig"
     )
 }
 
-function ian-orig-from-rule {
-	sc-log-info "ian: orig-from-rule"
+function cmd:orig-from-rule {
+##:doc:016:  orig-from-rule: execute "get-orig-source" rule of debian/rules to get .orig. file
+	log-info "orig-from-rule"
     make -f ./debian/rules get-orig-source
-    mv -v $(_ian-orig-filename) $(_ian-orig-dir)/
+    mv -v $(orig-filename) $(orig-dir)/
 }
 
-function ian-orig-uscan {
-	sc-log-info "ian: orig-uscan"
-    uscan --verbose --download-current-version --force-download --repack --destdir $(_ian-orig-dir)
+function cmd:orig-uscan {
+##:doc:016:  orig-uscan: exectute uscan to download the .orig. file
+	log-info "orig-uscan"
+    uscan --verbose --download-current-version --force-download --repack --destdir $(orig-dir)
 }
 
-function ian-orig-from-local {
-    sc-log-info "ian: orig-from-local"
+function cmd:orig-from-local {
+##:doc:016:  orig-from-local: create an .orig. file from current directory content
+    log-info "orig-from-local"
 
-    local orig_tmp=$(_ian-source-name)-$(_ian-version-upstream)
+    local orig_tmp=$(source-name)-$(version-upstream)
     mkdir -p $orig_tmp
 
     local EXCLUDE="--exclude=$orig_tmp --exclude=./debian --exclude=\*~ --exclude-vcs --exclude=\*.pyc --exclude .pc"
 
     tar $EXCLUDE -cf - . | ( cd $orig_tmp && tar xf - )
-    tar czf $(_ian-orig-path) $orig_tmp
+    tar czf $(orig-path) $orig_tmp
     \rm -rf $orig_tmp
-	sc-log-ok "ian: orig file created: $(_ian-orig-path)"
+	log-ok "orig file created: $(orig-path)"
 }
 
-function _ian-orig-dir {
-	if _ian-uses-svn; then
+function orig-dir {
+	if uses-svn; then
 		echo ../tarballs
 		return
 	fi
@@ -320,144 +366,173 @@ function _ian-orig-dir {
 	echo ..
 }
 
-function _ian-orig-filename {
-    echo $(_ian-source-name)_$(_ian-version-upstream).orig.tar.gz
+function orig-filename {
+    echo $(source-name)_$(version-upstream).orig.tar.gz
 }
 
-function _ian-orig-path {
-	echo $(_ian-orig-dir)/$(_ian-orig-filename)
+function orig-path {
+	echo $(orig-dir)/$(orig-filename)
 }
 
 #-- clean ------------------------------------------------------------
 
-function ian-clean {
-##:doc:03:ian-clean: clean generated packaging files and revert patches
+function cmd:clean {
+##:doc:030:clean: clean generated packaging files and revert patches
     (
-    _ian-assert-preconditions
-	_ian-builddeps-assure
+    assert-preconditions
+	builddeps-assure
 
-	sc-log-info "ian: clean"
+	log-info "clean"
 
     fakeroot make -f ./debian/rules clean
 
-    if _ian-uses-svn; then
-		ian-clean-svn
+    if uses-svn; then
+		clean-svn
     else
-		ian-clean-common
+		clean-common
     fi
 
-    if _ian-uses-uscan; then
-		ian-clean-uscan
+    if uses-uscan; then
+		cmd:clean-uscan
 	fi
 
-	sc-log-ok "ian: clean"
+	log-ok "clean"
 	return 0
     )
 }
 
-function ian-clean-common {
+function clean-common {
     (
-    _ian-assert-preconditions
-    sc-log-info "ian: clean-common"
+    assert-preconditions
+    log-info "clean-common"
 
-	rm -vf $(_ian-generated-paths)
-    rm -vf $(_ian-binary-paths)
+	rm -vf $(generated-paths)
+    rm -vf $(binary-paths)
     )
 }
 
-function ian-clean-svn {
+function clean-svn {
 	(
-    _ian-assert-preconditions
-    sc-log-info "ian: clean-svn"
+    assert-preconditions
+    log-info "clean-svn"
 
     rm -vrf ../tarballs/* ../build-area/*
 	)
 }
 
-function ian-clean-uscan {
-	sc-log-info "ian: clean-uscan"
+function cmd:clean-uscan {
+##:doc:031:  clean-uscan: clean uscan generated files
+	log-info "clean-uscan"
 	local nline=$(uscan --report --verbose | grep -n "^Newest version on remote" | cut -d":" -f 1)
 	local nline=$(echo $nline - 1 | bc)
 	local url=$(uscan --report --verbose | tail -n +$nline | head -n 1)
 	local upstream_fname=$(basename $url)
-	_ian-rm $(_ian-orig-dir)/$upstream_fname
+	_ian-rm $(orig-dir)/$upstream_fname
 }
 
 #-- install ----------------------------------------------------------
 
-function ian-install {
-##:doc:07:ian-install: install (with sudo dpkg) all binary packages
+function cmd:install {
+##:doc:070:install: install (with sudo dpkg) all binary packages
 	(
-	_ian-assert-preconditions
-	sc-assert-files-exist $(_ian-binary-paths)
+	assert-preconditions
+	sc-assert-files-exist $(binary-paths)
 
-	sc-log-info "ian: install"
-	_ian-sudo "dpkg -i $(_ian-binary-paths)"
-	sc-log-ok "ian: install"
+	log-info "install"
+	_ian-sudo "dpkg -i $(binary-paths)"
+	log-ok "install"
 	beep
 	)
 }
 
-function ian-build-and-install {
+function cmd:build-and-install {
+##:alias:010:build-and-install: run "ian build" + "ian install"
 	(
-    sc-assert ian-build
-	sc-assert ian-install
+    sc-assert cmd:build
+	sc-assert cmd:install
 	)
 }
 
-function ian-clean-build-and-install {
+function cmd:clean-build-and-install {
+##:alias:020:clean-build-and-install: run "ian clean" + "ian build" + "ian install"
 	(
-    ian-clean
-	sc-assert ian-build-and-install
+    sc-assert cmd:clean
+	sc-assert cmd:build-and-install
 	)
 }
 
 
 #-- repo actions -----------------------------------------------------
 
-function ian-upload {
-##:doc:09:ian-upload: sign and upload binary packages to configured package repository
+function cmd:upload {
+##:doc:090:upload: sign and upload binary packages to configured package repository
     (
 	sc-assert-files-exist ~/.gnupg/secring.gpg
+	sc-assert-files-exist $(changes-path) $(binary-paths)
 
-	local TMP=$(mktemp)
-	sc-assert-files-exist $(_ian-changes-path) $(_ian-binary-paths)
+    local changes_path=$(changes-path)
+    sc-assert-run "debsign $changes_path"
 
-    local changes=$(_ian-changes-path)
-    sc-assert-run "debsign $changes"
-    dupload -f $changes 2> $TMP
-	echo "--- out is $TMP"
-	cat $TMP
+	local -a outputs
+	sc-call-out-err outputs "dupload -f $changes_path"
+	local rcode=$?
 
-#   dupload errors:
-#   - file '$name.tar.gz' is needed for '$name.dsc', not yet registered in the pool and not found in '$changes'
+	# echo "dupload out:" $?
+	# echo -e $(sc-bold "dupload stderr:")
+	# echo -e "${outputs[2]}"
+	# echo "not yet registered in the pool and not found in '$(changes-filename)'"
+	# echo "grep" $(echo "${outputs[2]}" | grep "not yet registered in the pool and
+# not found in '$(changes-filename)'")
 
-# 	if grep "not yet registered in the pool" $TMP; then
-# 		dpkg-genchanges -sa > $changes
-# 		sc-assert "dupload -f $changes"
-# 	fi
+	local NOT_YET_REGISTERED="not yet registered in the pool and not found in '$(changes-filename)'"
+	local DSC_ALREADY_REGISTERED=".dsc\" is already registered with different checksums"
+	local DEB_ALREADY_REGISTERED=".deb\" is already registered with different checksums"
+
+	if [ $rcode -ne 0 ]; then
+		if echo ${outputs[2]} | grep "$NOT_YET_REGISTERED"; then
+			log-warning "missing $(orig-filename) in repository, fixing..."
+			sc-assert-run "dpkg-genchanges -sa > $changes_path"
+			sc-assert-run "debsign $changes_path"
+			sc-assert-run "dupload -f $changes_path"
+		elif echo ${outputs[2]} | grep "$DSC_ALREADY_REGISTERED"; then
+			log-warning "$(dsc-filename) already in repository, fixing..."
+			sc-assert-run "dpkg-genchanges -b > $changes_path"
+			sc-assert-run "debsign $changes_path"
+			sc-assert-run "dupload -f $changes_path"
+		elif echo ${outputs[2]} | grep "$DEB_ALREADY_REGISTERED"; then
+			sc-log-error "already uploaded! Create a new release and try again"
+			return
+		else
+			log-fail "upload"
+			return
+		fi
+	fi
+
+	echo -e $(sc-bold "dupload output:")
+	echo -e "${outputs[1]}"
+	log-ok "upload"
     )
 }
 
-function ian-remove {
-##:doc:10:ian-remove: remove package from configured package repository
-    for pkg in $(_ian-binary-names) $(_ian-source-name); do
+function cmd:remove {
+##:doc:100:remove: remove package from configured package repository
+    for pkg in $(binary-names) $(source-name); do
 		ian-remove-package $pkg
     done
 }
 
 function ian-remove-package {
-    ssh $(_ian-repo-account) "reprepro -V -b $(_ian-repo-path) remove sid $1"
+    ssh $(repo-account) "reprepro -V -b $(repo-path) remove sid $1"
 }
 
-function _ian-repo-account {
+function repo-account {
 	(
     sc-assert-var-defined DEBREPO_URL
 	echo ${DEBREPO_URL%%/*}
 	)
 }
 
-function _ian-repo-path {
+function repo-path {
 	(
     sc-assert-var-defined DEBREPO_URL
 	echo /${DEBREPO_URL#*/}
@@ -467,17 +542,17 @@ function _ian-repo-path {
 
 #-- expectations --
 
-function _ian-assert-debian-dir {
+function assert-debian-dir {
     sc-assert-directory-exists ./debian
 }
 
-function _ian-debvars-missing {
+function debvars-missing {
 	ian-help-debvars-examples
 	exit 1
 }
 
-function _ian-assert-debvars {
-	sc-set-trap _ian-debvars-missing
+function assert-debvars {
+	sc-set-trap debvars-missing
     sc-assert-var-defined DEBFULLNAME
     sc-assert-var-defined DEBEMAIL
     sc-assert-var-defined DEBSIGN_KEYID
@@ -485,163 +560,163 @@ function _ian-assert-debvars {
     sc-clear-trap
 }
 
-function _ian-assert-preconditions {
-    _ian-assert-debian-dir
-    _ian-assert-debvars
+function assert-preconditions {
+    assert-debian-dir
+    assert-debvars
 }
 
-function _ian-assert-uses-svn {
-	sc-assert _ian-uses-svn "" "This debian package is not managed with svn-buildpackage"
+function assert-uses-svn {
+	sc-assert uses-svn "" "This debian package is not managed with svn-buildpackage"
 }
 
 #-- identities --
 
-function _ian-source-name {
+function source-name {
     grep "^Source:" debian/control | cut -f2 -d:  | tr -d " "
 #	dpkg-parsechangelog | sed -n 's/^Source: //p'
 }
 
-function _ian-binary-names {
+function binary-names {
     grep "^Package:" debian/control | cut -f2 -d:  | tr -d " "
 }
 
-function _ian-arch-binary {
+function arch-binary {
 	# $1: package name
-	if [ $(_ian-arch-control $1) == "all" ]; then
+	if [ $(arch-control $1) == "all" ]; then
 		echo "all"
 	else
-		_ian-arch-build
+		arch-build
 	fi
 }
 
-function _ian-arch-build {
+function arch-build {
 	dpkg-architecture | grep "DEB_BUILD_ARCH=" | head -n1 | cut -f2 -d=  | tr -d " "
 }
 
-function _ian-arch-control {
+function arch-control {
 	# $1: package name
 	local index=$(grep "Package:" debian/control | grep -n $1 | cut -f1 -d":"  | head -n1)
     grep "Architecture:" debian/control | tail -n +$index | head -n1 | cut -f2 -d:  | tr -d " "
 }
 
-function _ian-version {
+function pkg-version {
     head -n 1 debian/changelog | cut -f2 -d " " | tr -d "()"
 }
 
-function _ian-version-upstream {
-    echo $(_ian-version) | cut -f1 -d "-"
+function version-upstream {
+    echo $(pkg-version) | cut -f1 -d "-"
 }
 
 
 #-- file names --
 
-function _ian-binary-filenames {
-    for pkg in $(_ian-binary-names); do
-	    echo ${pkg}_$(_ian-version)_$(_ian-arch-binary $pkg).deb
+function binary-filenames {
+    for pkg in $(binary-names); do
+	    echo ${pkg}_$(pkg-version)_$(arch-binary $pkg).deb
     done
 }
 
-function _ian-binary-paths {
+function binary-paths {
     local build_path=".."
-    if _ian-uses-svn; then
+    if uses-svn; then
 		build_path="../build-area"
     fi
 
-    for fname in $(_ian-binary-filenames); do
+    for fname in $(binary-filenames); do
 		echo $build_path/$fname
     done
 }
 
-function _ian-changes-filename {
-    echo $(_ian-source-name)_$(_ian-version)_$(_ian-arch-build).changes
+function changes-filename {
+    echo $(source-name)_$(pkg-version)_$(arch-build).changes
 }
 
-function _ian-changes-path {
-    echo $(_ian-build-dir)/$(_ian-changes-filename)
+function changes-path {
+    echo $(build-dir)/$(changes-filename)
 }
 
-function _ian-dsc-filename {
-    echo $(_ian-source-name)_$(_ian-version).dsc
+function dsc-filename {
+    echo $(source-name)_$(pkg-version).dsc
 }
 
-function _ian-dsc-path {
-    echo $(_ian-build-dir)/$(_ian-dsc-filename)
+function dsc-path {
+    echo $(build-dir)/$(dsc-filename)
 }
 
-function _ian-generated-filenames {
-    _ian-orig-filename
-    _ian-changes-filename
-    _ian-dsc-filename
-    local deb_prefix=$(_ian-source-name)_$(_ian-version)
+function generated-filenames {
+    orig-filename
+    changes-filename
+    dsc-filename
+    local deb_prefix=$(source-name)_$(pkg-version)
     echo $deb_prefix.debian.tar.gz
     echo $deb_prefix.diff.gz
 	echo $deb_prefix.upload
 }
 
-function _ian-generated-paths {
-	for fname in $(_ian-generated-filenames); do
-		echo $(_ian-build-dir)/$fname;
+function generated-paths {
+	for fname in $(generated-filenames); do
+		echo $(build-dir)/$fname;
 	done
 }
 
 
 #-- utilities --
 
-function _ian-uses-svn {
+function uses-svn {
     (svn pl debian | grep mergeWithUpstream) &> /dev/null
 }
 
-function _ian-uses-uscan {
+function uses-uscan {
 	grep -v ".*#" debian/watch &> /dev/null
 }
 
-function _ian-has-rule {
+function has-rule {
 	grep -qs "^$1:" debian/rules
 }
 
-function ian-binary-contents {
-##:doc:06:ian-binary-contents: show binary package file listings
+function cmd:binary-contents {
+##:doc:060:binary-contents: show binary package file listings
     (
-    _ian-assert-preconditions
-	debc $(_ian-changes-path)
+    assert-preconditions
+	debc $(changes-path)
     )
 }
 
-function ian-py-version-to-setup {
-	local version=$(_ian-version-upstream)
+function cmd:py-version-to-setup {
+	local version=$(version-upstream)
 	sed -i -e "s/\( *version *= *\)'[0-9\.]\+'/\1'$version'/g" setup.py
-	sc-log-info "ian: setting version to $version"
+	log-info "setting version to $version"
 }
 
-function _ian-builddeps {
+function builddeps {
     dpkg-checkbuilddeps 2>&1 | cut -f3 -d':'| sed 's/)//g' | sed 's/ (//g' | sed 's/= /=/g'
 	return ${PIPESTATUS[0]}
 }
 
-function _ian-builddeps-assure {
-	local deps=$(_ian-builddeps)
+function builddeps-assure {
+	local deps=$(builddeps)
 	if [ -z "$deps" ]; then
 		return
 	fi
 
-	sc-log-info "ian: installing build deps: $deps"
+	log-info "installing build deps: $deps"
 
 	if [ -n "$deps" ]; then
 		_ian-sudo "mk-build-deps --tool \"apt-get -y\" --install --remove debian/control"
 	fi
 
-	local deps=$(_ian-builddeps)
+	local deps=$(builddeps)
 	if [ -n "$deps" ]; then
 	    _ian-sudo "apt-get install $deps"
 	fi
 
-	local deps=$(_ian-builddeps)
+	local deps=$(builddeps)
 	if [ -n "$deps" ]; then
-		sc-log-error "Unmet build dependencies: $deps"
+		log-error "Unmet build dependencies: $deps"
 		exit 1
 	fi
 
-	sc-log-ok "ian: build deps"
+	log-ok "build deps"
 }
 
 function _ian-sudo() {
@@ -652,6 +727,58 @@ function _ian-run() {
 	sc-assert-run "$@" "ian exec"
 }
 
+#-- jail support --
+
+function ian-jail {
+    # if [ -z "$@" ]; then
+	# 	log-error "usage: ian-$JAIL_ARCH <ian-command>"
+	# 	return
+    # fi
+
+    log-info "running \"$@\" in the jail \"$(jail:name)\""
+
+	local jail_manag_cmds=(jail-upgrade jail-destroy)
+	case "${jail_manag_cmds[@]}" in  *"$1"*)
+			main $*
+			return
+	esac
+
+    if ! jail:is-ok; then
+		cmd:jail-destroy
+
+		log-warning "rebuilding jail $(jail:name)..."
+		jail:create
+		jail:setup
+		sync
+		jail:install-ian
+		jail:clean
+    fi
+
+    jail:run ian $@
+}
+
+function cmd:jail-destroy {
+	sc-assert-var-defined JAIL_ARCH "this command must be applied on a jail"
+
+    if ! sc-file-exists $(jail:tarball); then
+		log-warning "jail $(jail:name) does NOT exists"
+		return
+	fi
+
+    local OLD=$(jail:tarball)-$(uuidgen)
+	_ian-sudo "mv $(jail:tarball) $OLD"
+    log-warning "old jail was moved to $OLD"
+    log-ok "jail destroyed"
+}
+
+function cmd:jail-upgrade {
+	sc-assert-var-defined JAIL_ARCH "this command must be applied on a jail"
+
+
+    jail:sudo apt-get update
+    jail:sudo apt-get upgrade
+ }
+
 
 #-- mirror --
 
@@ -660,4 +787,43 @@ function ian-mirror-create {
 		--arch=i386,amd64 --dist=sid --method=http --section=main debian-root
 }
 
-eval $(basename $0) $@
+
+function main {
+	if [ $# -eq 0 ]; then
+		cmd:help
+		return 1
+	fi
+
+    local cmd=$1
+    shift
+    local params=$*
+
+    # echo command: $cmd
+    # echo params: $params
+    # echo $__file__
+	# echo -e "--"
+
+    grep "^function cmd:" $__file__ | grep -w "cmd:$cmd" > /dev/null
+    if [ $? -ne 0 ]; then
+		log-error "invalid command: $cmd\n"
+		cmd:help
+		return 1
+    fi
+
+    eval cmd:$cmd $params
+}
+
+function ian {
+#	echo "ian running at jail" $JAIL_ARCH
+#	echo ian: $*
+#	echo "--"
+	main $*
+}
+
+function ian-386 {
+	export JAIL_ARCH=i386
+	ian-jail $*
+}
+
+__file__=$0
+eval $(basename $0) $*
