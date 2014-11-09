@@ -50,16 +50,21 @@ function cmd:help {
 	echo -e "usage: ian <cmd>"
 
 	echo -e "\ncommands:"
-	print_command_doc "^\##:doc:"
+	print_docstrings "^\##:doc:"
+
+	if [ "X${JAIL_ARCH}X" != "XX" ]; then
+		echo -e "\njail commands:"
+		print_docstrings "^##:jail:"
+	fi
 
 	echo -e "\naliases:"
-	print_command_doc "^\##:alias:"
+	print_docstrings "^\##:alias:"
 
 #	echo "--"
 #	grep "^function cmd:" $__file__
 }
 
-function print_command_doc {
+function print_docstrings {
     grep "$1" $__file__ | sort -n | awk  -F ":" '{printf "  %-26s %s\n", $4, $5}'
 
 }
@@ -441,8 +446,14 @@ function cmd:install {
 	log-info "install"
 	_ian-sudo "dpkg -i $(binary-paths)"
 	log-ok "install"
-	beep
+	notify-install
 	)
+}
+
+function notify-install {
+	if sc-function-exists ian-install-hook; then
+		ian-install-hook
+	fi
 }
 
 function cmd:build-and-install {
@@ -737,7 +748,7 @@ function ian-jail {
 
     log-info "running \"$@\" in the jail \"$(jail:name)\""
 
-	local jail_manag_cmds=(jail-upgrade jail-destroy)
+	local jail_manag_cmds=(jail-upgrade jail-destroy login)
 	case "${jail_manag_cmds[@]}" in  *"$1"*)
 			main $*
 			return
@@ -757,7 +768,22 @@ function ian-jail {
     jail:run ian $@
 }
 
+function cmd:login {
+##:jail:000:login: login into the jail
+	sc-log-info "login into $(jail:name)..."
+	jail:run
+}
+
+function cmd:jail-upgrade {
+##:jail:002:jail-upgrade: upgrade source jail
+	sc-assert-var-defined JAIL_ARCH "this command must be applied on a jail"
+
+    jail:sudo apt-get update
+    jail:sudo apt-get upgrade
+ }
+
 function cmd:jail-destroy {
+##:jail:003:jail-destroy: destroy jail files
 	sc-assert-var-defined JAIL_ARCH "this command must be applied on a jail"
 
     if ! sc-file-exists $(jail:tarball); then
@@ -770,15 +796,6 @@ function cmd:jail-destroy {
     log-warning "old jail was moved to $OLD"
     log-ok "jail destroyed"
 }
-
-function cmd:jail-upgrade {
-	sc-assert-var-defined JAIL_ARCH "this command must be applied on a jail"
-
-
-    jail:sudo apt-get update
-    jail:sudo apt-get upgrade
- }
-
 
 #-- mirror --
 

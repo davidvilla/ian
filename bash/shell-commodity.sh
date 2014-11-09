@@ -85,6 +85,10 @@ function sc-bin-exists {
 	type -t "$1" > /dev/null
 }
 
+function sc-function-exists {
+	type -t "$1" | grep "function" > /dev/null
+}
+
 function sc-assert {
 	# $1: function
     # $2: argument
@@ -160,26 +164,32 @@ function sc-assure-deb-pkg-installed {
 #LOGLEVEL=$LEVEL_ERROR
 
 function sc-log-notify {
-	red="\e[1;31m"
-	green="\e[1;32m"
-	yellow="\e[1;33m"
-	blue="\e[1;34m"
-	norm="\e[0m"
-	color=""
-    bold="\033[1m"
+	local red="\e[1;31m"
+	local green="\e[1;32m"
+	local yellow="\e[1;33m"
+	local blue="\e[1;34m"
+	local norm="\e[0m"
+	local color=""
+    local bold="\033[1m"
 
-	message=$2
+	local message=$2
+	local level="info"
 
 	if [ -z "$message" ]; then
 		return
 	fi
 
-	if [ $1 = "EE" -o $1 = "FF" ]; then
+	if [ $1 = "EE" ]; then
+		level="error"
+		color=$red;
+	elif [ $1 = "FF" ]; then
+		level="fail"
 		color=$red;
 	elif [ $1 = "WW" ]; then
 #		if [  $LOGLEVEL -lt $LEVEL_WARN ]; then
 #			return
 #		fi
+		level="warning"
 		color=$yellow;
 		message=$bold$message$norm
 	elif [ $1 = "II" ]; then
@@ -188,11 +198,18 @@ function sc-log-notify {
 #		fi
 		color=$blue;
 	elif [ $1 = "OK" ]; then
+		level="ok"
 		color=$green;
 	fi
 
 	printf "[$color$1$norm] $message \n"
-	sc-log-notify-hook "$1" "$message"
+	notify-log-notify "$level" "$message"
+}
+
+function notify-log-notify {
+	if sc-function-exists sc-log-notify-hook; then
+		sc-log-notify-hook "$1" "$2" &
+	fi
 }
 
 function sc-bold {

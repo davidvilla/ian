@@ -26,26 +26,45 @@ function jail:setup {
     fi
 }
 
-function jail:sudo {
-    params="$@"
-	if [ -n "$params" ]; then
-		log-info "chroot exec: sudo $params"
+function sudo_in_jail {
+	local schroot_args="$1"
+	local cmd="$2"
+
+	if [ -n "$cmd" ]; then
+		log-info "chroot exec: sudo $cmd"
 	fi
-    sudo schroot -c $(jail:name) -- $params
+
+	sudo schroot $schroot_args -- $cmd
+}
+
+function jail:sudo {
+	sudo_in_jail "-c $(jail:name)" "$@"
+
+    # params="$@"
+	# if [ -n "$params" ]; then
+	# 	log-info "chroot exec: sudo $params"
+	# fi
+    # sudo schroot -c $(jail:name) -- $params
 }
 
 function jail:src:sudo {
-    params="$@"
-    log-info "chroot exec: sudo $params"
-    sudo schroot -c source:$(jail:name) -- $params
+	sudo_in_jail "-c source:$(jail:name)" "$@"
+
+    # params="$@"
+	# if [ -n "$params" ]; then
+	# 	log-info "chroot exec: sudo $params"
+	# fi
+    # sudo schroot -c source:$(jail:name) -- $params
 }
 
 function jail:run() {
-    params="$@"
-	if [ -n "$params" ]; then
-		log-info "chroot exec: $params"
-	fi
-    sudo schroot -u $USER -c $(jail:name) -- $params
+	sudo_in_jail "-u $USER -c $(jail:name)" "$@"
+
+    # params="$@"
+	# if [ -n "$params" ]; then
+	# 	log-info "chroot exec: $params"
+	# fi
+    # sudo schroot -u $USER -c $(jail:name) -- $params
 }
 
 function jail:create() {
