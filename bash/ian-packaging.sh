@@ -731,28 +731,22 @@ function builddeps-assure {
 }
 
 function _ian-sudo() {
-	sc-assert-run "sudo $@" "ian exec"
+	sc-assert-run "sudo $*" "ian exec"
 }
 
 function _ian-run() {
-	sc-assert-run "$@" "ian exec"
+	sc-assert-run "$*" "ian exec"
 }
 
 #-- jail support --
 
 function ian-jail {
-    # if [ -z "$@" ]; then
+    # if [ -z "$*" ]; then
 	# 	log-error "usage: ian-$JAIL_ARCH <ian-command>"
 	# 	return
     # fi
 
-    log-info "running \"$@\" in the jail \"$(jail:name)\""
-
-	local jail_manag_cmds=(jail-upgrade jail-destroy login)
-	case "${jail_manag_cmds[@]}" in  *"$1"*)
-			main $*
-			return
-	esac
+    log-info "running \"$*\" in the jail \"$(jail:name)\""
 
     if ! jail:is-ok; then
 		cmd:jail-destroy
@@ -765,7 +759,13 @@ function ian-jail {
 		jail:clean
     fi
 
-    jail:run ian $@
+	local jail_manag_cmds=(jail-upgrade jail-destroy login)
+	case "${jail_manag_cmds[@]}" in  *"$1"*)
+			main $*
+			return
+	esac
+
+    jail:run ian $*
 }
 
 function cmd:login {
