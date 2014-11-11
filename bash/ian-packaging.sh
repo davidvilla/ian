@@ -5,6 +5,7 @@ source /usr/share/ian/shell-commodity.sh
 source /usr/share/ian/jail.sh
 #source bash/shell-commodity.sh
 
+NATIVE_LANG="$LANG"
 LANG=C
 IAN_CONFIG=$HOME/.config/ian/config
 
@@ -482,7 +483,7 @@ function cmd:upload {
 	sc-assert-files-exist $(changes-path) $(binary-paths)
 
     local changes_path=$(changes-path)
-    sc-assert-run "debsign $changes_path"
+    sc-assert-run "LANG=$NATIVE_LANG debsign $changes_path"
 
 	local -a outputs
 	sc-call-out-err outputs "dupload -f $changes_path"
