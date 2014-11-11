@@ -50,24 +50,22 @@ function cmd:help {
 ##:doc:000:help: show this help
 	echo -e "usage: ian <cmd>"
 
-	echo -e "\ncommands:"
+	echo -e "\nCommands:"
 	print_docstrings "^\##:doc:"
 
 	if [ "X${JAIL_ARCH}X" != "XX" ]; then
-		echo -e "\njail commands:"
+		echo -e "\nJail commands:"
 		print_docstrings "^##:jail:"
 	fi
 
-	echo -e "\naliases:"
+	echo -e "\nAliases:"
 	print_docstrings "^\##:alias:"
 
 #	echo "--"
 #	grep "^function cmd:" $__file__
 }
-
 function print_docstrings {
     grep "$1" $__file__ | sort -n | awk  -F ":" '{printf "  %-18s %s\n", $4, $5}'
-
 }
 
 #FIXME
