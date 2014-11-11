@@ -66,7 +66,7 @@ function cmd:help {
 }
 
 function print_docstrings {
-    grep "$1" $__file__ | sort -n | awk  -F ":" '{printf "  %-26s %s\n", $4, $5}'
+    grep "$1" $__file__ | sort -n | awk  -F ":" '{printf "  %-18s %s\n", $4, $5}'
 
 }
 
@@ -231,8 +231,8 @@ function cmd:new-release {
     )
 }
 
-function cmd:new-release-date-version {
-##:doc:021:  new-release-date-version: add a new package version based on date: 0.20010101
+function cmd:new-release-date {
+##:doc:021:new-release-date: add a new package version based on date: 0.20010101
     (
     assert-preconditions
     local CHLOG=$(mktemp)
@@ -336,20 +336,20 @@ function cmd:orig {
 }
 
 function cmd:orig-from-rule {
-##:doc:016:  orig-from-rule: execute "get-orig-source" rule of debian/rules to get .orig. file
+##:doc:016:orig-from-rule: execute "get-orig-source" rule of debian/rules to get .orig. file
 	log-info "orig-from-rule"
     make -f ./debian/rules get-orig-source
     mv -v $(orig-filename) $(orig-dir)/
 }
 
 function cmd:orig-uscan {
-##:doc:016:  orig-uscan: exectute uscan to download the .orig. file
+##:doc:016:orig-uscan: exectute uscan to download the .orig. file
 	log-info "orig-uscan"
     uscan --verbose --download-current-version --force-download --repack --destdir $(orig-dir)
 }
 
 function cmd:orig-from-local {
-##:doc:016:  orig-from-local: create an .orig. file from current directory content
+##:doc:016:orig-from-local: create an .orig. file from current directory content
     log-info "orig-from-local"
 
     local orig_tmp=$(source-name)-$(version-upstream)
@@ -427,7 +427,7 @@ function clean-svn {
 }
 
 function cmd:clean-uscan {
-##:doc:031:  clean-uscan: clean uscan generated files
+##:doc:031:clean-uscan: clean uscan generated files
 	log-info "clean-uscan"
 	local nline=$(uscan --report --verbose | grep -n "^Newest version on remote" | cut -d":" -f 1)
 	local nline=$(echo $nline - 1 | bc)
