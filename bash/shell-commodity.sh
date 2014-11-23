@@ -10,11 +10,16 @@ function sc-upper {
 }
 
 function sc-retcode2bool {
-    [ $1 -eq 0 ] && echo True || echo False
+    [ $1 -eq 0 ] && echo "True" || echo "False"
 }
 
 function sc-retcode2test {
     [ $1 -eq 0 ] && echo OK || echo FAIL
+}
+
+function sc-func2bool {
+	eval "$1"
+	sc-retcode2bool "$?"
 }
 
 function sc-set-trap {
@@ -108,6 +113,7 @@ function sc-assert-run {
 	sc-log-info "$msg"
 	if ! eval $1; then
 		sc-log-fail "$msg"
+		exit 1
 	fi
 }
 
@@ -163,6 +169,8 @@ function sc-assure-deb-pkg-installed {
 #
 #LOGLEVEL=$LEVEL_ERROR
 
+bold="\033[1m"
+
 function sc-log-notify {
 	local red="\e[1;31m"
 	local green="\e[1;32m"
@@ -170,7 +178,6 @@ function sc-log-notify {
 	local blue="\e[1;34m"
 	local norm="\e[0m"
 	local color=""
-    local bold="\033[1m"
 
 	local message=$2
 	local level="info"
@@ -213,7 +220,7 @@ function notify-log-notify {
 }
 
 function sc-bold {
-	echo $bold$1$norm
+	echo "$bold$1$norm"
 }
 
 function sc-log-notify-hook {

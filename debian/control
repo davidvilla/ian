@@ -13,3 +13,6 @@ Depends: ${misc:Depends}, quilt, gnupg, dupload, uuid-runtime, build-essential,
 Replaces: arco-devel (<< 0.20141029-1)
 Breaks: arco-devel (<< 0.20141029-1)
 Description: command line helper to maintain Debian packages
+ ian is a helper to simplify and assist to the maintainer in the using
+ of Debian packaging  tools. It can create or get orig tarball, install
+ build dependencies and many others.

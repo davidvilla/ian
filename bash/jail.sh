@@ -110,6 +110,15 @@ function jail:is-ok {
 		return 1
 	fi
 
+	jail:run ls /usr/bin/ian > /dev/null
+    if [ $? != 0 ]; then
+		return 1
+	fi
+
+	if ! jail:run ls /usr/bin/ian > /dev/null; then
+		return 1
+	fi
+
 	# jail:run ian-help-reference > /dev/null
     # if [ $? != 0 ]; then
 	# 	return 1

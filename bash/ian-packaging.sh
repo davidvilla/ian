@@ -48,7 +48,7 @@ function _ian-rm {
 
 function cmd:help {
 ##:doc:000:help: show this help
-	echo -e "usage: ian <cmd>"
+	echo "usage: ian <cmd>"
 
 	echo -e "\nCommands:"
 	print_docstrings "^\##:doc:"
@@ -64,8 +64,9 @@ function cmd:help {
 #	echo "--"
 #	grep "^function cmd:" $__file__
 }
+
 function print_docstrings {
-    grep "$1" $__file__ | sort -n | awk  -F ":" '{printf "  %-18s %s\n", $4, $5}'
+    grep "$1" $__file__ | sort -n | awk  -F ":" '{printf "  \033[1m%-23s\033[0m %s\n", $4, $5}'
 }
 
 #FIXME
@@ -174,6 +175,26 @@ DEBREPO_URL=john.doe@debian.repository.org/var/repo
 EOF
 }
 
+
+function orig-methods {
+	if has-rule get-orig-source; then
+		methods[0]='from-rule'
+	fi
+	if uses-uscan; then
+		methods[1]='uscan'
+	fi
+	if [ $(ls | wc -l) -gt 1 ]; then
+		methods[2]='from-local'
+	fi
+
+	if [ ${#methods[@]} -eq 0 ]; then
+		echo "none!"
+		return
+	fi
+
+	echo "${methods[@]}"
+}
+
 function cmd:summary {
 ##:doc:010:summary: show package info
     (
@@ -182,6 +203,7 @@ function cmd:summary {
     echo "uptream:            " $(version-upstream)
     echo "version:            " $(pkg-version)
     echo "orig:               " $(orig-path)
+	echo "  methods:          " $(orig-methods)
     echo "changes:            " $(changes-path)
 
 	if uses-uscan; then
@@ -740,19 +762,8 @@ function _ian-run() {
 #-- jail support --
 
 function ian-jail {
-    # if [ -z "$@" ]; then
-	# 	log-error "usage: ian-$JAIL_ARCH <ian-command>"
-	# 	return
-    # fi
-
-    log-info "running \"$@\" in the jail \"$(jail:name)\""
-
-	local jail_manag_cmds=(jail-upgrade jail-destroy login)
-	case "${jail_manag_cmds[@]}" in  *"$1"*)
-			main $*
-			return
-	esac
-
+    log-info "Running \"$@\" in the jail \"$(jail:name)\""
+	echo "--->" $(jail:is-ok)
     if ! jail:is-ok; then
 		cmd:jail-destroy
 
@@ -763,6 +774,12 @@ function ian-jail {
 		jail:install-ian
 		jail:clean
     fi
+
+	local jail_manag_cmds=(jail-upgrade jail-destroy login)
+	case "${jail_manag_cmds[@]}" in  *"$1"*)
+			main $*
+			return
+	esac
 
     jail:run ian $@
 }
