@@ -28,43 +28,31 @@ function jail:setup {
 
 function sudo_in_jail {
 	local schroot_args="$1"
-	local cmd="$2"
+	shift
+	local cmd="$@"
 
 	if [ -n "$cmd" ]; then
 		log-info "chroot exec: sudo $cmd"
 	fi
 
 	sudo schroot $schroot_args -- $cmd
+	local retval=$?
+	if [ $retval -ne 0 ]; then
+		log-error "$cmd"
+	fi
+	return $retval
 }
 
 function jail:sudo {
 	sudo_in_jail "-c $(jail:name)" "$@"
-
-    # params="$@"
-	# if [ -n "$params" ]; then
-	# 	log-info "chroot exec: sudo $params"
-	# fi
-    # sudo schroot -c $(jail:name) -- $params
 }
 
 function jail:src:sudo {
 	sudo_in_jail "-c source:$(jail:name)" "$@"
-
-    # params="$@"
-	# if [ -n "$params" ]; then
-	# 	log-info "chroot exec: sudo $params"
-	# fi
-    # sudo schroot -c source:$(jail:name) -- $params
 }
 
 function jail:run() {
 	sudo_in_jail "-u $USER -c $(jail:name)" "$@"
-
-    # params="$@"
-	# if [ -n "$params" ]; then
-	# 	log-info "chroot exec: $params"
-	# fi
-    # sudo schroot -u $USER -c $(jail:name) -- $params
 }
 
 function jail:create() {
@@ -110,12 +98,7 @@ function jail:is-ok {
 		return 1
 	fi
 
-	jail:run ls /usr/bin/ian > /dev/null
-    if [ $? != 0 ]; then
-		return 1
-	fi
-
-	if ! jail:run ls /usr/bin/ian > /dev/null; then
+	if ! jail:run "ls /usr/bin/ian"; then
 		return 1
 	fi
 
@@ -124,5 +107,5 @@ function jail:is-ok {
 	# 	return 1
 	# fi
 
-	log-ok "jail ok"
+	log-ok "jail seems to be ok"
 }

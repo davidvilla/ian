@@ -763,7 +763,6 @@ function _ian-run() {
 
 function ian-jail {
     log-info "Running \"$@\" in the jail \"$(jail:name)\""
-	echo "--->" $(jail:is-ok)
     if ! jail:is-ok; then
 		cmd:jail-destroy
 
