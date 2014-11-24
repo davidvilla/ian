@@ -95,6 +95,7 @@ function sc-function-exists {
 }
 
 function sc-assert {
+# assert any predicate
 	# $1: function
     # $2: argument
     # $3: error message
@@ -106,6 +107,7 @@ function sc-assert {
 }
 
 function sc-assert-run {
+# assert command execution
 	# $1: command
     # $2: message prefix
 	local default="run"
@@ -115,6 +117,12 @@ function sc-assert-run {
 		sc-log-fail "$msg"
 		exit 1
 	fi
+}
+
+function sc-assert-run-ok {
+# assert command execution with positive feedback
+	sc-assert-run "$1" "$2"
+	sc-log-ok "$1"
 }
 
 #-- specific assertions --
@@ -157,8 +165,18 @@ function sc-assure-dir {
 }
 
 function sc-assure-deb-pkg-installed {
-	sc-assert "sudo apt-get install $*"
+    local deps
+    for d in $*; do
+		if ! sc-deb-pkg-installed $d; then
+			deps="$d $deps"
+		fi
+    done
+
+	if [ "none$deps" != "none" ]; then
+	   sc-assert-run-ok "sudo apt-get install -y $deps"
+	fi
 }
+
 
 
 #-- logging --

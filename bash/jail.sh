@@ -8,7 +8,7 @@ JAIL_DIR=/var/jails
 USER_FSTAB=$HOME/.config/ian/fstab
 MIRROR=${DEBIAN_MIRROR:-http://ftp.debian.org}/debian
 
-DPKG_OPTS="-o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confnew"
+APT_OPTS="--no-install-recommends -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confnew"
 
 function jail:name {
     echo sid-$JAIL_ARCH-ian
@@ -26,7 +26,7 @@ function jail:setup {
     fi
 }
 
-function sudo_in_jail {
+function run_in_jail {
 	local schroot_args="$1"
 	shift
 	local cmd="$*"
@@ -44,21 +44,22 @@ function sudo_in_jail {
 }
 
 function jail:sudo {
-	sudo_in_jail "-c $(jail:name)" "$*"
+	run_in_jail "-c $(jail:name)" "$*"
 }
 
 function jail:src:sudo {
-	sudo_in_jail "-c source:$(jail:name)" "$*"
+	run_in_jail "-c source:$(jail:name)" $*
 }
 
 function jail:run() {
-	sudo_in_jail "-u $USER -c $(jail:name)" "$*"
+	run_in_jail "-u $USER -c $(jail:name)" $*
 }
 
 function jail:create() {
-    _ian-sudo "mkdir -p /var/jails"
-    _ian-sudo "debootstrap --arch=$JAIL_ARCH --variant=buildd --include=fakeroot,build-essential,debfoster sid $JAIL_DIR_TMP $MIRROR"
-#    _ian-sudo "debootstrap --verbose --variant=buildd sid $JAIL_DIR_TMP $MIRROR"
+    ian-sudo "mkdir -p /var/jails"
+    ian-sudo "debootstrap --arch=$JAIL_ARCH --variant=buildd --include=fakeroot,build-essential sid $JAIL_DIR_TMP $MIRROR"
+	# debfoster
+	# ian-sudo "debootstrap --verbose --variant=buildd sid $JAIL_DIR_TMP $MIRROR"
 	jail:add-ian-repo
 	jail:add-sudoer
 	sudo tar cf $(jail:tarball) -C $JAIL_DIR_TMP .
@@ -84,7 +85,7 @@ function jail:install-ian() {
 #    jail:src:sudo apt-key add $key
 	jail:src:sudo apt-key adv --keyserver pgp.mit.edu --recv-keys DCA26384
     jail:src:sudo apt-get -q update
-    jail:src:sudo apt-get -q $DPKG_OPTS install -y ian
+    jail:src:sudo apt-get -q $APT_OPTS install -y ian
 }
 
 function jail:clean {
@@ -98,14 +99,9 @@ function jail:is-ok {
 		return 1
 	fi
 
-	if ! jail:run "ls /usr/bin/ian"; then
+	if ! jail:run dpkg -l ian | grep "^ii" > /dev/null; then
 		return 1
 	fi
-
-	# jail:run ian-help-reference > /dev/null
-    # if [ $? != 0 ]; then
-	# 	return 1
-	# fi
 
 	log-ok "jail seems to be ok"
 }

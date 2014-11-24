@@ -1,17 +1,18 @@
 #!/bin/bash
 # -*- coding:utf-8; tab-width:4; mode:shell-script -*-
 
-source /usr/share/ian/shell-commodity.sh
-source /usr/share/ian/jail.sh
-#source bash/shell-commodity.sh
-
 NATIVE_LANG="$LANG"
 LANG=C
 IAN_CONFIG=$HOME/.config/ian/config
+JAIL_PKGS="debootstrap schroot uuid-runtime"
 
 if [ -e $IAN_CONFIG ]; then
 	source $IAN_CONFIG
 fi
+
+source /usr/share/ian/shell-commodity.sh
+source /usr/share/ian/jail.sh
+
 
 #-- common --
 
@@ -465,7 +466,7 @@ function cmd:install {
 	sc-assert-files-exist $(binary-paths)
 
 	log-info "install"
-	_ian-sudo "dpkg -i $(binary-paths)"
+	ian-sudo "dpkg -i $(binary-paths)"
 	log-ok "install"
 	notify-install
 	)
@@ -540,7 +541,7 @@ function cmd:upload {
 		fi
 	fi
 
-	echo -e $(sc-bold "dupload output:")
+	echo "dupload output:"
 	echo -e "${outputs[1]}"
 	log-ok "upload"
     )
@@ -549,11 +550,11 @@ function cmd:upload {
 function cmd:remove {
 ##:doc:100:remove: remove package from configured package repository
     for pkg in $(binary-names) $(source-name); do
-		ian-remove-package $pkg
+		remove-package $pkg
     done
 }
 
-function ian-remove-package {
+function remove-package {
     ssh $(repo-account) "reprepro -V -b $(repo-path) remove sid $1"
 }
 
@@ -734,12 +735,12 @@ function builddeps-assure {
 	log-info "installing build deps: $deps"
 
 	if [ -n "$deps" ]; then
-		_ian-sudo "mk-build-deps --tool \"apt-get -y\" --install --remove debian/control"
+		ian-sudo "mk-build-deps --tool \"apt-get -y\" --install --remove debian/control"
 	fi
 
 	local deps=$(builddeps)
 	if [ -n "$deps" ]; then
-	    _ian-sudo "apt-get install $deps"
+	    ian-sudo "apt-get install $deps"
 	fi
 
 	local deps=$(builddeps)
@@ -751,28 +752,36 @@ function builddeps-assure {
 	log-ok "build deps"
 }
 
-function _ian-sudo() {
+function ian-sudo() {
 	sc-assert-run "sudo $*" "ian exec"
 }
 
-function _ian-run() {
+function ian-run() {
 	sc-assert-run "$*" "ian exec"
 }
 
 #-- jail support --
 
+function assure-jail-is-ok {
+    if jail:is-ok; then
+		return 0
+	fi
+
+	log-warning "rebuilding jail $(jail:name)..."
+	cmd:jail-destroy
+
+	jail:create
+#	jail:setup
+#	sync
+#	jail:install-ian
+	jail:clean
+}
+
 function ian-jail {
     log-info "Running \"$@\" in the jail \"$(jail:name)\""
-    if ! jail:is-ok; then
-		cmd:jail-destroy
 
-		log-warning "rebuilding jail $(jail:name)..."
-		jail:create
-		jail:setup
-		sync
-		jail:install-ian
-		jail:clean
-    fi
+	sc-assure-deb-pkg-installed $JAIL_PKGS
+	assure-jail-is-ok
 
 	local jail_manag_cmds=(jail-upgrade jail-destroy login)
 	case "${jail_manag_cmds[@]}" in  *"$1"*)
@@ -780,6 +789,7 @@ function ian-jail {
 			return
 	esac
 
+	log-ok "enter jail '$(jail:name)'\n---------------------------------------"
     jail:run ian $*
 }
 
@@ -802,12 +812,12 @@ function cmd:jail-destroy {
 	sc-assert-var-defined JAIL_ARCH "this command must be applied on a jail"
 
     if ! sc-file-exists $(jail:tarball); then
-		log-warning "jail $(jail:name) does NOT exists"
+		log-warning "removing jail: file $(jail:name) does NOT exists"
 		return
 	fi
 
     local OLD=$(jail:tarball)-$(uuidgen)
-	_ian-sudo "mv $(jail:tarball) $OLD"
+	ian-sudo "mv $(jail:tarball) $OLD"
     log-warning "old jail was moved to $OLD"
     log-ok "jail destroyed"
 }
