@@ -29,7 +29,7 @@ function jail:setup {
 function sudo_in_jail {
 	local schroot_args="$1"
 	shift
-	local cmd="$@"
+	local cmd="$*"
 
 	if [ -n "$cmd" ]; then
 		log-info "chroot exec: sudo $cmd"
@@ -44,15 +44,15 @@ function sudo_in_jail {
 }
 
 function jail:sudo {
-	sudo_in_jail "-c $(jail:name)" "$@"
+	sudo_in_jail "-c $(jail:name)" "$*"
 }
 
 function jail:src:sudo {
-	sudo_in_jail "-c source:$(jail:name)" "$@"
+	sudo_in_jail "-c source:$(jail:name)" "$*"
 }
 
 function jail:run() {
-	sudo_in_jail "-u $USER -c $(jail:name)" "$@"
+	sudo_in_jail "-u $USER -c $(jail:name)" "$*"
 }
 
 function jail:create() {

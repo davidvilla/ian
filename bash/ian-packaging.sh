@@ -752,11 +752,11 @@ function builddeps-assure {
 }
 
 function _ian-sudo() {
-	sc-assert-run "sudo $@" "ian exec"
+	sc-assert-run "sudo $*" "ian exec"
 }
 
 function _ian-run() {
-	sc-assert-run "$@" "ian exec"
+	sc-assert-run "$*" "ian exec"
 }
 
 #-- jail support --
@@ -780,7 +780,7 @@ function ian-jail {
 			return
 	esac
 
-    jail:run ian $@
+    jail:run ian $*
 }
 
 function cmd:login {
