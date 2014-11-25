@@ -523,17 +523,17 @@ function cmd:upload {
 	local DEB_ALREADY_REGISTERED=".deb\" is already registered with different checksums"
 
 	if [ $rcode -ne 0 ]; then
-		if echo ${outputs[2]} | grep "$NOT_YET_REGISTERED"; then
+		if cat ${outputs[2]} | grep "$NOT_YET_REGISTERED"; then
 			log-warning "missing $(orig-filename) in repository, fixing..."
 			sc-assert-run "dpkg-genchanges -sa > $changes_path"
 			sc-assert-run "debsign $changes_path"
 			sc-assert-run "dupload -f $changes_path"
-		elif echo ${outputs[2]} | grep "$DSC_ALREADY_REGISTERED"; then
+		elif cat ${outputs[2]} | grep "$DSC_ALREADY_REGISTERED"; then
 			log-warning "$(dsc-filename) already in repository, fixing..."
 			sc-assert-run "dpkg-genchanges -b > $changes_path"
 			sc-assert-run "debsign $changes_path"
 			sc-assert-run "dupload -f $changes_path"
-		elif echo ${outputs[2]} | grep "$DEB_ALREADY_REGISTERED"; then
+		elif cat ${outputs[2]} | grep "$DEB_ALREADY_REGISTERED"; then
 			sc-log-error "already uploaded! Create a new release and try again"
 			return
 		else
@@ -543,7 +543,8 @@ function cmd:upload {
 	fi
 
 	echo "dupload output:"
-	echo -e "${outputs[1]}"
+	cat "${outputs[1]}"
+	rm ${outputs[@]}
 	log-ok "upload"
     )
 }
