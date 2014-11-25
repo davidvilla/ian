@@ -367,7 +367,7 @@ function cmd:orig-from-rule {
 function cmd:orig-uscan {
 ##:doc:016:orig-uscan: execute uscan to download the .orig. file
 	log-info "orig-uscan"
-    uscan --verbose --download-current-version --force-download --repack --destdir $(orig-dir)
+    uscan --verbose --download-current-version --force-download --repack --rename --destdir $(orig-dir)
 }
 
 function cmd:orig-from-local {
