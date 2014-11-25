@@ -12,7 +12,7 @@ Compiling a simple package with **ian**::
 
   $ apt-get source hello
   $ cd hello-2.9
-  hello-2.9$ ian-build
+  hello-2.9$ ian build
   ... a lot of stuff ...
   hello-2.9$ ls -la ../hello_*
   -rw-r--r--  1 david david   1798 oct 31 16:02 ../hello_2.9-1_amd64.changes
@@ -30,12 +30,14 @@ summary
 
 prints information about the current directory Debian package::
 
-  hello-2.9$ ian-summary 
+  hello-2.9$ ian summary
   source:              hello
   uptream:             2.9
-  version:             2.9-1
-  orig:                hello_2.9.orig.tar.gz
-  changes:             hello_2.9-1_amd64.changes
+  version:             2.9-2
+  orig:                ../hello_2.9.orig.tar.gz
+    methods:           uscan from-local
+  changes:             ../hello_2.9-2_i386.changes
+  watch:               2.10
   binaries:            hello
   pkg vcs:             none
 
@@ -43,14 +45,13 @@ prints information about the current directory Debian package::
 orig
 ----
 
-create or download the .orig file
+create or download the .orig file.
 
 backends:
 
-* orig-from-rule:  execute the rule "get-orig" in the debian/rules
 * orig-uscan:      download latest upstream with uscan
+* orig-from-rule:  execute the rule "get-orig" in the debian/rules
 * orig-from-local: generates .orig from current directory files
-
 
 build
 -----
@@ -66,15 +67,15 @@ backends:
 * build-svn:      compile with svn-buildpackage
 
 
-binary-contens
---------------
+binary-contents
+---------------
 
-list files on generated binary packages
+list files on generated binary packages.
 
 clean
 -----
 
-removes all generated files and artifacts
+removes all generated files and artifacts.
 
 * reverts quilt patches if present
 
@@ -87,19 +88,19 @@ backends:
 install
 -------
 
-installs all generated binary packages in the system.
+install all generated binary packages in the system.
 
 upload
 ------
 
-upload binary packages to a remote package repository
+upload binary packages to a remote package repository.
 
 * runs debsign and dupload
 
 remove
 ------
 
-remove package from a remote package repository
+remove package from a remote package repository.
 
 .. Local Variables:
 ..  coding: utf-8

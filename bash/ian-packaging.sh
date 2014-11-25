@@ -232,13 +232,14 @@ function pkg-vcs {
 
 function version-upstream-uscan {
 	local -a outputs
-	sc-call-out-err outputs "uscan --report --verbose"
+	sc-call-out-err outputs uscan --report --verbose
 
 	if [ $? -ne 0 ]; then
-		log-warning "error: run \"uscan --verbose\" for details"
+		log-warning "error: see ${outputs[2]}"
 		return
 	fi
-	grep "Newest" ${outputs[1]} | cut -d"," -f1 | sed "s/site is /@/g" | cut -d@ -f2
+	cat "${outputs[1]}" | grep "Newest" | cut -d"," -f1 | sed "s/site is /@/g" | cut -d@ -f2
+	rm ${outputs[@]}
 }
 
 
@@ -364,7 +365,7 @@ function cmd:orig-from-rule {
 }
 
 function cmd:orig-uscan {
-##:doc:016:orig-uscan: exectute uscan to download the .orig. file
+##:doc:016:orig-uscan: execute uscan to download the .orig. file
 	log-info "orig-uscan"
     uscan --verbose --download-current-version --force-download --repack --destdir $(orig-dir)
 }
@@ -711,6 +712,7 @@ function cmd:binary-contents {
 ##:doc:060:binary-contents: show binary package file listings
     (
     assert-preconditions
+	sc-assert-files-exist $(changes-path)
 	debc $(changes-path)
     )
 }
@@ -771,9 +773,9 @@ function assure-jail-is-ok {
 	cmd:jail-destroy
 
 	jail:create
-#	jail:setup
-#	sync
-#	jail:install-ian
+	jail:setup
+	sync
+	jail:install-ian
 	jail:clean
 }
 

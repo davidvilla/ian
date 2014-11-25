@@ -280,19 +280,20 @@ function sc-log-ok {
 # }
 function sc-call-out-err {
 	local _outputs=$1
+	shift
 
 	local stdout=$(mktemp)
 	local stderr=$(mktemp)
 
-	$2 1> >(tee $stdout >&1) 2> >(tee $stderr >&2)
+#	$* 1> >(tee $stdout >&1) 2> >(tee $stderr >&2)
+	$* 1> $stdout 2> $stderr
 
 	local retcode=$?
 
 	_out[0]=''
-	_out[1]=$(cat $stdout)
-	_out[2]=$(cat $stderr)
+	_out[1]=$stdout
+	_out[2]=$stderr
 
-	rm $stdout $stderr
 	eval $_outputs='("${_out[@]}")'
 	return $retcode
 }
