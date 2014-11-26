@@ -47,6 +47,10 @@ function _ian-rm {
 
 #-- doc --
 
+function cmd:completions {
+	grep_commands "^\##:doc:"
+}
+
 function cmd:help {
 ##:doc:000:help: show this help
 	echo "usage: ian <cmd>"
@@ -64,6 +68,10 @@ function cmd:help {
 
 #	echo "--"
 #	grep "^function cmd:" $__file__
+}
+
+function grep_commands {
+	grep "$1" $__file__ | sort -n | awk  -F ":" '{printf "%s\n", $4}'
 }
 
 function print_docstrings {

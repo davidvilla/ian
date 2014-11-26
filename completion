@@ -1,0 +1,6 @@
+_ian() {
+    local cur=${COMP_WORDS[COMP_CWORD]}
+    local commands=$(ian completions)
+    COMPREPLY=( $(compgen -W "$commands" -- $cur) )
+}
+complete -F _ian ian

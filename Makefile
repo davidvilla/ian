@@ -22,3 +22,6 @@ install:
 	install -v -m 644 schroot/fstab $(DESTDIR)/etc/schroot/ian/fstab
 
 	install -vd $(DESTDIR)/usr/bin
+
+	install -vd $(DESTDIR)/etc/bash_completion.d/
+	install -v -m 644 completion $(DESTDIR)/etc/bash_completion.d/ian
