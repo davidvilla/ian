@@ -4,10 +4,15 @@
 NATIVE_LANG="$LANG"
 LANG=C
 IAN_CONFIG=$HOME/.config/ian/config
+IAN_THIS_CONFIG=./.ian
 JAIL_PKGS="debootstrap schroot uuid-runtime"
 
 if [ -e $IAN_CONFIG ]; then
 	source $IAN_CONFIG
+fi
+
+if [ -e $IAN_THIS_CONFIG ]; then
+	source $IAN_THIS_CONFIG
 fi
 
 source /usr/share/ian/shell-commodity.sh
@@ -63,8 +68,8 @@ function cmd:help {
 		print_docstrings "^##:jail:"
 	fi
 
-	echo -e "\nAliases:"
-	print_docstrings "^\##:alias:"
+	echo -e "\nCombos:"
+	print_docstrings "^\##:combo:"
 
 #	echo "--"
 #	grep "^function cmd:" $__file__
@@ -116,7 +121,7 @@ function ian-help-workflow {
 New package release
 -------------------
 
-- ian-new-release
+- ian-release
 - ian-clean
 - ian-build
 -- fix lintian bugs (and build again)
@@ -251,18 +256,20 @@ function version-upstream-uscan {
 }
 
 
-#-- new release ------------------------------------------------------
+#-- release ------------------------------------------------------
 
-function cmd:new-release {
-##:doc:020:new-release: add a new changelog entry
+function cmd:release {
+##:doc:020:release: add a new changelog entry
     (
     assert-preconditions
 	dch -i
+
+	call-release-hook
     )
 }
 
-function cmd:new-release-date {
-##:doc:021:new-release-date: add a new package version based on date: 0.20010101
+function cmd:release-date {
+##:doc:021:release-date: add a new package version based on date: 0.20010101
     (
     assert-preconditions
     local CHLOG=$(mktemp)
@@ -271,7 +278,18 @@ function cmd:new-release-date {
     cat debian/changelog >> $CHLOG
     mv $CHLOG debian/changelog
     emacs +5:4 debian/changelog
+
+	call-release-hook
     )
+}
+
+function call-release-hook() {
+	log-info "setting version to $(pkg-version)"
+
+	if sc-function-exists ian-release-hook; then
+		log-info "running ian-release-hook"
+		ian-release-hook
+	fi
 }
 
 
@@ -488,7 +506,7 @@ function notify-install {
 }
 
 function cmd:build-and-install {
-##:alias:010:build-and-install: run "ian build" + "ian install"
+##:combo:010:build-and-install: run "ian build" + "ian install"
 	(
     sc-assert cmd:build
 	sc-assert cmd:install
@@ -496,7 +514,7 @@ function cmd:build-and-install {
 }
 
 function cmd:clean-build-and-install {
-##:alias:020:clean-build-and-install: run "ian clean" + "ian build" + "ian install"
+##:combo:020:clean-build-and-install: run "ian clean" + "ian build" + "ian install"
 	(
     sc-assert cmd:clean
 	sc-assert cmd:build-and-install
@@ -726,11 +744,11 @@ function cmd:binary-contents {
     )
 }
 
-function cmd:py-version-to-setup {
-	local version=$(version-upstream)
-	sed -i -e "s/\( *version *= *\)'[0-9\.]\+'/\1'$version'/g" setup.py
-	log-info "setting version to $version"
-}
+# function cmd:py-version-to-setup {
+# 	local version=$(version-upstream)
+# 	sed -i -e "s/\( *version *= *\)'[0-9\.]\+'/\1'$version'/g" setup.py
+# 	log-info "setting version to $version"
+# }
 
 function builddeps {
     dpkg-checkbuilddeps 2>&1 | cut -f3 -d':'| sed 's/)//g' | sed 's/ (//g' | sed 's/= /=/g'
