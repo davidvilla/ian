@@ -361,7 +361,7 @@ function cmd:orig {
     (
     assert-preconditions
 	if [ -f $(orig-path) ]; then
-		log-warning "orig $(orig-path) already exists"
+		log-warning "orig $(orig-path) is present"
 		return
 	fi
 
