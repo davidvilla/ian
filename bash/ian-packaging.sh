@@ -272,15 +272,22 @@ function cmd:release-date {
 ##:doc:021:release-date: add a new package version based on date: 0.20010101
     (
     assert-preconditions
+
+    local default="New release"
+    local msg=${1:-$default}
     local CHLOG=$(mktemp)
-    echo $(source-name) \(0.$(date +%Y%m%d-1)\) unstable\; urgency=low > $CHLOG
-    echo -e "\n  * New release\n\n -- \n" >> $CHLOG
+    echo $(source-name) $(date-version) unstable\; urgency=low > $CHLOG
+    echo -e "\n  * $msg\n\n -- \n" >> $CHLOG
     cat debian/changelog >> $CHLOG
     mv $CHLOG debian/changelog
     emacs +5:4 debian/changelog
 
 	call-release-hook
     )
+}
+
+function date-version {
+	echo \(0.$(date +%Y%m%d-1)\)
 }
 
 function call-release-hook() {
@@ -744,12 +751,6 @@ function cmd:binary-contents {
     )
 }
 
-# function cmd:py-version-to-setup {
-# 	local version=$(version-upstream)
-# 	sed -i -e "s/\( *version *= *\)'[0-9\.]\+'/\1'$version'/g" setup.py
-# 	log-info "setting version to $version"
-# }
-
 function builddeps {
     dpkg-checkbuilddeps 2>&1 | cut -f3 -d':'| sed 's/)//g' | sed 's/ (//g' | sed 's/= /=/g'
 	return ${PIPESTATUS[0]}
@@ -787,6 +788,66 @@ function ian-sudo() {
 
 function ian-run() {
 	sc-assert-run "$*" "ian exec"
+}
+
+function cmd:create() {
+##:doc:120:create: create sample files for a new debian package
+	local pkgname=$(basename $(pwd))
+
+    (
+	sc-assert sc-directory-absent ./debian "There is already a debian directory here"
+	assert-debvars
+
+	sc-assert-files-exist ./Makefile
+	if ! grep install Makefile; then
+		sc-log-error "Your Makefile should have an 'install' rule. See Makefile.example"
+		cat <<EOF > ./Makefile.example
+DESTDIR    ?= ~
+
+install:
+	install -vd \$(DESTDIR)/usr/bin
+	install -v -m 555 bin/your-script.sh \$(DESTDIR)/usr/bin/$pkgname
+
+EOF
+		exit 1
+	fi
+
+	mkdir -p debian/source
+	echo "3.0 (quilt)" > ./debian/source/format
+	echo 7 > ./debian/compat
+
+	cat <<EOF > ./debian/control
+Source: $pkgname
+Section: utils
+Priority: extra
+Maintainer: $DEBFULLNAME <$DEBEMAIL>
+Build-Depends: debhelper (>= 7.0.50~), quilt
+Standards-Version: 3.9.6
+
+Package: $pkgname
+Architecture: all
+Depends: \${misc:Depends}
+Description: Short description of the $pkgname package
+ long description about the basic features of the $pkgname package
+EOF
+
+	cat <<EOF > ./debian/rules
+#!/usr/bin/make -f
+
+%:
+	dh \$@ --with quilt
+EOF
+	chmod +x ./debian/rules
+
+	touch ./debian/changelog
+	cmd:release-date "Initial release"
+
+	cat <<EOF > ./debian/copyright
+Copyright $(date +%Y) $DEBFULLNAME <$DEBEMAIL>
+
+License: GPL (/usr/share/common-licenses/GPL)
+EOF
+	)
 }
 
 #-- jail support --

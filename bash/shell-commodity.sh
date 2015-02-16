@@ -82,6 +82,10 @@ function sc-directory-exists {
     [ -d "$1" ]
 }
 
+function sc-directory-absent {
+    [ ! -d "$1" ]
+}
+
 function sc-deb-pkg-installed {
     dpkg -l "$1" 2> /dev/null | grep "^ii" &> /dev/null
 }
