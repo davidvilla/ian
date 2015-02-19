@@ -1,8 +1,0 @@
-#!/usr/bin/make -f
-# -*- mode:make -*-
-
-%:
-	dh $@
-
-get-orig-source:
-	echo "this is a empty sample" > content
