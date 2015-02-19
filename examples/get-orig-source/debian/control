@@ -1,0 +1,13 @@
+Source: sample
+Section: utils
+Priority: extra
+Maintainer: John Doe <john.doe@example.net>
+Build-Depends: debhelper
+Standards-Version: 3.9.6
+
+Package: sample
+Architecture: all
+Depends: ${misc:Depends}
+Description: Debian get-orig-source package minimal sample
+ This is a minimal Debian package that get upstream files running the
+ get-orig-source from de debian/rules makefile
