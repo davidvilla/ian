@@ -1,0 +1,16 @@
+# -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
+
+function ian-release-hook() {
+	echo "release hook"
+    beep
+}
+
+function ian-build-hook() {
+	echo "build hook"
+    beep
+}
+
+function ian-install-hook() {
+	echo "install hook"
+    beep
+}
