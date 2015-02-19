@@ -2,15 +2,15 @@
 
 function ian-release-hook() {
 	echo "release hook"
-    beep
+	beep
 }
 
 function ian-build-hook() {
 	echo "build hook"
-    beep
+	beep
 }
 
 function ian-install-hook() {
 	echo "install hook"
-    beep
+	beep
 }
