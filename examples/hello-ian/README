@@ -1,0 +1,9 @@
+Run:
+
+$ ian create
+$ ian build
+$ ian install
+$ my-hello
+hello world from my very first debian package
+
+Gongrats, now you are a happy Debian maintainer ;-)

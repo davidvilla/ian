@@ -256,7 +256,37 @@ function version-upstream-uscan {
 }
 
 
+#-- hooks ------------------------------------------------------------
+
+function notify-release {
+	if sc-function-exists ian-release-hook; then
+		log-info "running ian-release-hook"
+		ian-release-hook
+	fi
+}
+
+function notify-build {
+	if sc-function-exists ian-build-hook; then
+		log-info "running ian-build-hook"
+		ian-build-hook
+	fi
+}
+
+function notify-install {
+	if sc-function-exists ian-install-hook; then
+		log-info "running ian-install-hook"
+		ian-install-hook
+	fi
+}
+
+
+
 #-- release ------------------------------------------------------
+
+function log-release {
+	log-info "setting version to $(pkg-version)"
+}
+
 
 function cmd:release {
 ##:doc:020:release: add a new changelog entry
@@ -264,7 +294,8 @@ function cmd:release {
     assert-preconditions
 	dch -i
 
-	call-release-hook
+	log-release
+	notify-release
     )
 }
 
@@ -273,32 +304,42 @@ function cmd:release-date {
     (
     assert-preconditions
 
-    local default="New release"
-    local msg=${1:-$default}
-    local CHLOG=$(mktemp)
-    echo $(source-name) $(date-version) unstable\; urgency=low > $CHLOG
-    echo -e "\n  * $msg\n\n -- \n" >> $CHLOG
-    cat debian/changelog >> $CHLOG
-    mv $CHLOG debian/changelog
-    emacs +5:4 debian/changelog
+	local quiet=false
+	local param="$1"
 
-	call-release-hook
+	if [ "$param" == "-y" ]; then
+		quiet=true
+		param=$2
+	fi
+
+    local default="New release"
+    local msg=${param:-$default}
+    local CHLOG=$(mktemp)
+
+	cat <<EOF > $CHLOG
+$(source-name) (0.$(date +%Y%m%d)-1) unstable; urgency=low
+
+  * $msg
+
+ -- $DEBFULLNAME <$DEBEMAIL>  $(date -R)
+
+EOF
+
+	if sc-file-exists "debian/changelog"; then
+		cat debian/changelog >> $CHLOG
+	fi
+
+    mv $CHLOG debian/changelog
+	log-release
+
+	if [ "$quiet" = false ]; then
+		log-info "Openning \$EDITOR ($EDITOR) to get user release comments"
+		emacs +4:0 debian/changelog
+	fi
+
+	notify-release
     )
 }
-
-function date-version {
-	echo \(0.$(date +%Y%m%d-1)\)
-}
-
-function call-release-hook() {
-	log-info "setting version to $(pkg-version)"
-
-	if sc-function-exists ian-release-hook; then
-		log-info "running ian-release-hook"
-		ian-release-hook
-	fi
-}
-
 
 #-- build ------------------------------------------------------------
 
@@ -319,6 +360,7 @@ function cmd:build {
 
 	sc-assert-files-exist $(binary-paths)
 	log-ok "build"
+	notify-build
     )
 }
 
@@ -504,12 +546,6 @@ function cmd:install {
 	log-ok "install"
 	notify-install
 	)
-}
-
-function notify-install {
-	if sc-function-exists ian-install-hook; then
-		ian-install-hook
-	fi
 }
 
 function cmd:build-and-install {
@@ -798,13 +834,15 @@ function cmd:create() {
 	sc-assert sc-directory-absent ./debian "There is already a debian directory here"
 	assert-debvars
 
+	log-info "Check Makefile"
 	sc-assert-files-exist ./Makefile
-	if ! grep install Makefile; then
+	if ! grep install Makefile > /dev/null; then
 		sc-log-error "Your Makefile should have an 'install' rule. See Makefile.example"
 		cat <<EOF > ./Makefile.example
-DESTDIR    ?= ~
+DESTDIR ?= ~
 
 install:
+	FIXME: Install your scripts/binaries/libraries/...
 	install -vd \$(DESTDIR)/usr/bin
 	install -v -m 555 bin/your-script.sh \$(DESTDIR)/usr/bin/$pkgname
 
@@ -816,6 +854,7 @@ EOF
 	echo "3.0 (quilt)" > ./debian/source/format
 	echo 7 > ./debian/compat
 
+	log-info "Creating debian/control"
 	cat <<EOF > ./debian/control
 Source: $pkgname
 Section: utils
@@ -827,10 +866,11 @@ Standards-Version: 3.9.6
 Package: $pkgname
 Architecture: all
 Depends: \${misc:Depends}
-Description: Short description of the $pkgname package
- long description about the basic features of the $pkgname package
+Description: FIXME: Short description of the $pkgname package
+ FIXME: long description about the basic features of the $pkgname package
 EOF
 
+	log-info "Creating debian/rules"
 	cat <<EOF > ./debian/rules
 #!/usr/bin/make -f
 
@@ -839,14 +879,23 @@ EOF
 EOF
 	chmod +x ./debian/rules
 
-	touch ./debian/changelog
-	cmd:release-date "Initial release"
+	log-info "Creating default lintian overrides"
+	cat <<EOF > ./debian/source/lintian-overrides
+$pkgname source: debian-watch-file-is-missing
+EOF
+
+	log-info "Creating initial release (date based version applied)"
+	cmd:release-date -y "Initial release"
 
 	cat <<EOF > ./debian/copyright
 Copyright $(date +%Y) $DEBFULLNAME <$DEBEMAIL>
 
 License: GPL (/usr/share/common-licenses/GPL)
 EOF
+
+	log-warning "Customize ./debian files on your own."
+	log-warning "See https://www.debian.org/doc/debian-policy/ and good look!"
+	log-ok "create"
 	)
 }
 
