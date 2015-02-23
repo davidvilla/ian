@@ -213,9 +213,9 @@ function cmd:summary {
 ##:doc:010:summary: show package info
     (
     assert-preconditions
-    echo "source:             " $(source-name)
+    echo "source:             " $(package)
     echo "uptream:            " $(upstream-version)
-    echo "version:            " $(pkg-version)
+    echo "version:            " $(debian-version)
     echo "orig:               " $(orig-path)
 	echo "  methods:          " $(orig-methods)
     echo "changes:            " $(changes-path)
@@ -284,7 +284,7 @@ function notify-install {
 #-- release ------------------------------------------------------
 
 function log-release {
-	log-info "setting version to $(pkg-version)"
+	log-info "setting version to $(debian-version)"
 }
 
 
@@ -317,7 +317,7 @@ function cmd:release-date {
     local CHLOG=$(mktemp)
 
 	cat <<EOF > $CHLOG
-$(source-name) (0.$(date +%Y%m%d)-1) unstable; urgency=low
+$(package) (0.$(date +%Y%m%d)-1) unstable; urgency=low
 
   * $msg
 
@@ -383,7 +383,7 @@ function build-merging-upstream {
 	cd $build_dir
 	build-standard
 	)
-	cp -v $build_area/$(source-name)_$(pkg-version)* ../
+	cp -v $build_area/$(package)_$(debian-version)* ../
 }
 
 function build-standard {
@@ -438,6 +438,7 @@ function cmd:orig {
 	cmd:clean
 
 	sc-assure-dir $(orig-dir)
+	log-info "orig"
 
     if has-rule get-orig-source; then
 		cmd:orig-from-rule
@@ -446,6 +447,7 @@ function cmd:orig {
     else
 		cmd:orig-from-local
     fi
+
     sc-assert-files-exist $(orig-path)
 	log-ok "orig"
     )
@@ -453,8 +455,7 @@ function cmd:orig {
 
 function cmd:orig-from-rule {
 ##:doc:016:orig-from-rule: execute "get-orig-source" rule of debian/rules to get .orig. file
-	log-info "orig-from-rule"
-    make -f ./debian/rules get-orig-source
+    ian-run "make -f ./debian/rules get-orig-source"
     mv -v $(orig-filename) $(orig-dir)/
 }
 
@@ -491,7 +492,7 @@ function orig-dir {
 }
 
 function orig-filename {
-    echo $(source-name)_$(upstream-version).orig.tar.gz
+    echo $(package)_$(upstream-version).orig.tar.gz
 }
 
 function orig-path {
@@ -639,7 +640,7 @@ function cmd:upload {
 
 function cmd:remove {
 ##:doc:100:remove: remove package from configured package repository
-    for pkg in $(binary-names) $(source-name); do
+    for pkg in $(binary-names) $(package); do
 		remove-package $pkg
     done
 }
@@ -667,6 +668,7 @@ function repo-path {
 
 function assert-debian-dir {
     sc-assert-directory-exists ./debian
+	sc-assert-files-exist ./debian/control ./debian/rules ./debian/changelog
 }
 
 function debvars-missing {
@@ -684,8 +686,13 @@ function assert-debvars {
 }
 
 function assert-preconditions {
+	if [ "$PRECONDITIONS_CHECKED" = true ]; then
+		return 0
+	fi
+
     assert-debian-dir
     assert-debvars
+	PRECONDITIONS_CHECKED=true
 }
 
 function assert-uses-svn {
@@ -694,8 +701,14 @@ function assert-uses-svn {
 
 #-- identities --
 
-function source-name {
-	dpkg-parsechangelog -ldebian/changelog --show-field=Source
+function package {
+	if sc-var-defined _PACKAGE; then
+		echo $_PACKAGE
+		return
+	fi
+
+	_PACKAGE=$(dpkg-parsechangelog -ldebian/changelog --show-field=Source)
+	package
 #    grep "^Source:" debian/control | cut -f2 -d:  | tr -d " "
 }
 
@@ -722,17 +735,23 @@ function arch-control {
     grep "Architecture:" debian/control | tail -n +$index | head -n1 | cut -f2 -d:  | tr -d " "
 }
 
-function pkg-version {
-	dpkg-parsechangelog -ldebian/changelog --show-field=Version
+function debian-version {
+	if sc-var-defined _DEBIAN_VERSION; then
+		echo $_DEBIAN_VERSION
+		return
+	fi
+
+	_DEBIAN_VERSION=$(dpkg-parsechangelog -ldebian/changelog --show-field=Version)
+	debian-version
 #    head -n 1 debian/changelog | cut -f2 -d " " | tr -d "()"
 }
 
-function upstream-version {
-    echo $(pkg-version) | cut -f1 -d "-"
+function upstream-fullname {
+	echo $(package)-$(upstream-version)
 }
 
-function upstream-fullname {
-	echo $(source-name)-$(upstream-version)
+function upstream-version {
+    echo $(debian-version) | cut -f1 -d "-"
 }
 
 
@@ -740,7 +759,7 @@ function upstream-fullname {
 
 function binary-filenames {
     for pkg in $(binary-names); do
-	    echo ${pkg}_$(pkg-version)_$(arch-binary $pkg).deb
+	    echo ${pkg}_$(debian-version)_$(arch-binary $pkg).deb
     done
 }
 
@@ -756,7 +775,7 @@ function binary-paths {
 }
 
 function changes-filename {
-    echo $(source-name)_$(pkg-version)_$(arch-build).changes
+    echo $(package)_$(debian-version)_$(arch-build).changes
 }
 
 function changes-path {
@@ -764,7 +783,7 @@ function changes-path {
 }
 
 function dsc-filename {
-    echo $(source-name)_$(pkg-version).dsc
+    echo $(package)_$(debian-version).dsc
 }
 
 function dsc-path {
@@ -775,7 +794,7 @@ function generated-filenames {
     orig-filename
     changes-filename
     dsc-filename
-    local deb_prefix=$(source-name)_$(pkg-version)
+    local deb_prefix=$(package)_$(debian-version)
     echo $deb_prefix.debian.tar.gz
     echo $deb_prefix.diff.gz
 	echo $deb_prefix.upload
