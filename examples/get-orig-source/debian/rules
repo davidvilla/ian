@@ -9,8 +9,13 @@ EXCLUDE=--exclude=debian --exclude=\*~ --exclude=.hg --exclude=.svn --exclude=\*
 %:
 	dh $@
 
+# https://wiki.debian.org/onlyjob/get-orig-source
 get-orig-source:
 	mkdir $(ORIG_DIR)
-	echo "this is a empty sample" > $(ORIG_DIR)/content
+	echo '#!/bin/bash\necho hello' > $(ORIG_DIR)/hi.sh
+	echo 'DESTDIR ?= ~' > $(ORIG_DIR)/Makefile
+	echo 'install:' >> $(ORIG_DIR)/Makefile
+	echo '	install -vd $$(DESTDIR)/usr/bin' >> $(ORIG_DIR)/Makefile
+	echo '	install -v -m 555 hi.sh $$(DESTDIR)/usr/bin/hi' >> $(ORIG_DIR)/Makefile
 	tar $(EXCLUDE) -czf $(APP)_$(VERSION).orig.tar.gz $(ORIG_DIR)
 	$(RM) -r $(ORIG_DIR)
