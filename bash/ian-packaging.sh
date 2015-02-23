@@ -194,7 +194,7 @@ function orig-methods {
 	if has-rule get-orig-source; then
 		methods[0]='from-rule'
 	fi
-	if uses-uscan; then
+	if valid-watch-present; then
 		methods[1]='uscan'
 	fi
 	if [ $(ls | wc -l) -gt 1 ]; then
@@ -220,7 +220,7 @@ function cmd:summary {
 	echo "  methods:          " $(orig-methods)
     echo "changes:            " $(changes-path)
 
-	if uses-uscan; then
+	if valid-watch-present; then
 	echo "watch:              " $(upstream-version-uscan)
 	fi
 
@@ -441,7 +441,7 @@ function cmd:orig {
 
     if has-rule get-orig-source; then
 		cmd:orig-from-rule
-    elif uses-uscan; then
+    elif valid-watch-present; then
 		cmd:orig-uscan
     else
 		cmd:orig-from-local
@@ -461,6 +461,7 @@ function cmd:orig-from-rule {
 # http://people.debian.org/~piotr/uscan-dl
 function cmd:orig-uscan {
 ##:doc:016:orig-uscan: execute uscan to download the .orig. file
+	assert-valid-watch
 	log-info "orig-uscan"
     uscan --verbose --download-current-version --force-download --repack --rename --destdir $(orig-dir)
 }
@@ -514,7 +515,7 @@ function cmd:clean {
 	fi
 	clean-common
 
-    if uses-uscan; then
+    if valid-watch-present; then
 		cmd:clean-uscan
 	fi
 
@@ -793,8 +794,12 @@ function uses-svn {
     (svn pl debian | grep mergeWithUpstream) &> /dev/null
 }
 
-function uses-uscan {
+function valid-watch-present {
 	grep -v ".*#" debian/watch &> /dev/null
+}
+
+function assert-valid-watch {
+	sc-assert valid-watch-present
 }
 
 function has-rule {
