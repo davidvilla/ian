@@ -214,14 +214,14 @@ function cmd:summary {
     (
     assert-preconditions
     echo "source:             " $(source-name)
-    echo "uptream:            " $(version-upstream)
+    echo "uptream:            " $(upstream-version)
     echo "version:            " $(pkg-version)
     echo "orig:               " $(orig-path)
 	echo "  methods:          " $(orig-methods)
     echo "changes:            " $(changes-path)
 
 	if uses-uscan; then
-	echo "watch:              " $(version-upstream-uscan)
+	echo "watch:              " $(upstream-version-uscan)
 	fi
 
 	echo "binaries:           " $(binary-names)
@@ -243,7 +243,7 @@ function pkg-vcs {
 	echo "none"
 }
 
-function version-upstream-uscan {
+function upstream-version-uscan {
 	local -a outputs
 	sc-call-out-err outputs uscan --report --verbose
 
@@ -348,15 +348,20 @@ function cmd:build {
     (
     assert-preconditions
 	sc-assert cmd:orig
-
 	builddeps-assure
 	log-info "build"
 
     if uses-svn; then
 		build-svn
-    else
+    elif ls -1 | wc -l | grep ^1$ > /dev/null; then
+		build-merging-upstream
+	else
 		build-standard
     fi
+
+    changes=$(changes-path)
+	log-info "lintian: $changes"
+    lintian -I $changes
 
 	sc-assert-files-exist $(binary-paths)
 	log-ok "build"
@@ -364,24 +369,38 @@ function cmd:build {
     )
 }
 
+function build-merging-upstream {
+	local build_area=$(mktemp -d)
+	local build_dir=$build_area/$(upstream-fullname)
+	mkdir -p $build_dir
+
+	log-info "merging with uptream in a temp build area: $build_area"
+	tar --no-same-owner --no-same-permissions --extract --gzip --file $(orig-path) --directory $build_area/
+	cp -r ./debian $build_dir/
+	cp $(orig-path) $build_area/
+	chmod -R u+r+w+X,g+r-w+X,o+r-w+X -- $build_dir
+	(
+	cd $build_dir
+	build-standard
+	)
+	cp -v $build_area/$(source-name)_$(pkg-version)* ../
+}
+
 function build-standard {
     (
     assert-preconditions
     dpkg-buildpackage -uc -us
-
-    changes=$(changes-path)
-	log-info "LINTIAN: $changes"
-    lintian -I $changes
     )
 }
 
-# http://people.debian.org/~piotr/uscan-dl
 function build-svn {
     (
     assert-preconditions
 	assert-uses-svn
-	sc-assure-dir ../build-area
-    svn-buildpackage -rfakeroot -us -uc --svn-ignore --svn-ignore-new --svn-lintian
+#	sc-assure-dir ../build-area
+	log-info "running svn-buildpackage"
+    svn-buildpackage -rfakeroot -us -uc --svn-ignore --svn-ignore-new --svn-override origDir=.. --svn-override buildArea=..
+	clean-svn
     )
 }
 
@@ -390,10 +409,10 @@ function build-svn {
 # }
 
 function build-dir {
-    if uses-svn; then
-		echo "../build-area"
-		return
-    fi
+    # if uses-svn; then
+	# 	echo "../build-area"
+	# 	return
+    # fi
 
     echo ".."
 }
@@ -439,6 +458,7 @@ function cmd:orig-from-rule {
     mv -v $(orig-filename) $(orig-dir)/
 }
 
+# http://people.debian.org/~piotr/uscan-dl
 function cmd:orig-uscan {
 ##:doc:016:orig-uscan: execute uscan to download the .orig. file
 	log-info "orig-uscan"
@@ -449,7 +469,7 @@ function cmd:orig-from-local {
 ##:doc:016:orig-from-local: create an .orig. file from current directory content
     log-info "orig-from-local"
 
-    local orig_tmp=$(source-name)-$(version-upstream)
+    local orig_tmp=$(upstream-fullname)
     mkdir -p $orig_tmp
 
     local EXCLUDE="--exclude=$orig_tmp --exclude=./debian --exclude=\*~ --exclude-vcs --exclude=\*.pyc --exclude .pc"
@@ -461,16 +481,16 @@ function cmd:orig-from-local {
 }
 
 function orig-dir {
-	if uses-svn; then
-		echo ../tarballs
-		return
-	fi
+	# if uses-svn; then
+	# 	echo ../tarballs
+	# 	return
+	# fi
 
 	echo ..
 }
 
 function orig-filename {
-    echo $(source-name)_$(version-upstream).orig.tar.gz
+    echo $(source-name)_$(upstream-version).orig.tar.gz
 }
 
 function orig-path {
@@ -491,9 +511,8 @@ function cmd:clean {
 
     if uses-svn; then
 		clean-svn
-    else
-		clean-common
-    fi
+	fi
+	clean-common
 
     if uses-uscan; then
 		cmd:clean-uscan
@@ -517,9 +536,8 @@ function clean-common {
 function clean-svn {
 	(
     assert-preconditions
-    log-info "clean-svn"
-
-    rm -vrf ../tarballs/* ../build-area/*
+    log-info "clean-svn: purging build area"
+	rm -rf ../$(upstream-fullname) ../$(upstream-fullname).obsolete.*
 	)
 }
 
@@ -676,8 +694,8 @@ function assert-uses-svn {
 #-- identities --
 
 function source-name {
-    grep "^Source:" debian/control | cut -f2 -d:  | tr -d " "
-#	dpkg-parsechangelog | sed -n 's/^Source: //p'
+	dpkg-parsechangelog -ldebian/changelog --show-field=Source
+#    grep "^Source:" debian/control | cut -f2 -d:  | tr -d " "
 }
 
 function binary-names {
@@ -704,11 +722,16 @@ function arch-control {
 }
 
 function pkg-version {
-    head -n 1 debian/changelog | cut -f2 -d " " | tr -d "()"
+	dpkg-parsechangelog -ldebian/changelog --show-field=Version
+#    head -n 1 debian/changelog | cut -f2 -d " " | tr -d "()"
 }
 
-function version-upstream {
+function upstream-version {
     echo $(pkg-version) | cut -f1 -d "-"
+}
+
+function upstream-fullname {
+	echo $(source-name)-$(upstream-version)
 }
 
 
@@ -722,9 +745,9 @@ function binary-filenames {
 
 function binary-paths {
     local build_path=".."
-    if uses-svn; then
-		build_path="../build-area"
-    fi
+    # if uses-svn; then
+	# 	build_path="../build-area"
+    # fi
 
     for fname in $(binary-filenames); do
 		echo $build_path/$fname
