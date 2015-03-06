@@ -89,7 +89,7 @@ function ian-help-setup {
 New maintainer process
 ----------------------
 
-- Define environment variables in your ~/.config/ian/config
+- Define environment variables in your '~/.config/ian/config'
   (run: ian-help-debvars-examples)
 
 - Create a GPG key pair: gpg --gen-key)
@@ -121,66 +121,65 @@ function ian-help-workflow {
 New package release
 -------------------
 
-- ian-release
-- ian-clean
-- ian-build
+- ian release
+- ian clean
+- ian build
 -- fix lintian bugs (and build again)
-- ian-install
-- ian-binary-contents
+- ian install
+- ian binary-contents
 -- check success instalation and file location
-- ian-upload
+- ian upload
 EOF
 }
 
-function ian-debvars-luser {
+#FIXME: generate missing lines in ~/.config/ian/config
+function cmd:debvars-luser {
 	local TMP=$(mktemp)
-	local need_vars=0
+	local need_vars=false
 
 	if ! sc-var-defined DEBFULLNAME; then
 		echo "DEBFULLNAME=$USERNAME" >> $TMP
-		log-warning "exporting placeholder DEBFULLNAME=$USERNAME"
-		need_vars=1
+		log-warning "exporting placeholder 'DEBFULLNAME=$USERNAME'"
+		need_vars=true
 	fi
 
 	if ! sc-var-defined DEBEMAIL; then
 		fakemail="$LOGNAME@$HOSTNAME"
 		echo "DEBEMAIL=\"$fakemail\"" >> $TMP
-		log-warning "exporting placeholder DEBEMAIL=$fakemail"
-		need_vars=1
+		log-warning "exporting placeholder 'DEBEMAIL=$fakemail'"
+		need_vars=true
 	fi
 
 	if ! sc-var-defined DEBSIGN_KEYID; then
 		fakeid="DEADBEE"
 		echo "DEBSIGN_KEYID=$fakeid" >> $TMP
-		log-warning "exporting placeholder DEBSIGN_KEYID=$fakeid"
-		need_vars=1
+		log-warning "exporting placeholder 'DEBSIGN_KEYID=$fakeid'"
+		need_vars=true
 	fi
 
 	if ! sc-var-defined DEBREPO_URL; then
 		fakepath="$USERNAME@your.server.net/path/to/repo"
 		echo "DEBREPO_URL=$fakepath" >> $TMP
-		log-warning "exporting placeholder DEBREPO_URL=$fakepath"
-		need_vars=1
+		log-warning "exporting placeholder 'DEBREPO_URL=$fakepath'"
+		need_vars=true
 	fi
 
-	if [[ $need_vars -eq 0 ]]; then
-		echo "Your environment is already right. You are not a luser."
+	if [ "$need_vars" = false ]; then
+		log-info "Your environment is already right. You don't seem a luser."
 	else
-		echo "run: 'cp $TMP $IAN_CONFIG', make your changes and try again"
+		log-warning "run: 'cat $TMP >> $IAN_CONFIG', make your changes and retry."
 	fi
 }
 
-#FIXME
-function ian-debvars {
+function cmd:debvars {
 	echo "DEBFULLNAME:  " $DEBFULLNAME
 	echo "DEBEMAIL:     " $DEBEMAIL
 	echo "DEBSIGN_KEYID:" $DEBSIGN_KEYID
 	echo "DEBREPO_URL:  " $DEBREPO_URL
 }
 
-#FIXME
 function ian-help-debvars-examples {
-	log-info "define variables bellow in your ~/.config/ian/config using your info:"
+	log-info "define variables bellow in your '~/.config/ian/config' using your info:"
     cat <<EOF
 DEBFULLNAME="John Doe"
 DEBEMAIL=john.doe@email.com
@@ -301,20 +300,23 @@ function cmd:release {
 
 function cmd:release-date {
 ##:doc:021:release-date: add a new package version based on date: 0.20010101
-    (
-    assert-preconditions
+##:usage: release-date [-y] [release message]
+##:usage:
+##:usage: -y:  do not ask for a release message
 
-	local quiet=false
 	local param="$1"
+	local quiet=false
 
 	if [ "$param" == "-y" ]; then
 		quiet=true
-		param=$2
+		param="$2"
 	fi
 
     local default="New release"
     local msg=${param:-$default}
     local CHLOG=$(mktemp)
+
+	assert-debvars
 
 	cat <<EOF > $CHLOG
 $(package) (0.$(date +%Y%m%d)-1) unstable; urgency=low
@@ -329,7 +331,9 @@ EOF
 		cat debian/changelog >> $CHLOG
 	fi
 
+    (
     mv $CHLOG debian/changelog
+	assert-debian-dir
 	log-release
 
 	if [ "$quiet" = false ]; then
@@ -690,8 +694,8 @@ function assert-preconditions {
 		return 0
 	fi
 
-    assert-debian-dir
     assert-debvars
+    assert-debian-dir
 	PRECONDITIONS_CHECKED=true
 }
 
@@ -707,9 +711,10 @@ function package {
 		return
 	fi
 
-	_PACKAGE=$(dpkg-parsechangelog -ldebian/changelog --show-field=Source)
+	# this requires debian/changelog and it's required when there is not a changelog yet
+	# _PACKAGE=$(dpkg-parsechangelog -ldebian/changelog --show-field=Source)
+	_PACKAGE=$(grep "^Source:" debian/control | cut -f2 -d:  | tr -d " ")
 	package
-#    grep "^Source:" debian/control | cut -f2 -d:  | tr -d " "
 }
 
 function binary-names {
@@ -741,9 +746,9 @@ function debian-version {
 		return
 	fi
 
+#    head -n 1 debian/changelog | cut -f2 -d " " | tr -d "()"
 	_DEBIAN_VERSION=$(dpkg-parsechangelog -ldebian/changelog --show-field=Version)
 	debian-version
-#    head -n 1 debian/changelog | cut -f2 -d " " | tr -d "()"
 }
 
 function upstream-fullname {
@@ -882,24 +887,44 @@ function cmd:create() {
 	assert-debvars
 
 	log-info "Check Makefile"
-	sc-assert-files-exist ./Makefile
 	if ! grep install Makefile > /dev/null; then
-		sc-log-error "Your Makefile should have an 'install' rule. See Makefile.example"
-		cat <<EOF > ./Makefile.example
-DESTDIR ?= ~
-
-install:
-	FIXME: Install your scripts/binaries/libraries/...
-	install -vd \$(DESTDIR)/usr/bin
-	install -v -m 555 bin/your-script.sh \$(DESTDIR)/usr/bin/$pkgname
-
-EOF
+		sc-log-error "Your Makefile should have an 'install' rule. See created 'Makefile.example'"
+		create-makefile
 		exit 1
 	fi
 
 	mkdir -p debian/source
 	echo "3.0 (quilt)" > ./debian/source/format
 	echo 7 > ./debian/compat
+
+	create-control "$pkgname"
+	create-rules
+	create-lintian-overrides
+
+	log-info "Creating initial release (date based version applied)"
+	cmd:release-date -y "Initial release"
+
+	create-copyright
+
+	log-warning "Customize ./debian files on your own."
+	log-warning "See https://www.debian.org/doc/debian-policy/ and good look!"
+	log-ok "create"
+	)
+}
+
+function create-makefile() {
+	cat <<EOF > ./Makefile.example
+DESTDIR ?= ~
+
+install:
+	FIXME: Install your scripts/binaries/libraries/...
+	install -vd \$(DESTDIR)/usr/bin
+	install -v -m 555 bin/your-script.sh \$(DESTDIR)/usr/bin/
+EOF
+}
+
+function create-control() {
+	local pkgname="$1"
 
 	log-info "Creating debian/control"
 	cat <<EOF > ./debian/control
@@ -916,7 +941,9 @@ Depends: \${misc:Depends}
 Description: FIXME: Short description of the $pkgname package
  FIXME: long description about the basic features of the $pkgname package
 EOF
+}
 
+function create-rules() {
 	log-info "Creating debian/rules"
 	cat <<EOF > ./debian/rules
 #!/usr/bin/make -f
@@ -925,25 +952,21 @@ EOF
 	dh \$@ --with quilt
 EOF
 	chmod +x ./debian/rules
+}
 
+function create-lintian-overrides() {
 	log-info "Creating default lintian overrides"
 	cat <<EOF > ./debian/source/lintian-overrides
 $pkgname source: debian-watch-file-is-missing
 EOF
+}
 
-	log-info "Creating initial release (date based version applied)"
-	cmd:release-date -y "Initial release"
-
+function create-copyright() {
 	cat <<EOF > ./debian/copyright
 Copyright $(date +%Y) $DEBFULLNAME <$DEBEMAIL>
 
 License: GPL (/usr/share/common-licenses/GPL)
 EOF
-
-	log-warning "Customize ./debian files on your own."
-	log-warning "See https://www.debian.org/doc/debian-policy/ and good look!"
-	log-ok "create"
-	)
 }
 
 #-- jail support --
