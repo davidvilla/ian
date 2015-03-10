@@ -1,6 +1,23 @@
 #!/bin/bash
 # -*- coding:utf-8; tab-width:4; mode:shell-script -*-
 
+#-- command table --
+##:map:010:summary
+##:map:015:orig
+##:map:016:orig-from-local
+##:map:016:orig-from-rule
+##:map:016:orig-uscan
+##:map:020:release
+##:map:021:release-date
+##:map:030:clean
+##:map:031:clean-uscan
+##:map:040:build
+##:map:060:binary-contents
+##:map:070:install
+##:map:090:upload
+##:map:100:remove
+##:map:120:create
+
 NATIVE_LANG="$LANG"
 LANG=C
 IAN_CONFIG=$HOME/.config/ian/config
