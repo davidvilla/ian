@@ -57,7 +57,14 @@ function cmd:completions {
 }
 
 function cmd:help {
-##:doc:000:help: show this help
+##:doc:000:help:show this help
+	local param="$1"
+
+	if [ "$param" != "" ]; then
+		print_command_usage "$param"
+		return
+	fi
+
 	echo "usage: ian <cmd>"
 
 	echo -e "\nCommands:"
@@ -70,13 +77,27 @@ function cmd:help {
 
 	echo -e "\nCombos:"
 	print_docstrings "^\##:combo:"
-
-#	echo "--"
-#	grep "^function cmd:" $__file__
 }
 
 function grep_commands {
 	grep "$1" $__file__ | sort -n | awk  -F ":" '{printf "%s\n", $4}'
+}
+
+function print_command_usage {
+	local cmd="$1"
+
+	local help=$(grep "^\##:doc:" $__file__ | grep -w "$cmd" | sort -n | awk  -F ":" '{printf "%s\n\n%s\n", $4, $5}')
+	if [ "$help" = "" ]; then
+		log-error "unknown command: '$cmd'"
+		exit 1
+	fi
+
+	echo "ian $help"
+
+	local ref="^\##:doc::$cmd"
+	echo $ref
+
+	grep -A 2 "$ref" $__file__
 }
 
 function print_docstrings {
@@ -209,7 +230,7 @@ function orig-methods {
 }
 
 function cmd:summary {
-##:doc:010:summary: show package info
+##:doc:010:summary:show package info
     (
     assert-preconditions
     echo "source:             " $(package)
@@ -288,7 +309,7 @@ function log-release {
 
 
 function cmd:release {
-##:doc:020:release: add a new changelog entry
+##:doc:020:release:add a new changelog entry
     (
     assert-preconditions
 	dch -i
@@ -299,10 +320,15 @@ function cmd:release {
 }
 
 function cmd:release-date {
-##:doc:021:release-date: add a new package version based on date: 0.20010101
+##:doc:021:release-date:add a new package version based on date: 0.20010101
 ##:usage: release-date [-y] [release message]
 ##:usage:
 ##:usage: -y:  do not ask for a release message
+
+##:021:cmd:add a new package version based on date: 0.20010101
+##:021:usage: release-date [-y] [release message]
+##:021:usage:
+##:021:usage: -y:  do not ask for a release message
 
 	local param="$1"
 	local quiet=false
@@ -348,7 +374,7 @@ EOF
 #-- build ------------------------------------------------------------
 
 function cmd:build {
-##:doc:040:build: build all binary packages
+##:doc:040:build:build all binary packages
     (
     assert-preconditions
 	sc-assert cmd:orig
@@ -429,7 +455,7 @@ function build-dir {
 # - uscan
 # - from "local" files
 function cmd:orig {
-##:doc:015:orig: generate or download .orig. file
+##:doc:015:orig:generate or download .orig. file
     (
     assert-preconditions
 	if [ -f $(orig-path) ]; then
@@ -458,21 +484,21 @@ function cmd:orig {
 }
 
 function cmd:orig-from-rule {
-##:doc:016:orig-from-rule: execute "get-orig-source" rule of debian/rules to get .orig. file
+##:doc:016:orig-from-rule:execute "get-orig-source" rule of debian/rules to get .orig. file
     ian-run "make -f ./debian/rules get-orig-source"
     mv -v $(orig-filename) $(orig-dir)/
 }
 
 # http://people.debian.org/~piotr/uscan-dl
 function cmd:orig-uscan {
-##:doc:016:orig-uscan: execute uscan to download the .orig. file
+##:doc:016:orig-uscan:execute uscan to download the .orig. file
 	assert-valid-watch
 	log-info "orig-uscan"
     uscan --verbose --download-current-version --force-download --repack --rename --destdir $(orig-dir)
 }
 
 function cmd:orig-from-local {
-##:doc:016:orig-from-local: create an .orig. file from current directory content
+##:doc:016:orig-from-local:create an .orig. file from current directory content
     log-info "orig-from-local"
 
     local orig_tmp=$(upstream-fullname)
@@ -506,7 +532,7 @@ function orig-path {
 #-- clean ------------------------------------------------------------
 
 function cmd:clean {
-##:doc:030:clean: clean generated packaging files and revert patches
+##:doc:030:clean:clean generated packaging files and revert patches
     (
     assert-preconditions
 	builddeps-assure
@@ -548,7 +574,7 @@ function clean-svn {
 }
 
 function cmd:clean-uscan {
-##:doc:031:clean-uscan: clean uscan generated files
+##:doc:031:clean-uscan:clean uscan generated files
 	log-info "clean-uscan"
 	local nline=$(uscan --report --verbose | grep -n "^Newest version on remote" | cut -d":" -f 1)
 	local nline=$(echo $nline - 1 | bc)
@@ -560,7 +586,7 @@ function cmd:clean-uscan {
 #-- install ----------------------------------------------------------
 
 function cmd:install {
-##:doc:070:install: install (with sudo dpkg) all binary packages
+##:doc:070:install:install (with sudo dpkg) all binary packages
 	(
 	assert-preconditions
 	sc-assert-files-exist $(binary-paths)
@@ -592,7 +618,7 @@ function cmd:clean-build-and-install {
 #-- repo actions -----------------------------------------------------
 
 function cmd:upload {
-##:doc:090:upload: sign and upload binary packages to configured package repository
+##:doc:090:upload:sign and upload binary packages to configured package repository
     (
 	sc-assert-files-exist ~/.gnupg/secring.gpg
 	sc-assert-files-exist $(changes-path) $(binary-paths)
@@ -643,7 +669,7 @@ function cmd:upload {
 }
 
 function cmd:remove {
-##:doc:100:remove: remove package from configured package repository
+##:doc:100:remove:remove package from configured package repository
     for pkg in $(binary-names) $(package); do
 		remove-package $pkg
     done
@@ -831,7 +857,7 @@ function has-rule {
 }
 
 function cmd:binary-contents {
-##:doc:060:binary-contents: show binary package file listings
+##:doc:060:binary-contents:show binary package file listings
     (
     assert-preconditions
 	sc-assert-files-exist $(changes-path)
@@ -879,7 +905,7 @@ function ian-run() {
 }
 
 function cmd:create() {
-##:doc:120:create: create sample files for a new debian package
+##:doc:120:create:create sample files for a new debian package
 	local pkgname=$(basename $(pwd))
 
     (
