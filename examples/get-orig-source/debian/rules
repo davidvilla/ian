@@ -1,8 +1,8 @@
 #!/usr/bin/make -f
 # -*- mode:make -*-
 
-APP=sample
-VERSION=$(dpkg-parsechangelog -ldebian/changelog --show-field=Version)
+APP=$(shell dpkg-parsechangelog -l./debian/changelog --show-field=Source)
+VERSION=$(shell dpkg-parsechangelog -l./debian/changelog --show-field=Version | cut -d- -f1)
 ORIG_DIR=$(APP)-$(VERSION)
 EXCLUDE=--exclude=debian --exclude=\*~ --exclude=.hg --exclude=.svn --exclude=\*.pyc
 

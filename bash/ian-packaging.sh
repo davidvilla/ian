@@ -2,22 +2,26 @@
 # -*- coding:utf-8; tab-width:4; mode:shell-script -*-
 
 #-- command table --
-##:map:000:help
-##:map:010:summary
-##:map:015:orig
-##:map:016:orig-from-local
-##:map:017:orig-from-rule
-##:map:018:orig-uscan
-##:map:020:release
-##:map:021:release-date
-##:map:030:clean
-##:map:031:clean-uscan
-##:map:040:build
-##:map:060:binary-contents
-##:map:070:install
-##:map:090:upload
-##:map:100:remove
-##:map:120:create
+##:ian-map:000:help
+##:ian-map:010:summary
+##:ian-map:015:orig
+##:ian-map:016:orig-from-local
+##:ian-map:017:orig-from-rule
+##:ian-map:018:orig-uscan
+##:ian-map:020:release
+##:ian-map:021:release-date
+##:ian-map:030:clean
+##:ian-map:031:clean-uscan
+##:ian-map:040:build
+##:ian-map:060:binary-contents
+##:ian-map:070:install
+##:ian-map:090:upload
+##:ian-map:100:remove
+##:ian-map:120:create
+
+##:jail-map:201:login
+##:jail-map:202:jail-upgrade
+##:jail-map:203:jail-destroy
 
 NATIVE_LANG="$LANG"
 LANG=C
@@ -76,44 +80,60 @@ function cmd:completions {
 
 function cmd:help {
 ##:000:cmd:show this help
-	local param="$1"
+##:000:usage:ian help [command]
 
-	if [ "$param" != "" ]; then
-		print-usage-details "$param"
+	local cmd="$1"
+
+	if ! [ -z "$cmd" ]; then
+		if ! get-command-list | grep "$cmd" > /dev/null; then
+			unknown-command "$cmd"
+		fi
+
+		print-usage-details "ian-map" "$cmd"
 		return
 	fi
 
 	echo "usage: ian <cmd>"
 
 	echo -e "\nCommands:"
-	print-command-synopsis
+	print-command-synopsis "ian-map"
 
 	if [ "X${JAIL_ARCH}X" != "XX" ]; then
 		echo -e "\nJail commands:"
-		print_docstrings "^##:jail:"
+		print-command-synopsis "jail-map"
 	fi
 
 	# echo -e "\nCombos:"
 	# print_docstrings "^\##:combo:"
 }
 
+function unknown-command() {
+	log-error "unknown command: '$1'\n"
+	cmd:help
+	exit 1
+}
+
 function command-map {
-	grep "map" $__file__ | grep "^##" | sort -n | awk -F":" '{printf "%s:%s:\n", $3, $4}'
+	local map="$1"
+	grep "$map" $__file__ | grep "^##" | sort -n | awk -F":" '{printf "%s:%s:\n", $3, $4}'
 }
 
 function get-command-list {
-	grep "map" $__file__ | grep "^##" | sort -n | cut -d: -f4
+	local map="$1"
+	grep "$map" $__file__ | grep "^##" | sort -n | cut -d: -f4
 }
 
 function get-command-code {
-	local cmd="$1"
-	command-map | grep ":$cmd:" | cut -d: -f1
+	local map="$1"
+	local cmd="$2"
+	command-map "$map" | grep ":$cmd:" | cut -d: -f1
 }
 
 function print-command-synopsis {
-	for cmd in $(get-command-list); do
+	local map="$1"
+	for cmd in $(get-command-list "$map"); do
 		printf "  \033[1m%-24s\033[0m" $cmd
-		local code=$(get-command-code $cmd)
+		local code=$(get-command-code "$map" "$cmd")
 		print-usage $code
 	done
 }
@@ -124,22 +144,27 @@ function print-usage {
 }
 
 function print-usage-details() {
-	local cmd="$1"
-	local code=$(get-command-code $cmd)
+	local map="$1"
+	local cmd="$2"
+	local code=$(get-command-code "$map" "$cmd")
 
 	local usage=$(grep "^##:$code:usage:" $__file__ | cut -d: -f4)
 	local usage_lines=$(echo "$usage" | wc -l)
 
-	echo $(wc -l <<< "$usage")
-
-	if [ "X$usage_linesX" = "X0X" ]; then
-		echo "fin"
+	if [ -z "$usage" ]; then
+		printf "ian $cmd\n\n"
+		print-usage "$code"
 		return
 	fi
 
 	echo "$usage" | head -n 1
 	echo
 	print-usage "$code"
+
+	if [ "$usage_lines" -lt 2 ]; then
+		return
+	fi
+
 	printf "\noptions:\n\n"
 	echo "$usage" | tail -n "$(($usage_lines-1))"
 }
@@ -409,6 +434,11 @@ EOF
 
 function cmd:build {
 ##:040:cmd:build all binary packages
+##:040:usage:ian build [-m]
+##:040:usage:  -m;  merge ./debian with upstream .orig. bypassing directory contents
+
+	local param="$1"
+
     (
     assert-preconditions
 	sc-assert cmd:orig
@@ -417,7 +447,7 @@ function cmd:build {
 
     if uses-svn; then
 		build-svn
-    elif ls -1 | wc -l | grep ^1$ > /dev/null; then
+    elif [ "$param" == "-m" ]; then
 		build-merging-upstream
 	else
 		build-standard
@@ -466,6 +496,74 @@ function build-svn {
     svn-buildpackage -rfakeroot -us -uc --svn-ignore --svn-ignore-new --svn-override origDir=.. --svn-override buildArea=..
 	clean-svn
     )
+}
+
+function cmd:lintian-shut-up() {
+	local log=$(lintian -I $changes)
+
+	local tag="debian-watch-file-is-missing"
+	if echo "$log" | grep $tag > /dev/null; then
+		log-info "shuttin up $tag"
+		cat <<EOF > ./debian/source/lintian-overrides
+$package source: debian-watch-file-is-missing
+EOF
+	fi
+
+	local tag="binary-without-manpage"
+	local msg=$(mktemp)
+	if echo "$log" | grep $tag > $msg; then
+		log-info "shuttin up '$(cat $msg)'"
+		local cmd=$(basename $(cat $msg | cut -d' ' -f4))
+		create-placeholder-manpage "$cmd"
+		log-ok "manpage '$cmd.rst' created"
+	fi
+
+	log-info "tune and re-build"
+}
+
+function create-placeholder-manpage() {
+	local bin="$1"
+
+	cat <<EOF > "$bin.rst"
+===
+$bin
+===
+
+---
+$bin description
+---
+
+:Author: $DEBFULLNAME
+:date:   $(date +%Y-%m-%d)
+:Manual section: 1
+
+SYNOPSIS
+========
+
+\`\`$bin\`\` [options]
+
+This manual page documents briefly the \`\`$bin\`\` command.
+
+This manual page was written for the Debian(TM) distribution because
+the original program does not have a manual page.
+
+COPYRIGHT
+=========
+
+Copyright © $(date +%Y) $DEBFULLNAME
+
+This manual page was written for the Debian system (and may be used by
+others).
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU General Public License, Version 2 or (at
+your option) any later version published by the Free Software
+Foundation.
+
+On Debian systems, the complete text of the GNU General Public License
+can be found in /usr/share/common-licenses/GPL.
+
+EOF
 }
 
 # function ian-build-with-cowbuilder {
@@ -959,7 +1057,6 @@ function cmd:create() {
 
 	create-control "$pkgname"
 	create-rules
-	create-lintian-overrides
 
 	log-info "Creating initial release (date based version applied)"
 	cmd:release-date -y "Initial release"
@@ -975,6 +1072,8 @@ function cmd:create() {
 function create-makefile() {
 	cat <<EOF > ./Makefile.example
 DESTDIR ?= ~
+
+all:
 
 install:
 	FIXME: Install your scripts/binaries/libraries/...
@@ -1012,13 +1111,6 @@ function create-rules() {
 	dh \$@ --with quilt
 EOF
 	chmod +x ./debian/rules
-}
-
-function create-lintian-overrides() {
-	log-info "Creating default lintian overrides"
-	cat <<EOF > ./debian/source/lintian-overrides
-$pkgname source: debian-watch-file-is-missing
-EOF
 }
 
 function create-copyright() {
@@ -1063,13 +1155,13 @@ function ian-jail {
 }
 
 function cmd:login {
-##:jail:000:login: login into the jail
+##:201:cmd:login into the jail
 	sc-log-info "login into $(jail:name)..."
 	jail:run
 }
 
 function cmd:jail-upgrade {
-##:jail:002:jail-upgrade: upgrade source jail
+##:202:cmd:upgrade source jail
 	sc-assert-var-defined JAIL_ARCH "this command must be applied on a jail"
 
     jail:sudo apt-get update
@@ -1077,7 +1169,7 @@ function cmd:jail-upgrade {
  }
 
 function cmd:jail-destroy {
-##:jail:003:jail-destroy: destroy jail files
+##:203:cmd:destroy jail files
 	sc-assert-var-defined JAIL_ARCH "this command must be applied on a jail"
 
     if ! sc-file-exists $(jail:tarball); then
@@ -1116,9 +1208,7 @@ function main {
 
     grep "^function cmd:" $__file__ | grep -w "cmd:$cmd" > /dev/null
     if [ $? -ne 0 ]; then
-		log-error "invalid command: $cmd\n"
-		cmd:help
-		return 1
+		unknown-command "$cmd"
     fi
 
     eval cmd:$cmd $params
