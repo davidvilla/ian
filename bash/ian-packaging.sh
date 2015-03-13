@@ -537,7 +537,7 @@ function cmd:lintian-shut-up() {
 	if echo "$log" | grep $tag > /dev/null; then
 		log-info "shuttin up $tag"
 		cat <<EOF > ./debian/source/lintian-overrides
-$package source: debian-watch-file-is-missing
+$(package) source: debian-watch-file-is-missing
 EOF
 	fi
 
