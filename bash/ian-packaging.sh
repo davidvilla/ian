@@ -299,7 +299,7 @@ function cmd:summary {
     (
     assert-preconditions
     echo "source:             " $(package)
-    echo "uptream:            " $(upstream-version)
+    echo "upstream:           " $(upstream-version)
     echo "version:            " $(debian-version)
     echo "orig:               " $(orig-path)
 	echo "  methods:          " $(orig-methods)
