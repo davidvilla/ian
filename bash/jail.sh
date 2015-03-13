@@ -1,4 +1,3 @@
-#!/bin/bash --
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
 
 JAIL_CONFIG=/etc/schroot/chroot.d/ian

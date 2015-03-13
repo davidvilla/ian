@@ -389,16 +389,24 @@ function cmd:release-date {
 ##:021:usage:ian release-date [-y] [release message]
 ##:021:usage:  -y;  do not ask for a release message
 
-	local param="$1"
-	local quiet=false
+	local quiet=false msg="New release"
+	local OPTIND=1 OPTARG OPTION
 
-	if [ "$param" == "-y" ]; then
-		quiet=true
-		param="$2"
+	while getopts "m:y" OPTION; do
+		case "$OPTION" in
+			m)
+				msg="$OPTARG" ;;
+			y)
+				quiet=true ;;
+		esac
+	done
+	shift $(expr $OPTIND - 1)
+
+	if [ $# -gt 0 ]; then
+		log-error "unknown args: $*"
+		exit 1
 	fi
 
-    local default="New release"
-    local msg=${param:-$default}
     local CHLOG=$(mktemp)
 
 	assert-debvars
@@ -434,20 +442,42 @@ EOF
 
 function cmd:build {
 ##:040:cmd:build all binary packages
-##:040:usage:ian build [-m]
+##:040:usage:ian build [-c] [-m]
+##:040:usage:  -c;  run "ian clean" before "build"
 ##:040:usage:  -m;  merge ./debian with upstream .orig. bypassing directory contents
 
-	local param="$1"
+	local clean=false merge=false
+	local OPTIND=1 OPTARG OPTION
+
+	while getopts "cm" OPTION; do
+		case "$OPTION" in
+			c)
+				clean=true ;;
+			m)
+				merge=true ;;
+		esac
+	done
+	shift $(expr $OPTIND - 1)
+
+	if [ $# -gt 0 ]; then
+		log-error "unknown args: $*"
+		exit 1
+	fi
 
     (
     assert-preconditions
+
+	if [ "$clean" = true ]; then
+		cmd:clean
+	fi
+
 	sc-assert cmd:orig
 	builddeps-assure
 	log-info "build"
 
     if uses-svn; then
 		build-svn
-    elif [ "$param" == "-m" ]; then
+    elif [ "$merge" = true ]; then
 		build-merging-upstream
 	else
 		build-standard
@@ -499,6 +529,8 @@ function build-svn {
 }
 
 function cmd:lintian-shut-up() {
+	sc-assert-files-exist $(changes-path)
+
 	local log=$(lintian -I $changes)
 
 	local tag="debian-watch-file-is-missing"
@@ -512,10 +544,22 @@ EOF
 	local tag="binary-without-manpage"
 	local msg=$(mktemp)
 	if echo "$log" | grep $tag > $msg; then
+		cat $msg | while read line; do
+			log-info "shuttin up '$line'"
+			local cmd=$(basename $(echo $line | cut -d' ' -f4))
+			create-placeholder-manpage "$cmd"
+			log-ok "manpage '$cmd.rst' created"
+		done
+	fi
+
+	local tag="out-of-date-standards-version"
+	local msg=$(mktemp)
+	if echo "$log" | grep $tag > $msg; then
 		log-info "shuttin up '$(cat $msg)'"
-		local cmd=$(basename $(cat $msg | cut -d' ' -f4))
-		create-placeholder-manpage "$cmd"
-		log-ok "manpage '$cmd.rst' created"
+		local old=$(cat $msg | cut -d' ' -f5)
+		local new=$(cat $msg | tr ')' ' ' | cut -d' ' -f8)
+		sed -i -e "s/$old/$new/g" debian/control
+		log-ok "standars version changed $old -> $new"
 	fi
 
 	log-info "tune and re-build"
