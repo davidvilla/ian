@@ -485,7 +485,7 @@ function cmd:build {
     fi
 
     changes=$(changes-path)
-	log-info "lintian: $changes"
+	log-info "lintian $changes"
     lintian -I $changes
 
 	sc-assert-files-exist $(binary-paths)
@@ -508,7 +508,7 @@ function build-merging-upstream {
 	cd $build_dir
 	build-standard
 	)
-	cp -v $build_area/$(package)_$(debian-version)* ../
+	cp -v $build_area/$(package)_$(debian-version)* $(build-dir)
 }
 
 function build-standard {
@@ -524,8 +524,8 @@ function build-svn {
 	assert-uses-svn
 #	sc-assure-dir ../build-area
 	log-info "running svn-buildpackage"
-    svn-buildpackage -rfakeroot -us -uc --svn-ignore --svn-ignore-new --svn-override origDir=.. --svn-override buildArea=..
-	clean-svn
+    svn-buildpackage -rfakeroot -us -uc --svn-ignore --svn-ignore-new --svn-move --svn-noninteractive --svn-override origDir=..
+#	clean-svn
     )
 }
 
@@ -718,9 +718,9 @@ function cmd:clean {
 
     fakeroot make -f ./debian/rules clean
 
-    if uses-svn; then
-		clean-svn
-	fi
+    # if uses-svn; then
+	# 	clean-svn
+	# fi
 	clean-common
 
     if valid-watch-present; then
@@ -742,13 +742,13 @@ function clean-common {
     )
 }
 
-function clean-svn {
-	(
-    assert-preconditions
-    log-info "clean-svn: purging build area"
-	rm -rf ../$(upstream-fullname) ../$(upstream-fullname).obsolete.*
-	)
-}
+# function clean-svn {
+# 	(
+#     assert-preconditions
+#     log-info "clean-svn: purging build area"
+# 	rm -rf ../$(upstream-fullname) ../$(upstream-fullname).obsolete.*
+# 	)
+# }
 
 function cmd:clean-uscan {
 ##:031:cmd:clean uscan generated files
