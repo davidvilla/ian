@@ -3,10 +3,10 @@
 
 LANG=C
 
-if [ "$#" -eq 0 ]; then
-  echo "usage: $(basename $0) <package-name>"
-  exit 1
-fi
+# if [ "$#" -eq 0 ]; then
+#   echo "usage: $(basename $0) <package-name> [debian-package-name]"
+#   exit 1
+# fi
 
 function field_value() {
     echo "$1" | cut -d':' -f2 | tr -d '[[:space:]]'
@@ -14,23 +14,23 @@ function field_value() {
 }
 
 function py_version() {
-    sed "s/ *__version__ *= *'\([0-9\.]\+\)'/\1/g" version.py
+	grep "version *=" setup.py | sed "s/.*version *= *\(['\"0-9\.]\+\),/\1/g" | tr -d '"' | tr -d "'"
 }
 
 function pypi_version() {
+	local name=$(grep "name *=" setup.py | sed -e "s/.*name *= *\(['\"a-z]\+\).*/\1/g" |  tr -d '"' | tr -d "'")
     python ~/repos/ian/bash/last-pypi-version.py $name
 }
 
 function deb_version() {
-    field_value "$(ian summary | grep upstream)"
+    field_value "$(dpkg-parsechangelog -ldebian/changelog --show-field=Version)"
 }
 
 function repo_version() {
+	local package=$(dpkg-parsechangelog -ldebian/changelog --show-field=Source)
     field_value "$(apt-cache policy $package | grep Candidate)"
 }
 
-name="$1"
-package="${2:-$name}"
 
 log=$(mktemp)
 
