@@ -18,7 +18,7 @@ function py_version() {
 }
 
 function pypi_version() {
-	local name=$(grep "name *=" setup.py | sed -e "s/.*name *= *\(['\"a-z]\+\).*/\1/g" |  tr -d '"' | tr -d "'")
+	local name=$(grep "name *=" setup.py | sed -e "s/.*name *= *\(\S\+\),.*/\1/g" |  tr -d '"' | tr -d "'")
     python ~/repos/ian/bash/last-pypi-version.py $name
 }
 
@@ -38,7 +38,7 @@ echo "$(py_version)   - setup.py" > $log
 echo "$(pypi_version)   - PyPI" >> $log
 
 if [ -d ./debian ]; then
-	echo "$(deb_version)   - debian/changelog" >> $log
+	echo "$(deb_version) - debian/changelog" >> $log
 	echo "$(repo_version) - debian repo candidate" >> $log
 fi
 
