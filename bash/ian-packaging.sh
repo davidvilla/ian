@@ -75,7 +75,7 @@ function _ian-rm {
 #-- doc --
 
 function cmd:completions {
-	get-command-list
+	get-command-list "ian-map"
 }
 
 function cmd:help {
@@ -118,7 +118,7 @@ function command-map {
 	grep "$map" $__file__ | grep "^##" | sort -n | awk -F":" '{printf "%s:%s:\n", $3, $4}'
 }
 
-function get-command-list {
+function get-command-list () {
 	local map="$1"
 	grep "$map" $__file__ | grep "^##" | sort -n | cut -d: -f4
 }
