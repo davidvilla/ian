@@ -409,7 +409,9 @@ function cmd:release-date {
 
     local CHLOG=$(mktemp)
 
+	(
 	assert-debvars
+	sc-assert-directory-exists ./debian
 
 	cat <<EOF > $CHLOG
 $(package) (0.$(date +%Y%m%d)-1) unstable; urgency=low
@@ -424,7 +426,6 @@ EOF
 		cat debian/changelog >> $CHLOG
 	fi
 
-    (
     mv $CHLOG debian/changelog
 	assert-debian-dir
 	log-release

@@ -8,7 +8,7 @@ Homepage: https://bitbucket.org/DavidVilla/ian
 
 Package: ian
 Architecture: all
-Depends: ${misc:Depends}, quilt, gnupg, dupload, build-essential, sudo, devscripts, equivs
+Depends: ${misc:Depends}, quilt, gnupg, dupload, build-essential, sudo, devscripts, equivs, python
 Suggests: debootstrap, schroot, uuid-runtime
 Replaces: arco-devel (<< 0.20141029-1)
 Breaks: arco-devel (<< 0.20141029-1)
