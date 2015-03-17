@@ -3,6 +3,8 @@
 #-- similar projects --
 # https://code.google.com/p/bsfl/
 
+__file__=$(basename $0)
+
 
 #-- "standard" library --
 function sc-upper {
@@ -40,26 +42,31 @@ function sc-strip-comments {
 # replaces all instances of SEARCH with REPL in STRING
 # http://mywiki.wooledge.org/BashFAQ/021
 function sc-str-replace() {
-	in=$3
-	unset out
+	local old=$1
+	local new=$2
+	local text=$3
+	local out
 
-	[[ $1 ]] || return
+	[[ $old ]] || return
 
 	while true; do
-		case "$in" in
-			*"$1"*) : ;;
+		case "$text" in
+			*"$old"*) : ;;
 			*) break;;
 		esac
 
-		out=$out${in%%"$1"*}$2
-		in=${in#*"$1"}
+		out=$out${text%%"$old"*}$2
+		text=${text#*"$old"}
 	done
 
-	printf '%s%s\n' "$out" "$in"
+	printf '%s%s\n' "$out" "$text"
 }
 
 function sc-str-split() {
-	echo $1 | tr "$2" "\n"
+	local text=$1
+	local sep=$2
+
+	echo $text | tr "$sep" "\n"
 }
 
 #-- Predicates --
@@ -99,12 +106,12 @@ function sc-function-exists {
 }
 
 function sc-assert {
-# assert any predicate
-	# $1: function
-    # $2: argument
-    # $3: error message
+	# assert any predicate
+	local callable="$1"
+	local arg="$2"
     local msg=${3:-"Assertion failed: $1 $2"}
-    if ! eval $1 $2; then
+
+    if ! eval $callable "$arg"; then
 		sc-log-error "$msg"
 		exit 1
     fi
