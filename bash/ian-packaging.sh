@@ -430,8 +430,6 @@ function do-release-date() {
 	local quiet=$1
 	local msg="$2"
 
-	echo $quiet - $msg -
-
     local CHLOG=$(mktemp)
 
 	(
