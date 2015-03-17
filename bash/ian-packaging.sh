@@ -75,6 +75,7 @@ function _ian-rm {
 #-- doc --
 
 function cmd:completions {
+	assert-no-more-args
 	get-command-list "ian-map"
 }
 
@@ -82,17 +83,23 @@ function cmd:help {
 ##:000:cmd:show this help
 ##:000:usage:ian help [command]
 
-	local cmd="$1"
+	local cmd="${__args__[0]}"
 
-	if ! [ -z "$cmd" ]; then
-		if ! get-command-list | grep "$cmd" > /dev/null; then
+	if ! [[ -z $cmd ]]; then
+		if ! get-command-list "ian-map" | grep "$cmd" > /dev/null; then
 			unknown-command "$cmd"
+			echo "kka"
+			exit 1
 		fi
 
 		print-usage-details "ian-map" "$cmd"
 		return
 	fi
 
+	help-command-summary
+}
+
+function help-command-summary() {
 	echo "usage: ian <cmd>"
 
 	echo -e "\nCommands:"
@@ -109,7 +116,7 @@ function cmd:help {
 
 function unknown-command() {
 	log-error "unknown command: '$1'\n"
-	cmd:help
+	help-command-summary
 	exit 1
 }
 
@@ -118,7 +125,8 @@ function command-map {
 	grep "$map" $__file__ | grep "^##" | sort -n | awk -F":" '{printf "%s:%s:\n", $3, $4}'
 }
 
-function get-command-list () {
+# FIXME: w/o args should return all commands
+function get-command-list() {
 	local map="$1"
 	grep "$map" $__file__ | grep "^##" | sort -n | cut -d: -f4
 }
@@ -151,7 +159,7 @@ function print-usage-details() {
 	local usage=$(grep "^##:$code:usage:" $__file__ | cut -d: -f4)
 	local usage_lines=$(echo "$usage" | wc -l)
 
-	if [ -z "$usage" ]; then
+	if [[ -z "$usage" ]]; then
 		printf "ian $cmd\n\n"
 		print-usage "$code"
 		return
@@ -296,6 +304,9 @@ function orig-methods {
 
 function cmd:summary {
 ##:010:cmd:show package info
+
+	assert-no-more-args
+
     (
     assert-preconditions
     echo "source:             " $(package)
@@ -375,6 +386,9 @@ function log-release {
 
 function cmd:release {
 ##:020:cmd:add a new changelog entry
+
+	assert-no-more-args
+
     (
     assert-preconditions
 	dch -i
@@ -386,26 +400,37 @@ function cmd:release {
 
 function cmd:release-date {
 ##:021:cmd:add a new package version based on date: 0.20010101
-##:021:usage:ian release-date [-y] [release message]
+##:021:usage:ian release-date [-y] [-m release-message]
 ##:021:usage:  -y;  do not ask for a release message
+##:021:usage:  -m;  release message for debian/changelog entry
 
 	local quiet=false msg="New release"
 	local OPTIND=1 OPTARG OPTION
 
-	while getopts "m:y" OPTION; do
-		case "$OPTION" in
+	while getopts m:y OPTION "${__args__[@]}"; do
+		case $OPTION in
 			m)
 				msg="$OPTARG" ;;
 			y)
 				quiet=true ;;
+			\?)
+				echo "invalid option: -$OPTARG"
+				exit 1 ;;
+			:)
+				echo "option -$OPTARG requires an argument"
+				exit 1 ;;
 		esac
 	done
-	shift $(expr $OPTIND - 1)
 
-	if [ $# -gt 0 ]; then
-		log-error "unknown args: $*"
-		exit 1
-	fi
+	assert-no-more-args $OPTIND
+	do-release-date "$quiet" "$msg"
+}
+
+function do-release-date() {
+	local quiet=$1
+	local msg="$2"
+
+	echo $quiet - $msg -
 
     local CHLOG=$(mktemp)
 
@@ -445,25 +470,30 @@ function cmd:build {
 ##:040:cmd:build all binary packages
 ##:040:usage:ian build [-c] [-m]
 ##:040:usage:  -c;  run "ian clean" before "build"
+##:040:usage:  -i;  run "ian install" after "build"
 ##:040:usage:  -m;  merge ./debian with upstream .orig. bypassing directory contents
 
-	local clean=false merge=false
+	local clean=false install=false merge=false
 	local OPTIND=1 OPTARG OPTION
 
-	while getopts "cm" OPTION; do
-		case "$OPTION" in
+	while getopts :cim OPTION "${__args__[@]}"; do
+		case $OPTION in
 			c)
 				clean=true ;;
+			i)
+				install=true ;;
 			m)
 				merge=true ;;
+			\?)
+				echo "invalid option: -$OPTARG"
+				exit 1 ;;
+			:)
+				echo "option -$OPTARG requires an argument"
+				exit 1 ;;
 		esac
 	done
-	shift $(expr $OPTIND - 1)
 
-	if [ $# -gt 0 ]; then
-		log-error "unknown args: $*"
-		exit 1
-	fi
+	assert-no-more-args $OPTIND
 
     (
     assert-preconditions
@@ -491,6 +521,10 @@ function cmd:build {
 	sc-assert-files-exist $(binary-paths)
 	log-ok "build"
 	notify-build
+
+	if [ "$install" = true ]; then
+		cmd:install
+	fi
     )
 }
 
@@ -529,7 +563,8 @@ function build-svn {
     )
 }
 
-function cmd:lintian-shut-up() {
+function cmd:lintian-fix() {
+	assert-no-more-args
 	sc-assert-files-exist $(changes-path)
 
 	local log=$(lintian -I $changes)
@@ -633,6 +668,9 @@ function build-dir {
 # - from "local" files
 function cmd:orig {
 ##:015:cmd:generate or download .orig. file
+
+	assert-no-more-args
+
     (
     assert-preconditions
 	if [ -f $(orig-path) ]; then
@@ -662,6 +700,8 @@ function cmd:orig {
 
 function cmd:orig-from-rule {
 ##:017:cmd:execute "get-orig-source" rule of debian/rules to get .orig. file
+	assert-no-more-args
+
     ian-run "make -f ./debian/rules get-orig-source"
     mv -v $(orig-filename) $(orig-dir)/
 }
@@ -669,6 +709,8 @@ function cmd:orig-from-rule {
 # http://people.debian.org/~piotr/uscan-dl
 function cmd:orig-uscan {
 ##:018:cmd:execute uscan to download the .orig. file
+	assert-no-more-args
+
 	assert-valid-watch
 	log-info "orig-uscan"
     uscan --verbose --download-current-version --force-download --repack --rename --destdir $(orig-dir)
@@ -676,6 +718,8 @@ function cmd:orig-uscan {
 
 function cmd:orig-from-local {
 ##:016:cmd:create an .orig. file from current directory content
+	assert-no-more-args
+
     log-info "orig-from-local"
 
     local orig_tmp=$(upstream-fullname)
@@ -710,6 +754,8 @@ function orig-path {
 
 function cmd:clean {
 ##:030:cmd:clean generated packaging files and revert patches
+	assert-no-more-args
+
     (
     assert-preconditions
 	builddeps-assure
@@ -752,6 +798,8 @@ function clean-common {
 
 function cmd:clean-uscan {
 ##:031:cmd:clean uscan generated files
+	assert-no-more-args
+
 	log-info "clean-uscan"
 	local nline=$(uscan --report --verbose | grep -n "^Newest version on remote" | cut -d":" -f 1)
 	local nline=$(echo $nline - 1 | bc)
@@ -764,6 +812,8 @@ function cmd:clean-uscan {
 
 function cmd:install {
 ##:070:cmd:install (with sudo dpkg) all binary packages
+	assert-no-more-args
+
 	(
 	assert-preconditions
 	sc-assert-files-exist $(binary-paths)
@@ -796,7 +846,9 @@ function cmd:clean-build-and-install {
 
 function cmd:upload {
 ##:090:cmd:sign and upload binary packages to configured package repository
-    (
+	assert-no-more-args
+
+	(
 	sc-assert-files-exist ~/.gnupg/secring.gpg
 	sc-assert-files-exist $(changes-path) $(binary-paths)
 
@@ -847,7 +899,9 @@ function cmd:upload {
 
 function cmd:remove {
 ##:100:cmd:remove package from configured package repository
-    for pkg in $(binary-names) $(package); do
+	assert-no-more-args
+
+	for pkg in $(binary-names) $(package); do
 		remove-package $pkg
     done
 }
@@ -871,7 +925,7 @@ function repo-path {
 }
 
 
-#-- expectations --
+#-- assertions --
 
 function assert-debian-dir {
     sc-assert-directory-exists ./debian
@@ -905,6 +959,22 @@ function assert-preconditions {
 function assert-uses-svn {
 	sc-assert uses-svn "" "This debian package is not managed with svn-buildpackage"
 }
+
+function assert-no-more-args {
+	local end=$1
+	local remaining
+
+	if ! [[ -z $end ]]; then
+		index=$(expr $end - 1)
+		remaining="${__args__[@]:$index}"
+	fi
+
+	if ! [ -z "$remaining" ]; then
+		log-error "unexpected arguments: $remaining"
+		exit 1
+	fi
+}
+
 
 #-- identities --
 
@@ -1035,6 +1105,8 @@ function has-rule {
 
 function cmd:binary-contents {
 ##:060:cmd:show binary package file listings
+	assert-no-more-args
+
     (
     assert-preconditions
 	sc-assert-files-exist $(changes-path)
@@ -1049,7 +1121,7 @@ function builddeps {
 
 function builddeps-assure {
 	local deps=$(builddeps)
-	if [ -z "$deps" ]; then
+	if [[ -z "$deps" ]]; then
 		return
 	fi
 
@@ -1083,6 +1155,8 @@ function ian-run() {
 
 function cmd:create() {
 ##:120:cmd:create sample files for a new debian package
+	assert-no-more-args
+
 	local pkgname=$(basename $(pwd))
 
     (
@@ -1104,7 +1178,7 @@ function cmd:create() {
 	create-rules
 
 	log-info "Creating initial release (date based version applied)"
-	cmd:release-date -y "Initial release"
+	do-release-date true "Initial release"
 
 	create-copyright
 
@@ -1237,33 +1311,31 @@ function ian-mirror-create {
 
 
 function main {
-	if [ $# -eq 0 ]; then
+	if [[ -z "$__cmd__" ]]; then
 		cmd:help
 		return 1
 	fi
 
-    local cmd=$1
-    shift
-    local params=$*
 
     # echo command: $cmd
     # echo params: $params
     # echo $__file__
 	# echo -e "--"
 
-    grep "^function cmd:" $__file__ | grep -w "cmd:$cmd" > /dev/null
+	# FIXME: use get-command-list
+    grep "^function cmd:" $__file__ | grep -w "cmd:$__cmd__" > /dev/null
     if [ $? -ne 0 ]; then
-		unknown-command "$cmd"
+		unknown-command "$__cmd__"
     fi
 
-    eval cmd:$cmd $params
+   eval cmd:$__cmd__
 }
 
 function ian {
 #	echo "ian running at jail" $JAIL_ARCH
 #	echo ian: $*
 #	echo "--"
-	main $*
+	main
 }
 
 function ian-386 {
@@ -1272,4 +1344,8 @@ function ian-386 {
 }
 
 __file__=$0
-eval $(basename $0) $*
+__cmd__=$1
+shift
+__args__=("$@")
+
+eval $(basename $__file__)
