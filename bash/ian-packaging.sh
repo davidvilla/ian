@@ -1082,6 +1082,11 @@ function generated-paths {
 	done
 }
 
+function cmd:show-generated {
+	generated-filenames
+	binary-filenames
+}
+
 
 #-- utilities --
 

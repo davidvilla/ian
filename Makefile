@@ -25,7 +25,7 @@ install:
 
 	install -vd $(DESTDIR)/usr/bin
 	install -v -m 555 bash/last-pypi-version.py $(DESTDIR)/usr/bin/last-pypi-version
-	install -v -m 555 bash/py-version-summary.sh $(DESTDIR)/usr/bin/py-version-summary
+	install -v -m 555 bash/version-summary.sh $(DESTDIR)/usr/bin/version-summary
 
 	install -vd $(DESTDIR)/etc/bash_completion.d/
 	install -v -m 644 completion $(DESTDIR)/etc/bash_completion.d/ian
