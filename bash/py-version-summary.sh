@@ -14,12 +14,22 @@ function field_value() {
 }
 
 function py_version() {
+	if [ ! -f setup.py ]; then
+		echo None
+		return
+	fi
+
 	grep "version *=" setup.py | sed "s/.*version *= *\(['\"0-9\.]\+\),/\1/g" | tr -d '"' | tr -d "'"
 }
 
 function pypi_version() {
+	if [ ! -f setup.py ]; then
+		echo None
+		return
+	fi
+
 	local name=$(grep "name *=" setup.py | sed -e "s/.*name *= *\(\S\+\),.*/\1/g" |  tr -d '"' | tr -d "'")
-    python ~/repos/ian/bash/last-pypi-version.py $name
+    python last-pypi-version.py $name
 }
 
 function deb_version() {
