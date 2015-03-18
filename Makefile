@@ -14,6 +14,7 @@ install:
 	install -vd $(BASE)
 	install -v -m 444 bash/jail.sh  $(BASE)/
 	install -v -m 444 bash/shell-commodity.sh  $(BASE)/
+	install -v -m 444 bash/unittest.sh  $(BASE)/
 	install -v -m 555 bash/ian-packaging.sh $(BASE)
 
 	install -vd $(DESTDIR)/etc/schroot/chroot.d/

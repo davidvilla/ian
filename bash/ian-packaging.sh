@@ -569,7 +569,7 @@ function cmd:lintian-fix() {
 
 	local tag="debian-watch-file-is-missing"
 	if echo "$log" | grep $tag > /dev/null; then
-		log-info "shuttin up $tag"
+		log-info "fixing $tag"
 		cat <<EOF > ./debian/source/lintian-overrides
 $(package) source: debian-watch-file-is-missing
 EOF
@@ -579,7 +579,7 @@ EOF
 	local msg=$(mktemp)
 	if echo "$log" | grep $tag > $msg; then
 		cat $msg | while read line; do
-			log-info "shuttin up '$line'"
+			log-info "fixing '$line'"
 			local cmd=$(basename $(echo $line | cut -d' ' -f4))
 			create-placeholder-manpage "$cmd"
 			log-ok "manpage '$cmd.rst' created"
@@ -589,7 +589,7 @@ EOF
 	local tag="out-of-date-standards-version"
 	local msg=$(mktemp)
 	if echo "$log" | grep $tag > $msg; then
-		log-info "shuttin up '$(cat $msg)'"
+		log-info "fixing '$(cat $msg)'"
 		local old=$(cat $msg | cut -d' ' -f5)
 		local new=$(cat $msg | tr ')' ' ' | cut -d' ' -f8)
 		sed -i -e "s/$old/$new/g" debian/control

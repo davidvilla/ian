@@ -34,12 +34,12 @@ function repo_version() {
 
 log=$(mktemp)
 
-echo "$(py_version)   - setup.py" > $log
-echo "$(pypi_version)   - PyPI" >> $log
+printf "%-15s - setup.py\n" $(py_version) > $log
+printf "%-15s - PyPI\n" $(pypi_version) >> $log
 
 if [ -d ./debian ]; then
-	echo "$(deb_version) - debian/changelog" >> $log
-	echo "$(repo_version) - debian repo candidate" >> $log
+	printf "%-15s - debian/changelog\n" $(deb_version) >> $log
+	printf "%-15s - debian repo candidate\n" $(repo_version) >> $log
 fi
 
 echo  version inventory
