@@ -29,7 +29,7 @@ function pypi_version() {
 	fi
 
 	local name=$(grep "name *=" setup.py | sed -e "s/.*name *= *\(\S\+\),.*/\1/g" |  tr -d '"' | tr -d "'")
-    python last-pypi-version.py $name
+    last-pypi-version $name
 }
 
 function deb_version() {
