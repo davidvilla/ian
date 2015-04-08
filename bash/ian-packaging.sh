@@ -2,8 +2,14 @@
 # -*- coding:utf-8; tab-width:4; mode:shell-script -*-
 
 #-- command table --
+
+#- info -
 ##:ian-map:000:help
 ##:ian-map:010:summary
+##:ian-map:060:binary-contents
+##:ian-map:200:show-generated
+
+#- actions -
 ##:ian-map:015:orig
 ##:ian-map:016:orig-from-local
 ##:ian-map:017:orig-from-rule
@@ -13,12 +19,12 @@
 ##:ian-map:030:clean
 ##:ian-map:031:clean-uscan
 ##:ian-map:040:build
-##:ian-map:060:binary-contents
 ##:ian-map:070:install
 ##:ian-map:090:upload
 ##:ian-map:100:remove
 ##:ian-map:120:create
 
+#- jail actions -
 ##:jail-map:201:login
 ##:jail-map:202:jail-upgrade
 ##:jail-map:203:jail-destroy
@@ -43,24 +49,32 @@ source /usr/share/ian/jail.sh
 
 #-- common --
 
+function logger {
+	if jail:are-outside; then
+		echo ian
+	else
+		echo ian@jail
+	fi
+}
+
 function log-info {
-	sc-log-notify II "ian: $1"
+	sc-log-notify II "$(logger): $1"
 }
 
 function log-warning {
-	sc-log-notify WW "ian: $1"
+	sc-log-notify WW "$(logger): $1"
 }
 
 function log-error {
-	sc-log-notify EE "ian: $1"
+	sc-log-notify EE "$(logger): $1"
 }
 
 function log-fail {
-	sc-log-notify FF "ian: $1"
+	sc-log-notify FF "$(logger): $1"
 }
 
 function log-ok {
-	sc-log-notify OK "ian: $1"
+	sc-log-notify OK "$(logger): $1"
 }
 
 function _ian-rm {
@@ -88,8 +102,6 @@ function cmd:help {
 	if ! [[ -z $cmd ]]; then
 		if ! get-command-list "ian-map" | grep "$cmd" > /dev/null; then
 			unknown-command "$cmd"
-			echo "kka"
-			exit 1
 		fi
 
 		print-usage-details "ian-map" "$cmd"
@@ -1083,6 +1095,7 @@ function generated-paths {
 }
 
 function cmd:show-generated {
+##:200:cmd:list generated files
 	generated-filenames
 	binary-filenames
 }
@@ -1261,19 +1274,20 @@ function assure-jail-is-ok {
 }
 
 function ian-jail {
-    log-info "Running \"$@\" in the jail \"$(jail:name)\""
+    log-info "Running \"$__cmd__\" in the jail \"$(jail:name)\""
 
 	sc-assure-deb-pkg-installed $JAIL_PKGS
 	assure-jail-is-ok
 
 	local jail_manag_cmds=(jail-upgrade jail-destroy login)
-	case "${jail_manag_cmds[@]}" in  *"$1"*)
-			main $*
-			return
+	case "${jail_manag_cmds[@]}" in  *"$__cmd__"*)
+        main
+		return
 	esac
 
-	log-ok "enter jail '$(jail:name)'\n---------------------------------------"
-    jail:run ian $*
+	local line="\n---------------------------------------"
+	log-ok "$line\n--  entering jail '$(jail:name)'$line"
+    jail:run ian $__cmd__ $__args__
 }
 
 function cmd:login {
@@ -1287,7 +1301,7 @@ function cmd:jail-upgrade {
 	sc-assert-var-defined JAIL_ARCH "this command must be applied on a jail"
 
     jail:sudo apt-get update
-    jail:sudo apt-get upgrade
+    jail:sudo apt-get upgrade -y
  }
 
 function cmd:jail-destroy {
@@ -1319,7 +1333,6 @@ function main {
 		return 1
 	fi
 
-
     # echo command: $cmd
     # echo params: $params
     # echo $__file__
@@ -1343,7 +1356,7 @@ function ian {
 
 function ian-386 {
 	export JAIL_ARCH=i386
-	ian-jail $*
+	ian-jail
 }
 
 __file__=$0
