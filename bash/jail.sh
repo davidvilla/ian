@@ -5,7 +5,8 @@ JAIL_DCONFIG=/etc/schroot/ian
 JAIL_DIR_TMP=$(mktemp -d)
 JAIL_DIR=/var/jails
 USER_FSTAB=$HOME/.config/ian/fstab
-MIRROR=${DEBIAN_MIRROR:-http://ftp.debian.org}/debian
+# MIRROR=${DEBIAN_MIRROR:-http://ftp.debian.org}/debian
+MIRROR=${DEBIAN_MIRROR:-http://http.debian.net}/debian
 
 APT_OPTS="--no-install-recommends -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confnew"
 
@@ -15,6 +16,10 @@ function jail:name {
 
 function jail:tarball {
 	echo $JAIL_DIR/$(jail:name).tar
+}
+
+function jail:are-outside {
+	ls -id / | grep -q "^2 /$"
 }
 
 function jail:setup {
@@ -31,7 +36,7 @@ function run_in_jail {
 	local cmd="$*"
 
 	if [ -n "$cmd" ]; then
-		log-info "chroot exec: sudo $cmd"
+		log-info "chroot exec: sudo schroot $cmd"
 	fi
 
 	sudo schroot $schroot_args -- $cmd
