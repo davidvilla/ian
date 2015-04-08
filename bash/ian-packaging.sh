@@ -884,17 +884,16 @@ function cmd:upload {
 		if cat ${outputs[2]} | grep "$NOT_YET_REGISTERED"; then
 			log-warning "missing $(orig-filename) in repository, fixing..."
 			sc-assert-run "dpkg-genchanges -sa > $changes_path"
-			sc-assert-run "debsign $changes_path"
-			sc-assert-run "dupload -f $changes_path"
+			sign-and-upload
 		elif cat ${outputs[2]} | grep "$DSC_ALREADY_REGISTERED"; then
 			log-warning "$(dsc-filename) already in repository, fixing..."
 			sc-assert-run "dpkg-genchanges -b > $changes_path"
-			sc-assert-run "debsign $changes_path"
-			sc-assert-run "dupload -f $changes_path"
+			sign-and-upload
 		elif cat ${outputs[2]} | grep "$DEB_ALREADY_REGISTERED"; then
 			sc-log-error "already uploaded! Create a new release and try again"
 			return
 		else
+			cat ${outputs[2]}
 			log-fail "upload"
 			return
 		fi
@@ -906,6 +905,12 @@ function cmd:upload {
 	log-ok "upload"
     )
 }
+
+function sign-and-upload {
+	sc-assert-run "LANG=$NATIVE_LANG debsign $(changes-path)"
+	sc-assert-run "dupload -f $(changes-path)"
+}
+
 
 function cmd:remove {
 ##:100:cmd:remove package from configured package repository
