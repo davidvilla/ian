@@ -688,7 +688,7 @@ function cmd:orig {
 		return
 	fi
 
-	log-warning "orig $(orig-path) DOES NOT exists, getting/creating it"
+	log-warning "orig $(orig-path) DOES NOT exist, getting/creating it"
 
 	cmd:clean
 
@@ -1314,7 +1314,7 @@ function cmd:jail-destroy {
 	sc-assert-var-defined JAIL_ARCH "this command must be applied on a jail"
 
     if ! sc-file-exists $(jail:tarball); then
-		log-warning "removing jail: file $(jail:name) does NOT exists"
+		log-warning "removing jail: file $(jail:name) does NOT exist"
 		return
 	fi
 
