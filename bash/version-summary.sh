@@ -19,7 +19,7 @@ function py_version() {
 		return
 	fi
 
-	grep "version *=" setup.py | sed "s/.*version *= *\(['\"0-9\.]\+\),/\1/g" | tr -d '"' | tr -d "'"
+	python setup.py --version 2> /dev/null
 }
 
 function pypi_version() {
@@ -52,6 +52,6 @@ if [ -d ./debian ]; then
 	printf "%-15s - debian repo candidate\n" $(repo_version) >> $log
 fi
 
-echo  version inventory
-echo "-----------------"
+echo  version summary
+echo "---------------"
 cat $log | sort
