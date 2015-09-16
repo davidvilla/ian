@@ -1204,7 +1204,7 @@ function cmd:create() {
 	create-copyright
 
 	log-warning "Customize ./debian files on your own."
-	log-warning "See https://www.debian.org/doc/debian-policy/ and good look!"
+	log-warning "See https://www.debian.org/doc/debian-policy/ and good luck!"
 	log-ok "create"
 	)
 }
