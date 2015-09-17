@@ -2,7 +2,7 @@
 ian
 ===
 
-*simple tool for the lazy package maintainers*
+*simple tool for lazy Debian package maintainers*
 
 
 at a glance
