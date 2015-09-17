@@ -102,6 +102,12 @@ remove
 
 remove package from a remote package repository.
 
+
+Similar software
+================
+
+* buildtasks: https://github.com/Jimdo/buildtasks https://blog.codeship.com/using-docker-build-debian-packages/ 
+
 .. Local Variables:
 ..  coding: utf-8
 ..  mode: flyspell
