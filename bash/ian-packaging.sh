@@ -29,8 +29,6 @@
 ##:jail-map:202:jail-upgrade
 ##:jail-map:203:jail-destroy
 
-NATIVE_LANG="$LANG"
-LANG=C
 IAN_CONFIG=$HOME/.config/ian/config
 IAN_THIS_CONFIG=./.ian
 JAIL_PKGS="debootstrap schroot uuid-runtime"
@@ -42,6 +40,9 @@ fi
 if [ -e $IAN_THIS_CONFIG ]; then
 	source $IAN_THIS_CONFIG
 fi
+
+NATIVE_LANG="$LANG"
+LANG=C
 
 source /usr/share/ian/shell-commodity.sh
 source /usr/share/ian/jail.sh
