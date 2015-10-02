@@ -179,6 +179,12 @@ ian may execute user provided shell functions AFTER important events in the proc
 You may provide these functions in your **~/.config/ian/config** file.
 
 
+Compiling i386 packages in a amd64 computer
+===========================================
+
+FIXME: To do
+
+
 Similar software
 ================
 

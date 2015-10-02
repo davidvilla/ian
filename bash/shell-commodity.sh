@@ -268,6 +268,10 @@ function sc-log-warning {
 	sc-log-notify WW "$1"
 }
 
+function sc-log-warn {
+	sc-log-notify WW "$1"
+}
+
 function sc-log-error {
 	sc-log-notify EE "$1"
 }
