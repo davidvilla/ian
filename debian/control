@@ -2,7 +2,7 @@ Source: ian
 Section: shells
 Priority: extra
 Maintainer: David Villa Alises <David.Villa@gmail.com>
-Build-Depends: debhelper (>= 7.0.50~), quilt
+Build-Depends: debhelper (>= 7.0.50~), quilt, python-docutils
 Standards-Version: 3.9.6
 Homepage: https://bitbucket.org/DavidVilla/ian
 

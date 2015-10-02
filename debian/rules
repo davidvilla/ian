@@ -5,3 +5,12 @@ VERSION=$(shell head -n 1 debian/changelog | cut -f2 -d " " | tr -d "()" | cut -
 
 %:
 	dh $@ --with quilt
+
+override_dh_auto_build:
+	dh_auto_build
+	rst2man ian.rst > ian.1
+	rst2man ian-386.rst > ian-386.1
+
+override_dh_auto_clean:
+	dh_auto_clean
+	-$(RM) ian.1 ian-386.1
