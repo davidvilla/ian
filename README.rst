@@ -62,8 +62,8 @@ create or download the .orig file.
 * orig-from-local: generates .orig from current directory files
 
 
-ian build
----------
+ian build [-c] [-i] [-m]
+------------------------
 
 compiles Debian sources to generate binary packages.
 
@@ -75,11 +75,11 @@ compiles Debian sources to generate binary packages.
 * build-standard: compile with dpkg-buildpackage
 * build-svn:      compile with svn-buildpackage
 
+there are several available options:
 
-ian binary-contents
--------------------
-
-list files on generated binary packages.
+* -c: run "ian clean" before "build"
+* -i: run "ian install" after "build"
+* -m: merge ./debian with upstream .orig. bypassing directory contents
 
 
 ian clean
@@ -129,6 +129,54 @@ ian remove
 ----------
 
 remove package from a remote package repository.
+
+
+ian binary-contents
+-------------------
+
+list files on generated binary packages.
+
+
+ian show-generated
+------------------
+
+list all generated files
+
+
+ian create
+----------
+
+FIXME: To do
+
+
+Configuration
+=============
+
+ian requires you define some environment variables. An example:
+
+DEBFULLNAME="John Doe"
+DEBEMAIL=john.doe@email.com
+DEBSIGN_KEYID=D0FE7AFB
+DEBREPO_URL=john.doe@debian.repository.org/var/repo
+
+The latter two are required only if you want upload you package to a remote Debian
+repository.
+
+ian can load these variables from a **~/.config/ian/config** if you have one.
+
+FIXME: To do
+
+
+hooks
+=====
+
+ian may execute user provided shell functions AFTER important events in the process. Allowed hooks are:
+
+* ian-release-hook
+* ian-build-hook
+* ian-install-hook
+
+You may provide these functions in your **~/.config/ian/config** file.
 
 
 Similar software

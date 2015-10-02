@@ -479,7 +479,7 @@ EOF
 
 function cmd:build {
 ##:040:cmd:build all binary packages
-##:040:usage:ian build [-c] [-m]
+##:040:usage:ian build [-c] [-i] [-m]
 ##:040:usage:  -c;  run "ian clean" before "build"
 ##:040:usage:  -i;  run "ian install" after "build"
 ##:040:usage:  -m;  merge ./debian with upstream .orig. bypassing directory contents
