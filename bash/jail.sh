@@ -31,6 +31,8 @@ function jail:setup {
 }
 
 function run_in_jail {
+	sc-assert-var-defined JAIL_ARCH "no jail defined. Are you using ian-386?"
+
 	local schroot_args="$1"
 	shift
 	local cmd="$*"
@@ -107,5 +109,5 @@ function jail:is-ok {
 		return 1
 	fi
 
-	log-ok "jail seems to be ok"
+	log-ok "jail seems to be OK"
 }

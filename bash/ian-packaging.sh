@@ -1284,6 +1284,8 @@ function assure-jail-is-ok {
 }
 
 function ian-jail {
+	sc-assert-var-defined JAIL_ARCH "no jail defined. Are you sure you are using ian-386?"
+
     log-info "Running \"$__cmd__\" in the jail \"$(jail:name)\""
 
 	sc-assure-deb-pkg-installed $JAIL_PKGS
@@ -1303,6 +1305,10 @@ function ian-jail {
 function cmd:login {
 ##:201:cmd:login into the jail
 	sc-log-info "login into $(jail:name)..."
+	sc-log-warn "#####################################################"
+	sc-log-warn "#    You are loging in a volatile schroot jail.     #"
+	sc-log-warn "# All changes (but your HOME) will be lost on exit. #"
+	sc-log-warn "#####################################################"
 	jail:run
 }
 
