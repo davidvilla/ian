@@ -614,15 +614,19 @@ EOF
 
 function create-placeholder-manpage() {
 	local bin="$1"
+	local bin_len=${#bin}
+
+	local simple_line=$(printf '%*s' "$bin_len" | tr ' ' "-")
+	local double_line=$(printf '%*s' "$bin_len" | tr ' ' "=")
 
 	cat <<EOF > "$bin.rst"
-===
+$double_line
 $bin
-===
+$double_line
 
----
+------------$simple_line
 $bin description
----
+------------$simple_line
 
 :Author: $DEBFULLNAME
 :date:   $(date +%Y-%m-%d)

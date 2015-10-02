@@ -29,3 +29,7 @@ install:
 
 	install -vd $(DESTDIR)/etc/bash_completion.d/
 	install -v -m 644 completion $(DESTDIR)/etc/bash_completion.d/ian
+
+	install -vd $(DESTDIR)/usr/share/man/man1
+	install ian.1 $(DESTDIR)/usr/share/man/man1
+	install ian-386.1 $(DESTDIR)/usr/share/man/man1
