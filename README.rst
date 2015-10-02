@@ -25,6 +25,12 @@ Compiling a simple package with **ian**::
 commands
 ========
 
+help
+----
+
+show help about the specified command.
+
+
 summary
 -------
 
@@ -47,7 +53,7 @@ orig
 
 create or download the .orig file.
 
-backends:
+**ian** chooses between these backends (all of them are CLI available):
 
 * orig-uscan:      download latest upstream with uscan
 * orig-from-rule:  execute the rule "get-orig" in the debian/rules
@@ -58,10 +64,10 @@ build
 
 compiles Debian sources to generate binary packages.
 
-* applies quilt patches if present
+* applies **quilt** patches if present
 * automatically install missing build depends
 
-backends:
+**ian** chooses between these backends:
 
 * build-standard: compile with dpkg-buildpackage
 * build-svn:      compile with svn-buildpackage
@@ -79,16 +85,30 @@ removes all generated files and artifacts.
 
 * reverts quilt patches if present
 
-backends:
+**ian** chooses between these backends:
 
 * clean-common: remove deb, orig, changes, dsc, diff, upload, debian.tar.gz
 * clean-svn:    remove svn-buildpackage artifacts: tarballs/*, build-area/*
-* clean-uscan:  remove uscan downloaded files
+* clean-uscan:  remove uscan downloaded files (CLI available)
+
 
 install
 -------
 
 install all generated binary packages in the system.
+
+
+release
+-------
+
+creates a new debian package release. It opens your editor asking for comments.
+
+* release-date [-y] [-m message]
+
+use a date based version format for the new package.
+  -y: do not ask for release comments
+  -m: set comment as CLI argument
+
 
 upload
 ------
@@ -106,7 +126,7 @@ remove package from a remote package repository.
 Similar software
 ================
 
-* buildtasks: https://github.com/Jimdo/buildtasks https://blog.codeship.com/using-docker-build-debian-packages/ 
+* buildtasks: https://github.com/Jimdo/buildtasks https://blog.codeship.com/using-docker-build-debian-packages/
 
 .. Local Variables:
 ..  coding: utf-8
