@@ -22,17 +22,19 @@ Compiling a simple package with **ian**::
   -rw-r--r--  1 david david 730504 oct 31 16:02 ../hello_2.9.orig.tar.gz
 
 
+**NOTE:** Your user should be a "sudoer" to easly complete several ian tasks.
+
 commands
 ========
 
-help
-----
+ian help
+--------
 
 show help about the specified command.
 
 
-summary
--------
+ian summary
+-----------
 
 prints information about the current directory Debian package::
 
@@ -48,19 +50,20 @@ prints information about the current directory Debian package::
   pkg vcs:             none
 
 
-orig
-----
+ian orig
+--------
 
 create or download the .orig file.
 
-**ian** chooses between these backends (all of them are CLI available):
+**ian** chooses between these backends (all of them are commands too):
 
 * orig-uscan:      download latest upstream with uscan
 * orig-from-rule:  execute the rule "get-orig" in the debian/rules
 * orig-from-local: generates .orig from current directory files
 
-build
------
+
+ian build
+---------
 
 compiles Debian sources to generate binary packages.
 
@@ -73,13 +76,14 @@ compiles Debian sources to generate binary packages.
 * build-svn:      compile with svn-buildpackage
 
 
-binary-contents
----------------
+ian binary-contents
+-------------------
 
 list files on generated binary packages.
 
-clean
------
+
+ian clean
+---------
 
 removes all generated files and artifacts.
 
@@ -89,36 +93,40 @@ removes all generated files and artifacts.
 
 * clean-common: remove deb, orig, changes, dsc, diff, upload, debian.tar.gz
 * clean-svn:    remove svn-buildpackage artifacts: tarballs/*, build-area/*
-* clean-uscan:  remove uscan downloaded files (CLI available)
+* clean-uscan:  remove uscan downloaded files (available as "ian clean-uscan")
 
 
-install
--------
+ian install
+-----------
 
 install all generated binary packages in the system.
 
 
-release
--------
+ian release
+-----------
 
 creates a new debian package release. It opens your editor asking for comments.
 
-* release-date [-y] [-m message]
+
+ian release-date [-y] [-m message]
+----------------------------------
 
 use a date based version format for the new package.
-  -y: do not ask for release comments
-  -m: set comment as CLI argument
+
+* -y: do not ask for release comments
+* -m: set comment as CLI argument
 
 
-upload
-------
+ian upload
+----------
 
 upload binary packages to a remote package repository.
 
 * runs debsign and dupload
 
-remove
-------
+
+ian remove
+----------
 
 remove package from a remote package repository.
 
