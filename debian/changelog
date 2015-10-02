@@ -1,7 +1,12 @@
+ian (0.20151002.1-1) unstable; urgency=low
+
+  * New release
+
+ -- David Villa Alises <David.Villa@gmail.com>  Fri, 02 Oct 2015 18:38:04 +0200
+
 ian (0.20151002-1) unstable; urgency=low
 
   * New release
-  * Placeholder manpages for ian and ian-386
   * rst title lines fixed in the man placeholder generator
 
  -- David Villa Alises <David.Villa@gmail.com>  Fri, 02 Oct 2015 14:50:03 +0200
