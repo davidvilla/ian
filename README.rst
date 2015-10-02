@@ -58,7 +58,7 @@ build
 
 compiles Debian sources to generate binary packages.
 
-* applies quilt patches if present
+* applies @@quilt@@ patches if present
 * automatically install missing build depends
 
 backends:
