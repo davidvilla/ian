@@ -5,7 +5,6 @@ JAIL_DCONFIG=/etc/schroot/ian
 JAIL_DIR_TMP=$(mktemp -d)
 JAIL_DIR=/var/jails
 USER_FSTAB=$HOME/.config/ian/fstab
-# MIRROR=${DEBIAN_MIRROR:-http://ftp.debian.org}/debian
 MIRROR=${DEBIAN_MIRROR:-http://http.debian.net}/debian
 
 APT_OPTS="--no-install-recommends -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confnew"
@@ -63,7 +62,7 @@ function jail:run() {
 
 function jail:create() {
     ian-sudo "mkdir -p /var/jails"
-    ian-sudo "debootstrap --arch=$JAIL_ARCH --variant=buildd --include=fakeroot,build-essential sid $JAIL_DIR_TMP $MIRROR"
+    ian-sudo "debootstrap --arch=$JAIL_ARCH --variant=buildd --include=fakeroot,build-essential,openssh-client sid $JAIL_DIR_TMP $MIRROR"
 	# debfoster
 	# ian-sudo "debootstrap --verbose --variant=buildd sid $JAIL_DIR_TMP $MIRROR"
 	jail:add-ian-repo
