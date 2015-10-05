@@ -149,6 +149,11 @@ ian create
 FIXME: To do
 
 
+ian lintian-fix
+---------------
+
+automatically try to fix lintian issues (after a successful build).
+
 Configuration
 =============
 
