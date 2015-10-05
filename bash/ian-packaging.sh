@@ -33,6 +33,7 @@
 IAN_CONFIG=$HOME/.config/ian/config
 IAN_THIS_CONFIG=./.ian
 JAIL_PKGS="debootstrap schroot uuid-runtime"
+BUILDOPTIONS=""
 
 if [ -e $IAN_CONFIG ]; then
 	source $IAN_CONFIG
@@ -484,11 +485,12 @@ function cmd:build {
 ##:040:usage:  -c;  run "ian clean" before "build"
 ##:040:usage:  -i;  run "ian install" after "build"
 ##:040:usage:  -m;  merge ./debian with upstream .orig. bypassing directory contents
+##:040:usage:  -s;  including full source code in upload
 
-	local clean=false install=false merge=false
+	local clean=false install=false merge=false include_source=false
 	local OPTIND=1 OPTARG OPTION
 
-	while getopts :cim OPTION "${__args__[@]}"; do
+	while getopts :cims OPTION "${__args__[@]}"; do
 		case $OPTION in
 			c)
 				clean=true ;;
@@ -496,6 +498,8 @@ function cmd:build {
 				install=true ;;
 			m)
 				merge=true ;;
+			s)
+				include_source=true ;;
 			\?)
 				echo "invalid option: -$OPTARG"
 				exit 1 ;;
@@ -507,11 +511,16 @@ function cmd:build {
 
 	assert-no-more-args $OPTIND
 
+
     (
     assert-preconditions
 
 	if [ "$clean" = true ]; then
 		cmd:clean
+	fi
+
+	if [ "$include_source" = true ]; then
+		BUILDOPTIONS="$BUILDOPTIONS -sa"
 	fi
 
 	sc-assert cmd:orig
@@ -554,13 +563,21 @@ function build-merging-upstream {
 	cd $build_dir
 	build-standard
 	)
+
 	cp -v $build_area/$(package)_$(debian-version)* $(build-dir)
+	for pkg in $(binary-names); do
+		cp -v $build_area/${pkg}_$(debian-version)*.deb $(build-dir)
+    done
+
+	cp -v $build_dir/debian/files ./debian
 }
 
 function build-standard {
     (
     assert-preconditions
-    dpkg-buildpackage -uc -us
+	local build_command="dpkg-buildpackage -uc -us $BUILDOPTIONS"
+	log-info "build command: $build_command"
+    $build_command
     )
 }
 
