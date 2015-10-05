@@ -794,7 +794,7 @@ function cmd:clean {
 
     (
     assert-preconditions
-	builddeps-assure
+#	builddeps-assure
 
 	log-info "clean"
 
@@ -837,33 +837,33 @@ function cmd:clean-uscan {
 	assert-no-more-args
 
 	log-info "clean-uscan"
-	local nline=$(uscan --report --verbose | grep -n "^Newest version on remote" | cut -d":" -f 1)
-	local nline=$(echo $nline - 1 | bc)
-	local url=$(uscan --report --verbose | tail -n +$nline | head -n 1)
-	local upstream_fname=$(basename $url)
-	_ian-rm $(orig-dir)/$upstream_fname
+	# local nline=$(uscan --report --verbose | grep -n "^Newest version on remote" | cut -d":" -f 1)
+	# local nline=$(echo $nline - 1 | bc)
+	# local url=$(uscan --report --verbose | tail -n +$nline | head -n 1)
+	# local upstream_fname=$(basename $url)
+	# _ian-rm $(orig-dir)/$upstream_fname
+	rm -vf $(uscan-downloads-paths)
 }
 
 # FIXME: to test
-function uscan-list-hrefs {
+function uscan-downloads-filenames {
     local nline=$(uscan --report --verbose | grep -n "\-\- Found the following" | cut -d":" -f 1)
     local nfirst=$(($nline+1))
     local nline=$(uscan --report --verbose | grep -n "version on remote site" | cut -d":" -f 1)
     local nlast=$(($nline-$nfirst))
 
     uscan --report --verbose  | tail -n +$nfirst | head -n $nlast | while read fname; do
-	local path=$(echo "$fname" | cut -d"(" -f 1)
-	echo ${path##*/}
+		local path=$(echo "$fname" | cut -d"(" -f 1)
+		echo ${path##*/}
     done
 }
 
 # FIXME: to test
-function uscan-remove-downloads {
-    for fname in $(uscan-list-hrefs); do
-		echo rm "$(orig-dir)/$fname"
+function uscan-downloads-paths {
+    for fname in $(uscan-downloads-filenames); do
+		echo "$(orig-dir)/$fname";
     done
 }
-
 
 
 #-- install ----------------------------------------------------------
