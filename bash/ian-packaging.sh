@@ -23,6 +23,7 @@
 ##:ian-map:090:upload
 ##:ian-map:100:remove
 ##:ian-map:120:create
+##:ian-map:140:lintian-fix
 
 #- jail actions -
 ##:jail-map:201:login
@@ -324,15 +325,13 @@ function cmd:summary {
     assert-preconditions
     echo "source:             " $(package)
     echo "upstream:           " $(upstream-version)
+	if valid-watch-present; then
+	echo "watch:              " $(upstream-version-uscan)
+	fi
     echo "version:            " $(debian-version)
     echo "orig:               " $(orig-path)
 	echo "  methods:          " $(orig-methods)
     echo "changes:            " $(changes-path)
-
-	if valid-watch-present; then
-	echo "watch:              " $(upstream-version-uscan)
-	fi
-
 	echo "binaries:           " $(binary-names)
     echo "pkg vcs:            " $(pkg-vcs)
 
@@ -356,8 +355,10 @@ function upstream-version-uscan {
 	local -a outputs
 	sc-call-out-err outputs uscan --report --verbose
 
-	if [ $? -ne 0 ]; then
-		log-warning "error: see ${outputs[2]}"
+	#	if [ $? -ne 0 ]; then
+	local stderr_nlines=$(wc -l ${outputs[2]} | cut -d' ' -f1)
+	if [ $stderr_nlines -gt 0 ]; then
+		log-warning "error: see stderr: ${outputs[2]} stdout: ${outputs[1]}"
 		return
 	fi
 	cat "${outputs[1]}" | grep "Newest" | cut -d"," -f1 | sed "s/site is /@/g" | cut -d@ -f2
@@ -575,6 +576,7 @@ function build-svn {
 }
 
 function cmd:lintian-fix() {
+##:140:cmd:try to automatically solve lintian issues
 	assert-no-more-args
 	sc-assert-files-exist $(changes-path)
 
@@ -597,6 +599,8 @@ EOF
 			create-placeholder-manpage "$cmd"
 			log-ok "manpage '$cmd.rst' created"
 		done
+		# FIXME: add rules to debian/rules
+		# FIXME: install manpages
 	fi
 
 	local tag="out-of-date-standards-version"
@@ -1284,7 +1288,7 @@ function assure-jail-is-ok {
 }
 
 function ian-jail {
-	sc-assert-var-defined JAIL_ARCH "no jail defined. Are you sure you are using ian-386?"
+	sc-assert-var-defined JAIL_ARCH "no jail defined. Are you using ian-386?"
 
     log-info "Running \"$__cmd__\" in the jail \"$(jail:name)\""
 
@@ -1304,6 +1308,8 @@ function ian-jail {
 
 function cmd:login {
 ##:201:cmd:login into the jail
+	sc-assert-var-defined JAIL_ARCH "this command must be applied on a jail"
+
 	sc-log-info "login into $(jail:name)..."
 	sc-log-warn "#####################################################"
 	sc-log-warn "#    You are loging in a volatile schroot jail.     #"
