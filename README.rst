@@ -62,8 +62,8 @@ create or download the .orig file.
 * orig-from-local: generates .orig from current directory files
 
 
-ian build [-c] [-i] [-m]
-------------------------
+ian build [-c] [-i] [-m] [-s]
+-----------------------------
 
 compiles Debian sources to generate binary packages.
 
@@ -80,6 +80,7 @@ there are several available options:
 * -c: run "ian clean" before "build"
 * -i: run "ian install" after "build"
 * -m: merge ./debian with upstream .orig. bypassing directory contents
+* -s: include full source code in upload
 
 
 ian clean
