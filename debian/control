@@ -8,11 +8,15 @@ Homepage: https://bitbucket.org/DavidVilla/ian
 
 Package: ian
 Architecture: all
-Depends: ${misc:Depends}, quilt, gnupg, dupload, build-essential, sudo, devscripts, equivs, python, libwww-perl, bc
+Depends: ${misc:Depends}, quilt, gnupg,
+	 dupload, build-essential, sudo,
+	 devscripts, equivs, python,
+	 libwww-perl, bc,
+	 unzip, xz-utils, openssh-client
 Suggests: debootstrap, schroot, uuid-runtime
 Replaces: arco-devel (<< 0.20141029-1)
 Breaks: arco-devel (<< 0.20141029-1)
 Description: command line helper to maintain Debian packages
  ian is a helper to simplify and assist to the maintainer in the using
  of Debian packaging  tools. It can create or get orig tarball, install
- build dependencies and many others.
+ build dependencies and many many others.
