@@ -888,18 +888,22 @@ function cmd:upload {
 	local NOT_YET_REGISTERED="not yet registered in the pool and not found in '$(changes-filename)'"
 	local DSC_ALREADY_REGISTERED=".dsc\" is already registered with different checksums"
 	local DEB_ALREADY_REGISTERED=".deb\" is already registered with different checksums"
+	local ORIG_ALREADY_REGISTERED=".orig.tar.gz\" is already registered with different checksums"
 
 	if [ $rcode -ne 0 ]; then
 		if cat ${outputs[2]} | grep "$NOT_YET_REGISTERED"; then
 			log-warning "missing $(orig-filename) in repository, fixing..."
 			sc-assert-run "dpkg-genchanges -sa > $changes_path"
 			sign-and-upload
+		elif cat ${outputs[2]} | grep "$ORIG_ALREADY_REGISTERED"; then
+			sc-log-error "orig already uploaded! Create a new release, and try again"
+			return
 		elif cat ${outputs[2]} | grep "$DSC_ALREADY_REGISTERED"; then
 			log-warning "$(dsc-filename) already in repository, fixing..."
 			sc-assert-run "dpkg-genchanges -b > $changes_path"
 			sign-and-upload
 		elif cat ${outputs[2]} | grep "$DEB_ALREADY_REGISTERED"; then
-			sc-log-error "already uploaded! Create a new release and try again"
+			sc-log-error "already uploaded! Create a new release, and try again"
 			return
 		else
 			cat ${outputs[2]}
@@ -1323,7 +1327,8 @@ function cmd:jail-upgrade {
 	sc-assert-var-defined JAIL_ARCH "this command must be applied on a jail"
 
     jail:sudo apt-get update
-    jail:sudo apt-get upgrade -y
+    jail:sudo apt-get -y install ian
+    jail:sudo apt-get -y upgrade
  }
 
 function cmd:jail-destroy {
