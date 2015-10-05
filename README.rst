@@ -41,11 +41,11 @@ prints information about the current directory Debian package::
   hello-2.9$ ian summary
   source:              hello
   uptream:             2.9
+  watch:               2.10
   version:             2.9-2
   orig:                ../hello_2.9.orig.tar.gz
     methods:           uscan from-local
   changes:             ../hello_2.9-2_i386.changes
-  watch:               2.10
   binaries:            hello
   pkg vcs:             none
 
