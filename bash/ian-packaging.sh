@@ -827,6 +827,28 @@ function cmd:clean-uscan {
 	_ian-rm $(orig-dir)/$upstream_fname
 }
 
+# FIXME: to test
+function uscan-list-hrefs {
+    local nline=$(uscan --report --verbose | grep -n "\-\- Found the following" | cut -d":" -f 1)
+    local nfirst=$(($nline+1))
+    local nline=$(uscan --report --verbose | grep -n "version on remote site" | cut -d":" -f 1)
+    local nlast=$(($nline-$nfirst))
+
+    uscan --report --verbose  | tail -n +$nfirst | head -n $nlast | while read fname; do
+	local path=$(echo "$fname" | cut -d"(" -f 1)
+	echo ${path##*/}
+    done
+}
+
+# FIXME: to test
+function uscan-remove-downloads {
+    for fname in $(uscan-list-hrefs); do
+		echo rm "$(orig-dir)/$fname"
+    done
+}
+
+
+
 #-- install ----------------------------------------------------------
 
 function cmd:install {
@@ -883,7 +905,7 @@ function cmd:upload {
 	# echo -e "${outputs[2]}"
 	# echo "not yet registered in the pool and not found in '$(changes-filename)'"
 	# echo "grep" $(echo "${outputs[2]}" | grep "not yet registered in the pool and
-# not found in '$(changes-filename)'")
+    # not found in '$(changes-filename)'")
 
 	local NOT_YET_REGISTERED="not yet registered in the pool and not found in '$(changes-filename)'"
 	local DSC_ALREADY_REGISTERED=".dsc\" is already registered with different checksums"
