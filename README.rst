@@ -41,11 +41,11 @@ prints information about the current directory Debian package::
   hello-2.9$ ian summary
   source:              hello
   uptream:             2.9
+  watch:               2.10
   version:             2.9-2
   orig:                ../hello_2.9.orig.tar.gz
     methods:           uscan from-local
   changes:             ../hello_2.9-2_i386.changes
-  watch:               2.10
   binaries:            hello
   pkg vcs:             none
 
@@ -62,8 +62,8 @@ create or download the .orig file.
 * orig-from-local: generates .orig from current directory files
 
 
-ian build [-c] [-i] [-m]
-------------------------
+ian build [-c] [-i] [-m] [-s]
+-----------------------------
 
 compiles Debian sources to generate binary packages.
 
@@ -80,6 +80,7 @@ there are several available options:
 * -c: run "ian clean" before "build"
 * -i: run "ian install" after "build"
 * -m: merge ./debian with upstream .orig. bypassing directory contents
+* -s: include full source code in upload
 
 
 ian clean
