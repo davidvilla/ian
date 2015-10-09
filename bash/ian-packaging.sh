@@ -970,15 +970,15 @@ function cmd:remove {
 ##:100:usage:  -3;  Remove only i386 version
 ##:100:usage:  -6;  Remove only amd64 version
 
-	local arch=all
+	local arch
 	local OPTIND=1 OPTARG OPTION
 
 	while getopts :36 OPTION "${__args__[@]}"; do
 		case $OPTION in
 			3)
-				arch=i386 ;;
+				arch="-A i386" ;;
 			6)
-				arch=amd64 ;;
+				arch="-A amd64" ;;
 			\?)
 				echo "invalid option: -$OPTARG"
 				exit 1 ;;
@@ -995,7 +995,7 @@ function cmd:remove {
 function remove-package {
 	local package=$1
 	local arch=$2
-    ssh $(repo-account) "reprepro -A $arch -V -b $(repo-path) remove sid $package"
+    ssh $(repo-account) "reprepro $arch -V -b $(repo-path) remove sid $package"
 }
 
 function repo-account {
