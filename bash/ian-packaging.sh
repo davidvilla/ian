@@ -966,15 +966,36 @@ function sign-and-upload {
 
 function cmd:remove {
 ##:100:cmd:remove package from configured package repository
+##:100:usage:ian remove [-3|-6]
+##:100:usage:  -3;  Remove only i386 version
+##:100:usage:  -6;  Remove only amd64 version
+
+	local arch=all
+	local OPTIND=1 OPTARG OPTION
+
+	while getopts :36 OPTION "${__args__[@]}"; do
+		case $OPTION in
+			3)
+				arch=i386 ;;
+			6)
+				arch=amd64 ;;
+			\?)
+				echo "invalid option: -$OPTARG"
+				exit 1 ;;
+		esac
+	done
+
 	assert-no-more-args
 
 	for pkg in $(binary-names) $(package); do
-		remove-package $pkg
+		remove-package "$pkg" "$arch"
     done
 }
 
 function remove-package {
-    ssh $(repo-account) "reprepro -V -b $(repo-path) remove sid $1"
+	local package=$1
+	local arch=$2
+    ssh $(repo-account) "reprepro -A $arch -V -b $(repo-path) remove sid $package"
 }
 
 function repo-account {
