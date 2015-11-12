@@ -369,6 +369,13 @@ function upstream-version-uscan {
 
 #-- hooks ------------------------------------------------------------
 
+function notify-clean {
+	if sc-function-exists ian-clean-hook; then
+		log-info "running ian-clean-hook"
+		ian-clean-hook
+	fi
+}
+
 function notify-release {
 	if sc-function-exists ian-release-hook; then
 		log-info "running ian-release-hook"
@@ -810,6 +817,7 @@ function cmd:clean {
 	fi
 
 	log-ok "clean"
+	notify-clean
 	return 0
     )
 }
