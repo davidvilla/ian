@@ -1292,6 +1292,7 @@ function cmd:create() {
 
 function create-makefile() {
 	cat <<EOF > ./Makefile.example
+# -*- mode: makefile-gmake; coding: utf-8 -*-
 DESTDIR ?= ~
 
 all:
