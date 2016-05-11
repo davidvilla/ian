@@ -1,11 +1,20 @@
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
 
+function say() {
+	spd-say -t female1 -r 20 "$1"
+}
+
 function ian-clean-hook() {
 	echo "sample clean hook"
-	beep
+	say clean
 }
 
 function ian-build-hook() {
 	echo "sample build hook"
-	beep
+	say built
+}
+
+function ian-install-hook {
+	echo "sample install hook"
+	say installed
 }
