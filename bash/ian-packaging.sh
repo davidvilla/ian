@@ -383,9 +383,21 @@ function notify-release {
 	fi
 }
 
-function notify-build {
+function notify-build-start {
+	if sc-function-exists ian-build-start-hook; then
+		log-info "running ian-build-start-hook"
+		ian-build-start-hook
+	fi
+}
+
+function notify-build-end {
+	if sc-function-exists ian-build-end-hook; then
+		log-info "running ian-build-end-hook"
+		ian-build-end-hook
+	fi
+
 	if sc-function-exists ian-build-hook; then
-		log-info "running ian-build-hook"
+		log-info "running ian-build-end-hook"
 		ian-build-hook
 	fi
 }
@@ -492,7 +504,7 @@ function cmd:build {
 ##:040:usage:  -c;  run "ian clean" before "build"
 ##:040:usage:  -i;  run "ian install" after "build"
 ##:040:usage:  -m;  merge ./debian with upstream .orig. bypassing directory contents
-##:040:usage:  -s;  including full source code in upload
+##:040:usage:  -s;  include full source code in upload
 
 	local clean=false install=false merge=false include_source=false
 	local OPTIND=1 OPTARG OPTION
@@ -534,6 +546,7 @@ function cmd:build {
 	builddeps-assure
 	log-info "build"
 
+	notify-build-start
     if uses-svn; then
 		build-svn
     elif [ "$merge" = true ]; then
@@ -548,7 +561,7 @@ function cmd:build {
 
 	sc-assert-files-exist $(binary-paths)
 	log-ok "build"
-	notify-build
+	notify-build-end
 
 	if [ "$install" = true ]; then
 		cmd:install
@@ -557,26 +570,31 @@ function cmd:build {
 }
 
 function build-merging-upstream {
-	local build_area=$(mktemp -d)
-	local build_dir=$build_area/$(upstream-fullname)
-	mkdir -p $build_dir
+	local tmp_build_area=$(mktemp -d)
+	local tmp_build_dir=$tmp_build_area/$(upstream-fullname)
+	mkdir -p $tmp_build_dir
 
-	log-info "merging with uptream in a temp build area: $build_area"
-	tar --no-same-owner --no-same-permissions --extract --gzip --file $(orig-path) --directory $build_area/
-	cp -r ./debian $build_dir/
-	cp $(orig-path) $build_area/
-	chmod -R u+r+w+X,g+r-w+X,o+r-w+X -- $build_dir
+	log-info "merging with uptream in a temp build area: $tmp_build_area"
+	tar --no-same-owner --no-same-permissions --extract --gzip --file $(orig-path) --directory $tmp_build_area/
+	cp -r ./debian $tmp_build_dir/
+	cp $(orig-path) $tmp_build_area/
+	chmod -R u+r+w+X,g+r-w+X,o+r-w+X -- $tmp_build_dir
 	(
-	cd $build_dir
+	cd $tmp_build_dir
 	build-standard
 	)
 
-	cp -v $build_area/$(package)_$(debian-version)* $(build-dir)
+	cp -v $tmp_build_area/$(package)_$(debian-version)* $(build-dir)
 	for pkg in $(binary-names); do
-		cp -v $build_area/${pkg}_$(debian-version)*.deb $(build-dir)
+		cp -v $tmp_build_area/${pkg}_$(debian-version)*.deb $(build-dir)
+
+		local dbgsym="$tmp_build_area/${pkg}-dbgsym_$(debian-version)*.deb"
+		if [ -e $dbgsym ]; then
+			cp -v $dbgsym $(build-dir)
+		fi
     done
 
-	cp -v $build_dir/debian/files ./debian
+	cp -v $tmp_build_dir/debian/files ./debian
 }
 
 function build-standard {
@@ -855,7 +873,7 @@ function cmd:clean-uscan {
 
 # FIXME: to test
 function uscan-downloads-filenames {
-    local nline=$(uscan --report --verbose | grep -n "\-\- Found the following" | cut -d":" -f 1)
+    local nline=$(uscan --report --verbose | grep -n "Found the following matching hrefs" | cut -d":" -f 1)
     local nfirst=$(($nline+1))
     local nline=$(uscan --report --verbose | grep -n "version on remote site" | cut -d":" -f 1)
     local nlast=$(($nline-$nfirst))
