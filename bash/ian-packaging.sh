@@ -589,6 +589,7 @@ function build-merging-upstream {
 		cp -v $tmp_build_area/${pkg}_$(debian-version)*.deb $(build-dir)
 
 		local dbgsym="$tmp_build_area/${pkg}-dbgsym_$(debian-version)*.deb"
+		log-info "dbgsym pkg should be: '$dbgsym'"
 		if [ -e $dbgsym ]; then
 			cp -v $dbgsym $(build-dir)
 		fi
