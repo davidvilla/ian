@@ -1,11 +1,12 @@
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
 
+MIRROR=${DEBIAN_MIRROR:-http://http.debian.net}/debian
+
 JAIL_CONFIG=/etc/schroot/chroot.d/ian
 JAIL_DCONFIG=/etc/schroot/ian
 JAIL_DIR_TMP=$(mktemp -d)
 JAIL_DIR=/var/jails
 USER_FSTAB=$HOME/.config/ian/fstab
-MIRROR=${DEBIAN_MIRROR:-http://http.debian.net}/debian
 
 APT_OPTS="--no-install-recommends -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confnew"
 
