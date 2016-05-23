@@ -3,7 +3,7 @@ Section: shells
 Priority: extra
 Maintainer: David Villa Alises <David.Villa@gmail.com>
 Build-Depends: debhelper (>= 7.0.50~), quilt, python-docutils
-Standards-Version: 3.9.6
+Standards-Version: 3.9.8
 Homepage: https://bitbucket.org/DavidVilla/ian
 
 Package: ian
@@ -19,4 +19,4 @@ Breaks: arco-devel (<< 0.20141029-1)
 Description: command line helper to maintain Debian packages
  ian is a helper to simplify and assist to the maintainer in the using
  of Debian packaging  tools. It can create or get orig tarball, install
- build dependencies and many many others.
+ build dependencies and many others.
