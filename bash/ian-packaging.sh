@@ -1100,15 +1100,18 @@ function assure-user-is-uploader {
 	local force=$1
 	if grep -e "^Maintainer:" -e "^Uploaders:" debian/control | grep $DEBEMAIL > /dev/null; then
 		log-ok "User '$DEBEMAIL' is a valid uploader."
-	else
-		log-error "User '$DEBEMAIL' is NOT a valid uploader!."
-		if [ "$force" = true ]; then
-			log-warning "build continues because 'force' is enabled."
-			return 0
-		fi
-		log-error "Execute 'build -f' to overcome."
-		exit 1
+		return 0
 	fi
+
+	log-error "User '$DEBEMAIL' is NOT a valid uploader!."
+
+	if [ "$force" = true ]; then
+		log-warning "build continues because 'force' is enabled."
+		return 0
+	fi
+
+	log-error "Execute 'build -f' to overcome."
+	exit 1
 }
 
 
