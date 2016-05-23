@@ -371,40 +371,40 @@ function upstream-version-uscan {
 
 function notify-clean {
 	if sc-function-exists ian-clean-hook; then
-		log-info "running ian-clean-hook"
+		log-info "exec ian-clean-hook"
 		ian-clean-hook
 	fi
 }
 
 function notify-release {
 	if sc-function-exists ian-release-hook; then
-		log-info "running ian-release-hook"
+		log-info "exec ian-release-hook"
 		ian-release-hook
 	fi
 }
 
 function notify-build-start {
 	if sc-function-exists ian-build-start-hook; then
-		log-info "running ian-build-start-hook"
+		log-info "exec ian-build-start-hook"
 		ian-build-start-hook
 	fi
 }
 
 function notify-build-end {
 	if sc-function-exists ian-build-end-hook; then
-		log-info "running ian-build-end-hook"
+		log-info "exec ian-build-end-hook"
 		ian-build-end-hook
 	fi
 
 	if sc-function-exists ian-build-hook; then
-		log-info "running ian-build-end-hook"
+		log-info "exec ian-build-end-hook"
 		ian-build-hook
 	fi
 }
 
 function notify-install {
 	if sc-function-exists ian-install-hook; then
-		log-info "running ian-install-hook"
+		log-info "exec ian-install-hook"
 		ian-install-hook
 	fi
 }
@@ -435,8 +435,8 @@ function cmd:release {
 function cmd:release-date {
 ##:021:cmd:add a new package version based on date: 0.20010101
 ##:021:usage:ian release-date [-y] [-m release-message]
-##:021:usage:  -y;  do not ask for a release message
-##:021:usage:  -m;  release message for debian/changelog entry
+##:021:usage:  -y;      do not ask for a release message
+##:021:usage:  -m MSG;  release message for debian/changelog entry
 
 	local quiet=false msg="New release"
 	local OPTIND=1 OPTARG OPTION
@@ -502,17 +502,21 @@ function cmd:build {
 ##:040:cmd:build all binary packages
 ##:040:usage:ian build [-c] [-i] [-m]
 ##:040:usage:  -c;  run "ian clean" before "build"
+##:040:usage:  -f;  force build
 ##:040:usage:  -i;  run "ian install" after "build"
 ##:040:usage:  -m;  merge ./debian with upstream .orig. bypassing directory contents
 ##:040:usage:  -s;  include full source code in upload
 
-	local clean=false install=false merge=false include_source=false
+
+	local clean=false foce=false install=false merge=false include_source=false
 	local OPTIND=1 OPTARG OPTION
 
-	while getopts :cims OPTION "${__args__[@]}"; do
+	while getopts :cfims OPTION "${__args__[@]}"; do
 		case $OPTION in
 			c)
 				clean=true ;;
+			f)
+				force=true ;;
 			i)
 				install=true ;;
 			m)
@@ -543,6 +547,8 @@ function cmd:build {
 	fi
 
 	sc-assert cmd:orig
+
+	assure-user-is-uploader $force
 	builddeps-assure
 	log-info "build"
 
@@ -1086,6 +1092,21 @@ function assert-no-more-args {
 
 	if ! [ -z "$remaining" ]; then
 		log-error "unexpected arguments: $remaining"
+		exit 1
+	fi
+}
+
+function assure-user-is-uploader {
+	local force=$1
+	if grep -e "^Maintainer:" -e "^Uploaders:" debian/control | grep $DEBEMAIL > /dev/null; then
+		log-ok "User '$DEBEMAIL' is a valid uploader."
+	else
+		log-error "User '$DEBEMAIL' is NOT a valid uploader!."
+		if [ "$force" = true ]; then
+			log-warning "build continues because 'force' is enabled."
+			return 0
+		fi
+		log-error "Execute 'build -f' to overcome."
 		exit 1
 	fi
 }
