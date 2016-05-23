@@ -33,7 +33,8 @@
 IAN_CONFIG=$HOME/.config/ian/config
 IAN_THIS_CONFIG=./.ian
 JAIL_PKGS="debootstrap schroot uuid-runtime"
-BUILDOPTIONS=""
+BUILDOPTIONS=${BUILDOPTIONS:-""}
+
 
 if [ -e $IAN_CONFIG ]; then
 	source $IAN_CONFIG

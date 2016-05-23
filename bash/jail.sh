@@ -74,7 +74,7 @@ function jail:create() {
 
 function jail:add-ian-repo() {
     local repo=$(mktemp)
-    echo "deb http://babel.esi.uclm.es/arco sid main" > $repo
+    echo "deb http://pike.esi.uclm.es/arco sid main" > $repo
     sudo cp $repo $JAIL_DIR_TMP/etc/apt/sources.list.d/arco.list
 }
 
@@ -89,9 +89,9 @@ function jail:install-ian() {
 #    local key=$(mktemp)
 #    wget -q -O $key http://babel.esi.uclm.es/arco/key.asc
 #    jail:src:sudo apt-key add $key
-	jail:src:sudo apt-key adv --keyserver pgp.mit.edu --recv-keys DCA26384
+    jail:src:sudo apt-key adv --keyserver pgp.mit.edu --recv-keys E1A8C664
     jail:src:sudo apt-get -q update
-    jail:src:sudo apt-get -q $APT_OPTS install -y ian
+    jail:src:sudo apt-get -q $APT_OPTS install -y ian lintian
 }
 
 function jail:clean {
