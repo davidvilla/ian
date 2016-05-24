@@ -62,8 +62,8 @@ create or download the .orig file.
 * orig-from-local: generates .orig from current directory files
 
 
-ian build [-c] [-i] [-m] [-s]
------------------------------
+ian build [-c] [-f] [-i] [-m] [-s]
+----------------------------------
 
 compiles Debian sources to generate binary packages.
 
@@ -78,10 +78,10 @@ compiles Debian sources to generate binary packages.
 there are several available options:
 
 * -c: run "ian clean" before "build"
+  -f;  force build
 * -i: run "ian install" after "build"
 * -m: merge ./debian with upstream .orig. bypassing directory contents
 * -s: include full source code in upload
-
 
 ian clean
 ---------
@@ -147,13 +147,14 @@ list all generated files
 ian create
 ----------
 
-FIXME: To do
+Basic wizard to create a new debian package
 
 
 ian lintian-fix
 ---------------
 
-automatically try to fix lintian issues (after a successful build).
+automatically try to fix some lintian issues (after a successful build).
+
 
 Configuration
 =============
@@ -178,8 +179,10 @@ hooks
 
 ian may execute user provided shell functions AFTER important events in the process. Allowed hooks are:
 
+* ian-clean-hook
 * ian-release-hook
-* ian-build-hook
+* ian-build-start-hook
+* ian-build-end-hook
 * ian-install-hook
 
 You may provide these functions in your **~/.config/ian/config** file.
@@ -188,7 +191,20 @@ You may provide these functions in your **~/.config/ian/config** file.
 Compiling i386 packages in a amd64 computer
 ===========================================
 
-FIXME: To do
+Create a i386 chroot::
+
+  hello-2.9$ ian-386 jail-upgrade
+
+
+Compile amd64 version::
+
+  hello-2.9$ ian clean
+  hello-2.9$ BUILDOPTIONS=-b ian build
+
+
+Compile i386 version in its chroot::
+
+  hello-2.9$ ian-386
 
 
 Similar software
