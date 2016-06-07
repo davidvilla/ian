@@ -7,7 +7,7 @@
 ##:ian-map:000:help
 ##:ian-map:010:summary
 ##:ian-map:060:binary-contents
-##:ian-map:200:show-generated
+##:ian-map:200:show-products
 
 #- actions -
 ##:ian-map:015:orig
@@ -363,7 +363,7 @@ function upstream-version-uscan {
 		log-warning "error: see stderr: ${outputs[2]} stdout: ${outputs[1]}"
 		return
 	fi
-	cat "${outputs[1]}" | grep "Newest" | cut -d"," -f1 | sed "s/site is /@/g" | cut -d@ -f2
+	cat "${outputs[1]}" | grep "^uscan: Newest" |  cut -d"," -f1 | sed "s/site is /@/g" | cut -d@ -f2
 	rm ${outputs[@]}
 }
 
@@ -410,6 +410,12 @@ function notify-install {
 	fi
 }
 
+function notify-install {
+	if sc-function-exists ian-upload-hook; then
+		log-info "exec ian-upload-hook"
+		ian-upload-hook
+	fi
+}
 
 
 #-- release ------------------------------------------------------
@@ -501,19 +507,22 @@ EOF
 
 function cmd:build {
 ##:040:cmd:build all binary packages
-##:040:usage:ian build [-c] [-i] [-m]
+##:040:usage:ian build [-b] [-c] [-f] [-i] [-m] [-s]
+##:040:usage:  -b;  skip 'source' target. See 'dpkg-buildpackage -b'
 ##:040:usage:  -c;  run "ian clean" before "build"
 ##:040:usage:  -f;  force build
 ##:040:usage:  -i;  run "ian install" after "build"
 ##:040:usage:  -m;  merge ./debian with upstream .orig. bypassing directory contents
-##:040:usage:  -s;  include full source code in upload
+##:040:usage:  -s;  include full source. See 'dpkg-genchanges -sa'
 
 
-	local clean=false foce=false install=false merge=false include_source=false
+	local clean=false build_binary=false foce=false install=false merge=false include_source=false
 	local OPTIND=1 OPTARG OPTION
 
-	while getopts :cfims OPTION "${__args__[@]}"; do
+	while getopts :bcfims OPTION "${__args__[@]}"; do
 		case $OPTION in
+			b)
+				build_binary=true ;;
 			c)
 				clean=true ;;
 			f)
@@ -538,6 +547,10 @@ function cmd:build {
 
     (
     assert-preconditions
+
+	if [ "$build_binary" = true ]; then
+		BUILDOPTIONS="$BUILDOPTIONS -b"
+	fi
 
 	if [ "$clean" = true ]; then
 		cmd:clean
@@ -592,13 +605,10 @@ function build-merging-upstream {
 	)
 
 	cp -v $tmp_build_area/$(package)_$(debian-version)* $(build-dir)
-	for pkg in $(binary-names); do
-		cp -v $tmp_build_area/${pkg}_$(debian-version)*.deb $(build-dir)
-
-		local dbgsym="$tmp_build_area/${pkg}-dbgsym_$(debian-version)*.deb"
-		log-info "dbgsym pkg should be: '$dbgsym'"
-		if [ -e $dbgsym ]; then
-			cp -v $dbgsym $(build-dir)
+	for pkg in $(binary-names) $(dbgsym-names); do
+		local fname="$tmp_build_area/${pkg}_$(debian-version)*.deb"
+		if [ -e $fname ]; then
+			cp -v $fname $(build-dir)
 		fi
     done
 
@@ -630,19 +640,29 @@ function cmd:lintian-fix() {
 	assert-no-more-args
 	sc-assert-files-exist $(changes-path)
 
-	local log=$(lintian -I $changes)
+	lintian_log=$(lintian -I $changes)
 
+	lintian-fix-debian-watch-file-is-missing
+	lintian-fix-binary-without-manpage
+	lintian-fix-out-of-date-standards-version
+
+	log-info "tune and re-build"
+}
+
+function lintian-fix-debian-watch-file-is-missing() {
 	local tag="debian-watch-file-is-missing"
-	if echo "$log" | grep $tag > /dev/null; then
+	if echo "$lintian_log" | grep $tag > /dev/null; then
 		log-info "fixing $tag"
 		cat <<EOF > ./debian/source/lintian-overrides
 $(package) source: debian-watch-file-is-missing
 EOF
 	fi
+}
 
+function lintian-fix-binary-without-manpage() {
 	local tag="binary-without-manpage"
 	local msg=$(mktemp)
-	if echo "$log" | grep $tag > $msg; then
+	if echo "$lintian_log" | grep $tag > $msg; then
 		cat $msg | while read line; do
 			log-info "fixing '$line'"
 			local cmd=$(basename $(echo $line | cut -d' ' -f4))
@@ -652,18 +672,18 @@ EOF
 		# FIXME: add rules to debian/rules
 		# FIXME: install manpages
 	fi
+}
 
+function lintian-fix-out-of-date-standards-version() {
 	local tag="out-of-date-standards-version"
 	local msg=$(mktemp)
-	if echo "$log" | grep $tag > $msg; then
+	if echo "$lintian_log" | grep $tag > $msg; then
 		log-info "fixing '$(cat $msg)'"
 		local old=$(cat $msg | cut -d' ' -f5)
 		local new=$(cat $msg | tr ')' ' ' | cut -d' ' -f8)
 		sed -i -e "s/$old/$new/g" debian/control
 		log-ok "standars version changed $old -> $new"
 	fi
-
-	log-info "tune and re-build"
 }
 
 function create-placeholder-manpage() {
@@ -822,7 +842,7 @@ function orig-path {
 #-- clean ------------------------------------------------------------
 
 function cmd:clean {
-##:030:cmd:clean generated packaging files and revert patches
+##:030:cmd:clean product files and revert patches
 	assert-no-more-args
 
     (
@@ -853,7 +873,7 @@ function clean-common {
     assert-preconditions
     log-info "clean-common"
 
-	rm -vf $(generated-paths)
+	rm -vf $(product-paths)
     rm -vf $(binary-paths)
     )
 }
@@ -867,7 +887,7 @@ function clean-common {
 # }
 
 function cmd:clean-uscan {
-##:031:cmd:clean uscan generated files
+##:031:cmd:clean uscan related files
 	assert-no-more-args
 
 	log-info "clean-uscan"
@@ -936,15 +956,23 @@ function cmd:clean-build-and-install {
 
 #-- repo actions -----------------------------------------------------
 
+function cmd:upload-all {
+	for changes_path in $(postbuild-changes-filenames); do
+		sc-assert-run "LANG=$NATIVE_LANG debsign $changes_path"
+		sc-assert-run "dupload -f $changes_path"
+	done
+}
+
 function cmd:upload {
 ##:090:cmd:sign and upload binary packages to configured package repository
 	assert-no-more-args
 
 	(
-	sc-assert-files-exist ~/.gnupg/secring.gpg
-	sc-assert-files-exist $(changes-path) $(binary-paths)
-
     local changes_path=$(changes-path)
+
+	sc-assert-files-exist ~/.gnupg/secring.gpg
+	sc-assert-files-exist $changes_path $(binary-paths)
+
     sc-assert-run "LANG=$NATIVE_LANG debsign $changes_path"
 
 	local -a outputs
@@ -969,7 +997,8 @@ function cmd:upload {
 			sc-assert-run "dpkg-genchanges -sa > $changes_path"
 			sign-and-upload
 		elif cat ${outputs[2]} | grep "$ORIG_ALREADY_REGISTERED"; then
-			sc-log-error "orig already uploaded! Create a new release, and try again"
+			# FIXME: assure debian relase is > "-1"
+			sc-log-error "orig already uploaded! Rebuild using 'build -b' and upload again"
 			return
 		elif cat ${outputs[2]} | grep "$DSC_ALREADY_REGISTERED"; then
 			log-warning "$(dsc-filename) already in repository, fixing..."
@@ -1000,36 +1029,23 @@ function sign-and-upload {
 
 function cmd:remove {
 ##:100:cmd:remove package from configured package repository
-##:100:usage:ian remove [-3|-6]
-##:100:usage:  -3;  Remove only i386 version
-##:100:usage:  -6;  Remove only amd64 version
+##:100:usage:ian remove [i386|amd64]
 
-	local arch
-	local OPTIND=1 OPTARG OPTION
+	local arch=${__args__[0]:-""}
 
-	while getopts :36 OPTION "${__args__[@]}"; do
-		case $OPTION in
-			3)
-				arch="-A i386" ;;
-			6)
-				arch="-A amd64" ;;
-			\?)
-				echo "invalid option: -$OPTARG"
-				exit 1 ;;
-		esac
-	done
-
-	assert-no-more-args
-
-	for pkg in $(binary-names) $(package); do
+	for pkg in $(sc-filter-dups $(binary-names) $(dbgsym-names) $(package)); do
 		remove-package "$pkg" "$arch"
     done
 }
 
 function remove-package {
 	local package=$1
-	local arch=$2
-    ssh $(repo-account) "reprepro $arch -V -b $(repo-path) remove sid $package"
+	local arch
+	if [ ! -z $2 ]; then
+		local arch="-A $2"
+	fi
+
+	ssh $(repo-account) "reprepro $arch -V -b $(repo-path) remove sid $package"
 }
 
 function repo-account {
@@ -1046,6 +1062,13 @@ function repo-path {
 	)
 }
 
+function repo-list {
+	# list related packages in the public repository
+
+	for pkg in $(sc-filter-dups $(binary-names) $(dbgsym-names) $(package)); do
+		ssh $(repo-account) "reprepro -b $(repo-path) list sid $pkg"
+	done
+}
 
 #-- assertions --
 
@@ -1131,7 +1154,12 @@ function package {
 }
 
 function binary-names {
+	# get binary package names from control
     grep "^Package:" debian/control | cut -f2 -d:  | tr -d " "
+}
+
+function dbgsym-names {
+	binary-names | sed -e 's/$/-dbgsym/'
 }
 
 function arch-binary {
@@ -1183,10 +1211,6 @@ function binary-filenames {
 
 function binary-paths {
     local build_path=".."
-    # if uses-svn; then
-	# 	build_path="../build-area"
-    # fi
-
     for fname in $(binary-filenames); do
 		echo $build_path/$fname
     done
@@ -1200,6 +1224,10 @@ function changes-path {
     echo $(build-dir)/$(changes-filename)
 }
 
+function postbuild-changes-filenames {
+	ls -1 $(build-dir)/$(package)_$(debian-version)_*.changes
+}
+
 function dsc-filename {
     echo $(package)_$(debian-version).dsc
 }
@@ -1208,7 +1236,7 @@ function dsc-path {
     echo $(build-dir)/$(dsc-filename)
 }
 
-function generated-filenames {
+function product-filenames {
     orig-filename
     changes-filename
     dsc-filename
@@ -1218,15 +1246,15 @@ function generated-filenames {
 	echo $deb_prefix.upload
 }
 
-function generated-paths {
-	for fname in $(generated-filenames); do
+function product-paths {
+	for fname in $(product-filenames); do
 		echo $(build-dir)/$fname;
 	done
 }
 
-function cmd:show-generated {
-##:200:cmd:list generated files
-	generated-filenames
+function cmd:show-products {
+##:200:cmd:list product files
+	product-filenames
 	binary-filenames
 }
 
@@ -1439,9 +1467,9 @@ function cmd:jail-upgrade {
 ##:202:cmd:upgrade source jail
 	sc-assert-var-defined JAIL_ARCH "this command must be applied on a jail"
 
-    jail:sudo apt-get update
-    jail:sudo apt-get -y install ian
-    jail:sudo apt-get -y upgrade
+    jail:src:sudo apt-get update
+    jail:src:sudo apt-get -y install ian
+    jail:src:sudo apt-get -y upgrade
  }
 
 function cmd:jail-destroy {

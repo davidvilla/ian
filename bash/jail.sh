@@ -63,7 +63,7 @@ function jail:run() {
 
 function jail:create() {
     ian-sudo "mkdir -p /var/jails"
-    ian-sudo "debootstrap --arch=$JAIL_ARCH --variant=buildd --include=fakeroot,build-essential,openssh-client sid $JAIL_DIR_TMP $MIRROR"
+    ian-sudo "debootstrap --arch=$JAIL_ARCH --variant=buildd --include=fakeroot,build-essential,openssh-client,lintian sid $JAIL_DIR_TMP $MIRROR"
 	# debfoster
 	# ian-sudo "debootstrap --verbose --variant=buildd sid $JAIL_DIR_TMP $MIRROR"
 	jail:add-ian-repo
@@ -91,7 +91,7 @@ function jail:install-ian() {
 #    jail:src:sudo apt-key add $key
     jail:src:sudo apt-key adv --keyserver pgp.mit.edu --recv-keys E1A8C664
     jail:src:sudo apt-get -q update
-    jail:src:sudo apt-get -q $APT_OPTS install -y ian lintian
+    jail:src:sudo apt-get -q $APT_OPTS install -y ian
 }
 
 function jail:clean {

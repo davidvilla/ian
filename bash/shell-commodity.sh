@@ -312,3 +312,10 @@ function sc-call-out-err {
 	eval $_outputs='("${_out[@]}")'
 	return $retcode
 }
+
+function sc-filter-dups {
+	# sc-filter-dups aa bb cc dd aa cc
+	#> aa bb cc
+
+	echo $(printf '%s\n' $* | sort -u)
+}
