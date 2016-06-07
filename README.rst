@@ -211,7 +211,6 @@ Similar software
 ================
 
 * buildtasks: 
-
 ** https://github.com/Jimdo/buildtasks 
 ** https://blog.codeship.com/using-docker-build-debian-packages/
 
