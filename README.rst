@@ -192,7 +192,7 @@ You may provide these functions in your **~/.config/ian/config** file.
 Compiling i386 packages in a amd64 computer
 ===========================================
 
-Create a i386 chroot::
+Create/update a i386 chroot::
 
   hello-2.9$ ian-386 jail-upgrade
 
