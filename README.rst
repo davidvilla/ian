@@ -210,9 +210,8 @@ Compile i386 version in its chroot::
 Similar software
 ================
 
-* buildtasks: 
-** https://github.com/Jimdo/buildtasks 
-** https://blog.codeship.com/using-docker-build-debian-packages/
+* https://github.com/Jimdo/buildtasks 
+* https://blog.codeship.com/using-docker-build-debian-packages/
 
 .. Local Variables:
 ..  coding: utf-8
