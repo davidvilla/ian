@@ -684,6 +684,16 @@ function lintian-fix-out-of-date-standards-version() {
 		sed -i -e "s/$old/$new/g" debian/control
 		log-ok "standars version changed $old -> $new"
 	fi
+
+	local tag="newer-standards-version"
+	local msg=$(mktemp)
+	if echo "$lintian_log" | grep $tag > $msg; then
+		log-info "fixing '$(cat $msg)'"
+		local old=$(cat $msg | cut -d' ' -f5)
+		local new=$(cat $msg | tr ')' ' ' | cut -d' ' -f8)
+		sed -i -e "s/$old/$new/g" debian/control
+		log-ok "standars version changed $old -> $new"
+	fi
 }
 
 function create-placeholder-manpage() {
