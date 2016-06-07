@@ -159,17 +159,13 @@ automatically try to fix some lintian issues (after a successful build).
 Configuration
 =============
 
-ian requires you define some environment variables. An example:
+ian requires you define some environment variables. An example::
 
+  DEBFULLNAME="John Doe"
+  DEBEMAIL=john.doe@email.com
+  DEBSIGN_KEYID=D0FE7AFB
+  DEBREPO_URL=john.doe@debian.repository.org/var/repo
 
-```
-#!shell
-
-DEBFULLNAME="John Doe"
-DEBEMAIL=john.doe@email.com
-DEBSIGN_KEYID=D0FE7AFB
-DEBREPO_URL=john.doe@debian.repository.org/var/repo
-```
 
 The latter two are required only if you want upload you package to a remote Debian
 repository.
