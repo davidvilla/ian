@@ -1037,9 +1037,24 @@ function sign-and-upload {
 }
 
 
+function do-reprepro {
+	ssh $(repo-account) "reprepro -b $(repo-path) $*"
+}
+
 function cmd:remove {
 ##:100:cmd:remove package from configured package repository
 ##:100:usage:ian remove [i386|amd64]
+
+	echo "Related files in '$DEBREPO_URL':"
+	cmd:repo-list
+	echo
+
+	read -r -p "Delete them? [y/N] " response
+	response=${response,,}    # tolower
+	if ! [[ $response =~ ^(yes|y)$ ]]; then
+		echo "(cancel)"
+		return
+	fi
 
 	local arch=${__args__[0]:-""}
 
@@ -1055,7 +1070,7 @@ function remove-package {
 		local arch="-A $2"
 	fi
 
-	ssh $(repo-account) "reprepro $arch -V -b $(repo-path) remove sid $package"
+	do-reprepro $arch -V remove sid $package
 }
 
 function repo-account {
@@ -1072,11 +1087,11 @@ function repo-path {
 	)
 }
 
-function repo-list {
+function cmd:repo-list {
 	# list related packages in the public repository
 
 	for pkg in $(sc-filter-dups $(binary-names) $(dbgsym-names) $(package)); do
-		ssh $(repo-account) "reprepro -b $(repo-path) list sid $pkg"
+		do-reprepro list sid $pkg
 	done
 }
 
