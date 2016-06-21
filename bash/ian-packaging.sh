@@ -1148,11 +1148,11 @@ function assert-no-more-args {
 function assure-user-is-uploader {
 	local force=$1
 	if grep -e "^Maintainer:" -e "^Uploaders:" debian/control | grep $DEBEMAIL > /dev/null; then
-		log-ok "User '$DEBEMAIL' is a valid uploader."
+		log-ok "User '$DEBEMAIL' is an uploader."
 		return 0
 	fi
 
-	log-error "User '$DEBEMAIL' is NOT a valid uploader!."
+	log-error "User '$DEBEMAIL' is NOT an uploader!."
 
 	if [ "$force" = true ]; then
 		log-warning "build continues because 'force' is enabled."
@@ -1197,7 +1197,7 @@ function arch-binary {
 }
 
 function arch-build {
-	dpkg-architecture | grep "DEB_BUILD_ARCH=" | head -n1 | cut -f2 -d=  | tr -d " "
+	dpkg-architecture -qDEB_HOST_ARCH
 }
 
 function arch-control {
