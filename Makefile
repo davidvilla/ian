@@ -12,10 +12,10 @@ clean:
 
 install:
 	install -vd $(BASE)
-	install -v -m 444 bash/jail.sh  $(BASE)/
-	install -v -m 444 bash/shell-commodity.sh  $(BASE)/
-	install -v -m 444 bash/unittest.sh  $(BASE)/
-	install -v -m 555 bash/ian-packaging.sh $(BASE)
+	install -v -m 444 jail.sh  $(BASE)/
+	install -v -m 444 shell-commodity.sh  $(BASE)/
+	install -v -m 444 unittest.sh  $(BASE)/
+	install -v -m 555 ian.sh $(BASE)
 
 	install -vd $(DESTDIR)/etc/schroot/chroot.d/
 	install -v -m 600 schroot/ian $(DESTDIR)/etc/schroot/chroot.d/ian
@@ -24,8 +24,8 @@ install:
 	install -v -m 644 schroot/fstab $(DESTDIR)/etc/schroot/ian/fstab
 
 	install -vd $(DESTDIR)/usr/bin
-	install -v -m 555 bash/last-pypi-version.py $(DESTDIR)/usr/bin/last-pypi-version
-	install -v -m 555 bash/version-summary.sh $(DESTDIR)/usr/bin/version-summary
+	install -v -m 555 last-pypi-version.py $(DESTDIR)/usr/bin/last-pypi-version
+	install -v -m 555 version-summary.sh $(DESTDIR)/usr/bin/version-summary
 
 	install -vd $(DESTDIR)/etc/bash_completion.d/
 	install -v -m 644 completion $(DESTDIR)/etc/bash_completion.d/ian

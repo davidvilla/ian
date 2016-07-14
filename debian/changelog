@@ -1,3 +1,28 @@
+ian (0.20160714-1) unstable; urgency=low
+
+  * New release
+
+ -- David Villa Alises <David.Villa@gmail.com>  Thu, 14 Jul 2016 12:35:04 +0200
+
+ian (0.20160621.3-1) unstable; urgency=low
+
+  * New release
+  * remove Python dependency
+
+ -- David Villa Alises <David.Villa@gmail.com>  Tue, 21 Jun 2016 19:44:51 +0200
+
+ian (0.20160621.2-1) unstable; urgency=low
+
+  * New release
+
+ -- David Villa Alises <David.Villa@gmail.com>  Tue, 21 Jun 2016 19:28:50 +0200
+
+ian (0.20160621.1-1) unstable; urgency=low
+
+  * New release
+
+ -- David Villa Alises <David.Villa@gmail.com>  Tue, 21 Jun 2016 18:47:32 +0200
+
 ian (0.20160621-1) unstable; urgency=low
 
   * New release

@@ -1,8 +1,8 @@
 #!/bin/bash --
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
 
-source bash/shell-commodity.sh
-source bash/unittest.sh
+source shell-commodity.sh
+source unittest.sh
 
 function test-upper {
     local result=$(sc-upper hello)
