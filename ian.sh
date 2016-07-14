@@ -193,6 +193,10 @@ function print-usage-details() {
 	echo "$usage" | tail -n "$(($usage_lines-1))"
 }
 
+function cmd:version {
+	dpkg -l ian | grep "ian" | grep "^ii" | awk '{print $3}'
+}
+
 #FIXME
 function ian-help-setup {
 	cat <<EOF
@@ -1192,11 +1196,11 @@ function arch-binary {
 	if [ $(arch-control $1) == "all" ]; then
 		echo "all"
 	else
-		arch-build
+		host-arch
 	fi
 }
 
-function arch-build {
+function host-arch {
 	dpkg-architecture -qDEB_HOST_ARCH
 }
 
@@ -1242,7 +1246,7 @@ function binary-paths {
 }
 
 function changes-filename {
-    echo $(package)_$(debian-version)_$(arch-build).changes
+    echo $(package)_$(debian-version)_$(host-arch).changes
 }
 
 function changes-path {
@@ -1314,7 +1318,8 @@ function cmd:binary-contents {
 }
 
 function builddeps {
-    dpkg-checkbuilddeps 2>&1 | cut -f3 -d':'| sed 's/)//g' | sed 's/ (//g' | sed 's/= /=/g'
+#    dpkg-checkbuilddeps 2>&1 | cut -f3 -d':'| sed 's/)//g' | sed 's/ (//g' | sed 's/= /=/g'
+	dpkg-checkbuilddeps 2>&1 | cut -f3 -d':' | sed -e 's/([^][]*)//g'
 	return ${PIPESTATUS[0]}
 }
 
@@ -1327,7 +1332,7 @@ function builddeps-assure {
 	log-info "installing build deps: $deps"
 
 	if [ -n "$deps" ]; then
-		ian-sudo "mk-build-deps --tool \"apt-get -y\" --install --remove debian/control"
+		ian-sudo "mk-build-deps --arch $(host-arch) --tool \"apt-get -y\" --install --remove debian/control"
 	fi
 
 	local deps=$(builddeps)
@@ -1335,6 +1340,7 @@ function builddeps-assure {
 	    ian-sudo "apt-get install $deps"
 	fi
 
+	ian-sudo "apt-get install ian"
 	local deps=$(builddeps)
 	if [ -n "$deps" ]; then
 		log-error "Unmet build dependencies: $deps"
@@ -1493,7 +1499,7 @@ function cmd:jail-upgrade {
 	sc-assert-var-defined JAIL_ARCH "this command must be applied on a jail"
 
     jail:src:sudo apt-get update
-    jail:src:sudo apt-get -y install ian
+    jail:src:sudo apt-get -y --allow-unauthenticated install ian
     jail:src:sudo apt-get -y upgrade
  }
 

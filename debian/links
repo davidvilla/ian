@@ -1,2 +1,2 @@
-usr/share/ian/ian-packaging.sh usr/bin/ian
-usr/share/ian/ian-packaging.sh usr/bin/ian-386
+usr/share/ian/ian.sh usr/bin/ian
+usr/share/ian/ian.sh usr/bin/ian-386

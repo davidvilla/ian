@@ -10,7 +10,7 @@ Package: ian
 Architecture: all
 Depends: ${misc:Depends}, quilt, gnupg,
 	 dupload, build-essential, sudo,
-	 devscripts, equivs, python,
+	 devscripts, equivs,
 	 libwww-perl, bc,
 	 unzip, xz-utils, openssh-client
 Suggests: debootstrap, schroot, uuid-runtime

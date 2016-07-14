@@ -1,12 +1,12 @@
-Index: ian/bash/unittest.sh
+Index: ian/unittest.sh
 ===================================================================
---- ian.orig/bash/unittest.sh
-+++ ian/bash/unittest.sh
+--- ian.orig/unittest.sh
++++ ian/unittest.sh
 @@ -1,7 +1,7 @@
  #!/bin/bash --
  # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
  
--source bash/shell-commodity.sh
+-source shell-commodity.sh
 +source /usr/share/ian/shell-commodity.sh
  
  __file__=$0

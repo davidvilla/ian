@@ -1,7 +1,7 @@
 #!/bin/bash --
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
 
-source bash/shell-commodity.sh
+source shell-commodity.sh
 
 __file__=$0
 
