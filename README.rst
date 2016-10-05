@@ -114,8 +114,8 @@ ian release-date [-y] [-m message]
 
 use a date based version format for the new package.
 
-* -y: do not ask for release comments
-* -m: set comment as CLI argument
+* **-y**: do not ask for release comments
+* **-m**: set comment as CLI argument
 
 
 ian upload
