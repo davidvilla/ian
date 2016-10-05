@@ -77,7 +77,7 @@ compiles Debian sources to generate binary packages.
 
 there are several available options:
 
-* -c: run "ian clean" before "build"
+* **-c**: run "ian clean" before "build"
 * -f;  force build (even the user is not a package maintainer)
 * -i: run "ian install" after "build"
 * -m: merge ./debian with upstream .orig. bypassing directory contents
