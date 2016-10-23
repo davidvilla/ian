@@ -361,13 +361,13 @@ function upstream-version-uscan {
 	local -a outputs
 	sc-call-out-err outputs uscan --report --verbose
 
-	#	if [ $? -ne 0 ]; then
 	local stderr_nlines=$(wc -l ${outputs[2]} | cut -d' ' -f1)
 	if [ $stderr_nlines -gt 0 ]; then
 		log-warning "error: see stderr: ${outputs[2]} stdout: ${outputs[1]}"
 		return
 	fi
-	cat "${outputs[1]}" | grep "^uscan: Newest" |  cut -d"," -f1 | sed "s/site is /@/g" | cut -d@ -f2
+
+	cat "${outputs[1]}" | grep "Newest version" |  cut -d"," -f1 | sed "s/site is /@/g" | cut -d@ -f2
 	rm ${outputs[@]}
 }
 
