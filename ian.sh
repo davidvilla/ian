@@ -678,25 +678,29 @@ function lintian-fix-binary-without-manpage() {
 	fi
 }
 
+function update-standards-version() {
+	local msg=$1
+
+	log-info "fixing '$(cat $msg)'"
+	local old=$(cat $msg | cut -d' ' -f5)
+	local new=$(cat $msg | tr ')' ' ' | cut -d' ' -f8)
+	sed -i -e "s/$old/$new/g" debian/control
+	log-ok "standards version changed $old -> $new"
+}
+
 function lintian-fix-out-of-date-standards-version() {
-	local tag="out-of-date-standards-version"
 	local msg=$(mktemp)
-	if echo "$lintian_log" | grep $tag > $msg; then
-		log-info "fixing '$(cat $msg)'"
-		local old=$(cat $msg | cut -d' ' -f5)
-		local new=$(cat $msg | tr ')' ' ' | cut -d' ' -f8)
-		sed -i -e "s/$old/$new/g" debian/control
-		log-ok "standars version changed $old -> $new"
+
+	if echo "$lintian_log" | grep "out-of-date-standards-version" > $msg; then
+		update-standards-version "$msg"
 	fi
 
-	local tag="newer-standards-version"
-	local msg=$(mktemp)
-	if echo "$lintian_log" | grep $tag > $msg; then
-		log-info "fixing '$(cat $msg)'"
-		local old=$(cat $msg | cut -d' ' -f5)
-		local new=$(cat $msg | tr ')' ' ' | cut -d' ' -f8)
-		sed -i -e "s/$old/$new/g" debian/control
-		log-ok "standars version changed $old -> $new"
+	if echo "$lintian_log" | grep "newer-standards-version" > $msg; then
+		update-standards-version "$msg"
+	fi
+
+	if echo "$lintian_log" | grep "ancient-standards-version" > $msg; then
+		update-standards-version "$msg"
 	fi
 }
 
