@@ -24,6 +24,11 @@
 ##:ian-map:100:remove
 ##:ian-map:120:create
 ##:ian-map:140:lintian-fix
+##:ian-map:150:vagrant-gen-files
+##:ian-map:151:vagrant-build
+##:ian-map:152:vagrant-clean
+
+
 
 IAN_CONFIG=$HOME/.config/ian/config
 IAN_THIS_CONFIG=./.ian
@@ -1163,7 +1168,10 @@ function do-reprepro {
 
 function cmd:remove {
 ##:100:cmd:remove package from configured package repository
-##:100:usage:ian remove [i386|amd64]
+##:100:usage:ian remove [-y]
+##:100:usage:  -y;  do not ask for confirmation
+
+# usage:ian remove [i386|amd64]
 
 	local quiet=false
 	local OPTIND=1 OPTARG OPTION
@@ -1640,15 +1648,15 @@ function cmd:vagrant-build {
 
 	local ian_pwd=$(basename $(pwd))
 
-	vagrant up --provision amd64
-	vagrant ssh amd64 -c "cd /vagrant/$ian_pwd; ian build -m"
-	vagrant up --provision i386
-	vagrant ssh i386 -c "cd /vagrant/$ian_pwd; ian build -bm"
+	echo vagrant up --provision amd64
+	echo vagrant ssh amd64 -c "cd /vagrant/$ian_pwd; ian build -m"
+	echo vagrant up --provision i386
+	echo vagrant ssh i386 -c "cd /vagrant/$ian_pwd; ian build -bm"
     )
 }
 
 function cmd:vagrant-clean {
-##:151:cmd:remove vagrant related files
+##:152:cmd:remove vagrant related files
 	assert-no-more-args
 
     (
