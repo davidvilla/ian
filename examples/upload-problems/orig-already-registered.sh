@@ -5,6 +5,10 @@ hg revert debian/changelog
 ian remove -y
 
 echo 1 > content
+ian build -c
+ian upload
+
+echo 2 > content
 ian release -yi
 ian build -c
 ian upload
