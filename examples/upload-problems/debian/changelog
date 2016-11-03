@@ -1,6 +1,5 @@
-upload-problems (0.20161103-1) unstable; urgency=low
+upload-problems (0.1-1) unstable; urgency=low
 
   * Initial release
 
  -- David Villa Alises <David.Villa@gmail.com>  Thu, 03 Nov 2016 18:45:07 +0000
-
