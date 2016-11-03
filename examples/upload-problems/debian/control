@@ -1,12 +1,12 @@
-Source: upload-errors
+Source: upload-problems
 Section: utils
 Priority: extra
 Maintainer: David Villa Alises <David.Villa@gmail.com>
 Build-Depends: debhelper (>= 7.0.50~), quilt
 Standards-Version: 3.9.8
 
-Package: upload-errors
+Package: upload-problems
 Architecture: all
 Depends: ${misc:Depends}
-Description: FIXME: Short description of the upload-errors package
- FIXME: long description about the basic features of the upload-errors package
+Description: FIXME: Short description of the upload-problems package
+ FIXME: long description about the basic features of the upload-problems package
