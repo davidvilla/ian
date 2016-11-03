@@ -12,7 +12,7 @@ Depends: ${misc:Depends}, quilt, gnupg,
 	 dupload, build-essential, sudo,
 	 devscripts, equivs,
 	 libwww-perl, bc,
-	 unzip, xz-utils, openssh-client
+	 unzip, xz-utils, openssh-client, expect, python
 Replaces: arco-devel (<< 0.20141029-1)
 Breaks: arco-devel (<< 0.20141029-1)
 Description: command line helper to maintain Debian packages

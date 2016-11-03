@@ -537,7 +537,7 @@ function do-release-date {
 		new_version=$major_version.$date_version.$micro_version
 	fi
 
-	do-release "$new_version" 1 $quiet $msg
+	do-release "$new_version" 1 "$quiet" "$msg"
 }
 
 function major-upstream-version {
@@ -678,7 +678,7 @@ function cmd:build {
 
     changes=$(changes-path)
 	log-info "lintian $changes"
-    lintian -I $changes
+    ian-run "unbuffer lintian -I $changes"
 
 	sc-assert-files-exist $(binary-paths)
 	log-ok "build"
@@ -1087,36 +1087,39 @@ function cmd:upload {
 	sc-assert-files-exist ~/.gnupg/secring.gpg
 	sc-assert-files-exist $changes_path $(binary-paths)
 
-    sc-assert-run "LANG=$NATIVE_LANG debsign $changes_path"
+	while true; do
+		sc-assert-run "LANG=$NATIVE_LANG debsign $changes_path"
 
-	local -a outputs
-	sc-call-out-err outputs "dupload -f $changes_path"
-	local rcode=$?
+		local -a outputs
+		sc-call-out-err outputs "dupload -f $changes_path"
+		local rcode=$?
 
-	# echo "dupload out:" $?
-	# echo -e $(sc-bold "dupload stderr:")
-	# echo -e "${outputs[2]}"
-	# echo "not yet registered in the pool and not found in '$(changes-filename)'"
-	# echo "grep" $(echo "${outputs[2]}" | grep "not yet registered in the pool and
-    # not found in '$(changes-filename)'")
+		if [ $rcode -eq 0 ]; then
+			break
+		fi
 
-	check-dupload-errors $rcode ${outputs[1]} ${outputs[2]}
-	rm ${outputs[@]}
+		check-dupload-errors ${outputs[2]}
+		if [ $? -eq 1 ]; then
+			break
+		fi
+	done
+
+	log-info "dupload output"
 
 	if [ $rcode -eq 0 ]; then
+		ian-run "cat ${outputs[1]}"
 		log-ok "upload"
+	else
+		ian-run "cat ${outputs[2]}"
+		log-fail "upload"
 	fi
+
+	rm ${outputs[@]}
     )
 }
 
 function check-dupload-errors {
-	local rcode=$1
-	local stdout="$2"
-	local stderr="$3"
-
-	if [ $rcode -eq 0 ]; then
-		return
-	fi
+	local stderr="$1"
 
 	local NOT_YET_REGISTERED="not yet registered in the pool and not found in '$(changes-filename)'"
 	local DSC_ALREADY_REGISTERED=".dsc\" is already registered with different checksums"
@@ -1125,24 +1128,22 @@ function check-dupload-errors {
 
 	if file-contains "$stderr" "$NOT_YET_REGISTERED"; then
 		log-warning "missing $(orig-filename) in repository, fixing..."
-		sc-assert-run "dpkg-genchanges -sa > $changes_path"
-		cmd:upload
+		check-run "dpkg-genchanges -sa > $changes_path"
 		return
 	elif file-contains "$stderr" "$DSC_ALREADY_REGISTERED"; then
 		log-warning "$(dsc-filename) already in repository, fixing..."
-		sc-assert-run "dpkg-genchanges -b > $changes_path"
-		cmd:upload
+		check-run "dpkg-genchanges -b > $changes_path"
 		return
 	elif file-contains "$stderr" "$ORIG_ALREADY_REGISTERED"; then
-		# FIXME: assure debian relase is > "-1"
-		sc-log-error "orig already uploaded! Try 'ian build -b' and upload again"
+		if [ $(debian-release) -eq 1 ]; then
+			sc-log-error "different orig already uploaded! Create a new release"
+		else
+			sc-log-error "orig already uploaded! Try 'ian build -b' and upload again"
+		fi
 	elif file-contains "$stderr" "$DEB_ALREADY_REGISTERED"; then
-		sc-log-error "version already uploaded! Create a new release, and try again"
+		sc-log-error "deb already uploaded! Create a new release"
 	fi
 
-	ian-run "echo dupload output:"
-	ian-run "cat $stderr"
-	log-fail "upload"
 	return 1
 }
 
@@ -1164,18 +1165,39 @@ function cmd:remove {
 ##:100:cmd:remove package from configured package repository
 ##:100:usage:ian remove [i386|amd64]
 
+	local quiet=false
+	local OPTIND=1 OPTARG OPTION
+
+	while getopts :y OPTION "${__args__[@]}"; do
+		case $OPTION in
+			y)
+				quiet=true ;;
+			\?)
+				echo "invalid option: -$OPTARG"
+				exit 1 ;;
+			:)
+				echo "option -$OPTARG requires an argument"
+				exit 1 ;;
+		esac
+	done
+
+	assert-no-more-args $OPTIND
+
 	echo "Related files in '$DEBREPO_URL':"
 	cmd:repo-list
 	echo
 
-	# read -r -p "Delete them? [y/N] " response
-	# response=${response,,}    # tolower
-	# if ! [[ $response =~ ^(yes|y)$ ]]; then
-	# 	echo "(cancel)"
-	# 	return
-	# fi
+	if [ $quiet = false ]; then
+		read -r -p "Delete them? [y/N] " response
+		response=${response,,}    # tolower
+		if ! [[ $response =~ ^(yes|y)$ ]]; then
+			echo "(cancel)"
+			return
+		fi
+	fi
 
-	local arch=${__args__[0]:-""}
+	# FIXME:
+	# local arch=${__args__[0]:-""}
 
 	for pkg in $(sc-filter-dups $(binary-names) $(dbgsym-names) $(package)); do
 		remove-package "$pkg" "$arch"
@@ -1291,8 +1313,7 @@ function package {
 		return
 	fi
 
-	# this cmd requires a debian/changelog and it's executed when there is not a changelog yet
-	# _PACKAGE=$(dpkg-parsechangelog -ldebian/changelog --show-field=Source)
+	# Don't use dpkg-parsechangelog cause this function is used when no changelog file
 	_PACKAGE=$(grep "^Source:" debian/control | cut -f2 -d:  | tr -d " ")
 	package
 }
@@ -1519,6 +1540,7 @@ function cmd:create() {
 
 	mkdir -p debian/source
 	echo "3.0 (quilt)" > ./debian/source/format
+	echo "compression = \"gzip\"" > ./debian/source/options
 	echo 7 > ./debian/compat
 
 	create-control "$pkgname"
