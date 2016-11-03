@@ -7,7 +7,7 @@
 ##:ian-map:000:help
 ##:ian-map:010:summary
 ##:ian-map:060:binary-contents
-##:ian-map:200:show-products
+##:ian-map:200:list-products
 
 #- actions -
 ##:ian-map:015:orig
@@ -25,16 +25,26 @@
 ##:ian-map:120:create
 ##:ian-map:140:lintian-fix
 
-#- jail actions -
-##:jail-map:201:login
-##:jail-map:202:jail-upgrade
-##:jail-map:203:jail-destroy
-
 IAN_CONFIG=$HOME/.config/ian/config
 IAN_THIS_CONFIG=./.ian
-JAIL_PKGS="debootstrap schroot uuid-runtime"
 BUILDOPTIONS=${BUILDOPTIONS:-""}
+TODAY=$(date +%Y%m%d)
 
+
+NORMAL=$(tput sgr0)
+BOLD=$(tput bold)
+GREEN=$(tput setf 2)
+RED=$(tput setf 4)
+DIM=$(tput dim)
+BLUE=$(tput setf 1)
+GREY=$(tput setf 7)
+
+OUT_SIGN=" |"
+ERR_SIGN=">|"
+CHECK_OUT_SIGN="$BLUE$OUT_SIGN$NORMAL"
+CHECK_ERR_SIGN="$BLUE$ERR_SIGN$NORMAL"
+ROOT_OUT_SIGN="$RED$OUT_SIGN$NORMAL"
+ROOT_ERR_SIGN="$RED$ERR_SIGN$NORMAL"
 
 if [ -e $IAN_CONFIG ]; then
 	source $IAN_CONFIG
@@ -44,21 +54,17 @@ if [ -e $IAN_THIS_CONFIG ]; then
 	source $IAN_THIS_CONFIG
 fi
 
+IAN_ROOT="/usr/share/ian"
 NATIVE_LANG="$LANG"
 LANG=C
 
-source /usr/share/ian/shell-commodity.sh
-source /usr/share/ian/jail.sh
+source $IAN_ROOT/shell-commodity.sh
 
 
 #-- common --
 
 function logger {
-	if jail:are-outside; then
-		echo ian
-	else
-		echo ian@jail
-	fi
+	echo ian
 }
 
 function log-info {
@@ -120,11 +126,6 @@ function help-command-summary() {
 
 	echo -e "\nCommands:"
 	print-command-synopsis "ian-map"
-
-	if [ "X${JAIL_ARCH}X" != "XX" ]; then
-		echo -e "\nJail commands:"
-		print-command-synopsis "jail-map"
-	fi
 
 	# echo -e "\nCombos:"
 	# print_docstrings "^\##:combo:"
@@ -377,47 +378,47 @@ function upstream-version-uscan {
 function notify-clean {
 	if sc-function-exists ian-clean-hook; then
 		log-info "exec ian-clean-hook"
-		ian-clean-hook
+		ian-run ian-clean-hook
 	fi
 }
 
 function notify-release {
 	if sc-function-exists ian-release-hook; then
 		log-info "exec ian-release-hook"
-		ian-release-hook
+		ian-run ian-release-hook
 	fi
 }
 
 function notify-build-start {
 	if sc-function-exists ian-build-start-hook; then
 		log-info "exec ian-build-start-hook"
-		ian-build-start-hook
+		ian-run ian-build-start-hook
 	fi
 }
 
 function notify-build-end {
 	if sc-function-exists ian-build-end-hook; then
 		log-info "exec ian-build-end-hook"
-		ian-build-end-hook
+		ian-run ian-build-end-hook
 	fi
 
 	if sc-function-exists ian-build-hook; then
 		log-info "exec ian-build-end-hook"
-		ian-build-hook
+		ian-run ian-build-hook
 	fi
 }
 
 function notify-install {
 	if sc-function-exists ian-install-hook; then
 		log-info "exec ian-install-hook"
-		ian-install-hook
+		ian-run ian-install-hook
 	fi
 }
 
 function notify-install {
 	if sc-function-exists ian-upload-hook; then
 		log-info "exec ian-upload-hook"
-		ian-upload-hook
+		ian-run ian-upload-hook
 	fi
 }
 
@@ -431,33 +432,22 @@ function log-release {
 
 function cmd:release {
 ##:020:cmd:add a new changelog entry
+##:020:usage:ian release [-i] [-y] [-m release-message]
+##:020:usage:  -i;      increment final version component (like 'dch -i')
+##:020:usage:  -y;      do not ask for a release message
+##:020:usage:  -m MSG;  release message for debian/changelog entry
 
-	assert-no-more-args
-
-    (
-    assert-preconditions
-	dch -i
-
-	log-release
-	notify-release
-    )
-}
-
-function cmd:release-date {
-##:021:cmd:add a new package version based on date: 0.20010101
-##:021:usage:ian release-date [-y] [-m release-message]
-##:021:usage:  -y;      do not ask for a release message
-##:021:usage:  -m MSG;  release message for debian/changelog entry
-
-	local quiet=false msg="New release"
+	local quiet=false msg="New release" revision=false
 	local OPTIND=1 OPTARG OPTION
 
-	while getopts m:y OPTION "${__args__[@]}"; do
+	while getopts m:yi OPTION "${__args__[@]}"; do
 		case $OPTION in
 			m)
 				msg="$OPTARG" ;;
 			y)
 				quiet=true ;;
+			i)
+				revision=true ;;
 			\?)
 				echo "invalid option: -$OPTARG"
 				exit 1 ;;
@@ -468,13 +458,120 @@ function cmd:release-date {
 	done
 
 	assert-no-more-args $OPTIND
+
+	if [ "$revision" = true ]; then
+		increment-revision
+		return
+	fi
+
+	do-release-standard "$quiet" "$msg"
+}
+
+function do-release-standard {
+	local quiet="$2"
+	local msg="$3"
+
+	local old_version=$(upstream-version)
+	local version_but_last=$(upstream-version-but-last)
+	local micro_version=$(micro-upsteam-version)
+
+	((micro_version++))
+	do-release "$version_but_last.$micro_version" 1 "$quiet" "$msg"
+}
+
+function cmd:release-date {
+##:021:cmd:add a new package version based on date: 0.20010101
+##:021:usage:ian release-date [-i] [-y] [-m release-message]
+##:021:usage:  -i;      increment final version component (like 'dch -i')
+##:021:usage:  -y;      do not ask for a release message
+##:021:usage:  -m MSG;  release message for debian/changelog entry
+
+	local quiet=false msg="New release" revision=false
+	local OPTIND=1 OPTARG OPTION
+
+	# FIXME DRY
+	while getopts m:yi OPTION "${__args__[@]}"; do
+		case $OPTION in
+			m)
+				msg="$OPTARG" ;;
+			y)
+				quiet=true ;;
+			i)
+				revision=true ;;
+			\?)
+				echo "invalid option: -$OPTARG"
+				exit 1 ;;
+			:)
+				echo "option -$OPTARG requires an argument"
+				exit 1 ;;
+		esac
+	done
+
+	assert-no-more-args $OPTIND
+
+	if [ "$revision" = true ]; then
+		increment-revision
+		return
+	fi
+
 	do-release-date "$quiet" "$msg"
 }
 
-function do-release-date() {
-	local quiet=$1
+function do-release-date {
+	local quiet="$1"
 	local msg="$2"
 
+	local old_version=$(upstream-version)
+
+	local major_version=$(major-upstream-version)
+	local date_version=$TODAY
+	local micro_version=$(micro-upsteam-version)
+
+	local new_version=$major_version.$date_version
+	if ! [ -z "$micro_version" ]; then
+		new_version=$new_version.$micro_version
+	fi
+
+	if [ "$old_version" == "$new_version" ]; then
+		((micro_version++))
+		new_version=$major_version.$date_version.$micro_version
+	fi
+
+	do-release "$new_version" 1 $quiet $msg
+}
+
+function major-upstream-version {
+	# 1.2.3 -> 1
+	echo $(upstream-version) | cut -d'.' -f1
+}
+
+function upstream-version-but-last {
+	# 1.2.3 -> 1.2
+	local upstream_version=$(upstream-version)
+	echo ${upstream_version%.*}
+}
+
+function micro-upsteam-version {
+	# 1.2.3 -> 3
+	echo $(upstream-version) | cut -d'.' -f3
+}
+
+function debian-revision {
+	# 1.2.3-4 -> 4
+	echo $(debian-version) | cut -d'-' -f2
+}
+
+function increment-revision {
+	revision=$(debian-revision)
+	((revision++))
+	do-release $(upstream-version) "$revision" "$quiet" "$msg"
+}
+
+function do-release() {
+	local version="$1"
+	local revision="$2"
+	local quiet="$3"
+	local msg="$4"
     local CHLOG=$(mktemp)
 
 	(
@@ -482,7 +579,7 @@ function do-release-date() {
 	sc-assert-directory-exists ./debian
 
 	cat <<EOF > $CHLOG
-$(package) (0.$(date +%Y%m%d)-1) unstable; urgency=low
+$(package) ($version-$revision) unstable; urgency=low
 
   * $msg
 
@@ -495,12 +592,12 @@ EOF
 	fi
 
     mv $CHLOG debian/changelog
-	assert-debian-dir
+	assert-debian-files
 	log-release
 
 	if [ "$quiet" = false ]; then
 		log-info "Openning \$EDITOR ($EDITOR) to get user release comments"
-		emacs +4:0 debian/changelog
+		$EDITOR debian/changelog
 	fi
 
 	notify-release
@@ -623,8 +720,7 @@ function build-standard {
     (
     assert-preconditions
 	local build_command="dpkg-buildpackage -uc -us $BUILDOPTIONS"
-	log-info "build command: $build_command"
-    $build_command
+    check-run "$build_command"
     )
 }
 
@@ -809,7 +905,7 @@ function cmd:orig-from-rule {
 ##:017:cmd:execute "get-orig-source" rule of debian/rules to get .orig. file
 	assert-no-more-args
 
-    ian-run "make -f ./debian/rules get-orig-source"
+    check-run "make -f ./debian/rules get-orig-source"
     mv -v $(orig-filename) $(orig-dir)/
 }
 
@@ -869,7 +965,7 @@ function cmd:clean {
 
 	log-info "clean"
 
-    fakeroot make -f ./debian/rules clean
+    ian-run "fakeroot make -f ./debian/rules clean"
 
     # if uses-svn; then
 	# 	clean-svn
@@ -891,8 +987,7 @@ function clean-common {
     assert-preconditions
     log-info "clean-common"
 
-	rm -vf $(product-paths)
-    rm -vf $(binary-paths)
+	ian-run "rm -vf $(product-paths) $(binary-paths)"
     )
 }
 
@@ -974,6 +1069,7 @@ function cmd:clean-build-and-install {
 
 #-- repo actions -----------------------------------------------------
 
+# FIXME: use cmd:upload
 function cmd:upload-all {
 	for changes_path in $(postbuild-changes-filenames); do
 		sc-assert-run "LANG=$NATIVE_LANG debsign $changes_path"
@@ -1004,39 +1100,54 @@ function cmd:upload {
 	# echo "grep" $(echo "${outputs[2]}" | grep "not yet registered in the pool and
     # not found in '$(changes-filename)'")
 
+	check-dupload-errors $rcode ${outputs[1]} ${outputs[2]}
+	rm ${outputs[@]}
+
+	if [ $rcode -eq 0 ]; then
+		log-ok "upload"
+	fi
+    )
+}
+
+function check-dupload-errors {
+	local rcode=$1
+	local stdout="$2"
+	local stderr="$3"
+
+	if [ $rcode -eq 0 ]; then
+		return
+	fi
+
 	local NOT_YET_REGISTERED="not yet registered in the pool and not found in '$(changes-filename)'"
 	local DSC_ALREADY_REGISTERED=".dsc\" is already registered with different checksums"
 	local DEB_ALREADY_REGISTERED=".deb\" is already registered with different checksums"
 	local ORIG_ALREADY_REGISTERED=".orig.tar.gz\" is already registered with different checksums"
 
-	if [ $rcode -ne 0 ]; then
-		if cat ${outputs[2]} | grep "$NOT_YET_REGISTERED"; then
-			log-warning "missing $(orig-filename) in repository, fixing..."
-			sc-assert-run "dpkg-genchanges -sa > $changes_path"
-			sign-and-upload
-		elif cat ${outputs[2]} | grep "$ORIG_ALREADY_REGISTERED"; then
-			# FIXME: assure debian relase is > "-1"
-			sc-log-error "orig already uploaded! Rebuild using 'build -b' and upload again"
-			return
-		elif cat ${outputs[2]} | grep "$DSC_ALREADY_REGISTERED"; then
-			log-warning "$(dsc-filename) already in repository, fixing..."
-			sc-assert-run "dpkg-genchanges -b > $changes_path"
-			sign-and-upload
-		elif cat ${outputs[2]} | grep "$DEB_ALREADY_REGISTERED"; then
-			sc-log-error "already uploaded! Create a new release, and try again"
-			return
-		else
-			cat ${outputs[2]}
-			log-fail "upload"
-			return
-		fi
+	if file-contains "$stderr" "$NOT_YET_REGISTERED"; then
+		log-warning "missing $(orig-filename) in repository, fixing..."
+		sc-assert-run "dpkg-genchanges -sa > $changes_path"
+		cmd:upload
+		return
+	elif file-contains "$stderr" "$DSC_ALREADY_REGISTERED"; then
+		log-warning "$(dsc-filename) already in repository, fixing..."
+		sc-assert-run "dpkg-genchanges -b > $changes_path"
+		cmd:upload
+		return
+	elif file-contains "$stderr" "$ORIG_ALREADY_REGISTERED"; then
+		# FIXME: assure debian relase is > "-1"
+		sc-log-error "orig already uploaded! Try 'ian build -b' and upload again"
+	elif file-contains "$stderr" "$DEB_ALREADY_REGISTERED"; then
+		sc-log-error "version already uploaded! Create a new release, and try again"
 	fi
 
-	echo "dupload output:"
-	cat "${outputs[1]}"
-	rm ${outputs[@]}
-	log-ok "upload"
-    )
+	ian-run "echo dupload output:"
+	ian-run "cat $stderr"
+	log-fail "upload"
+	return 1
+}
+
+function file-contains {
+	cat "$1" | grep "$2"
 }
 
 function sign-and-upload {
@@ -1057,12 +1168,12 @@ function cmd:remove {
 	cmd:repo-list
 	echo
 
-	read -r -p "Delete them? [y/N] " response
-	response=${response,,}    # tolower
-	if ! [[ $response =~ ^(yes|y)$ ]]; then
-		echo "(cancel)"
-		return
-	fi
+	# read -r -p "Delete them? [y/N] " response
+	# response=${response,,}    # tolower
+	# if ! [[ $response =~ ^(yes|y)$ ]]; then
+	# 	echo "(cancel)"
+	# 	return
+	# fi
 
 	local arch=${__args__[0]:-""}
 
@@ -1105,7 +1216,7 @@ function cmd:repo-list {
 
 #-- assertions --
 
-function assert-debian-dir {
+function assert-debian-files {
     sc-assert-directory-exists ./debian
 	sc-assert-files-exist ./debian/control ./debian/rules ./debian/changelog
 }
@@ -1130,7 +1241,7 @@ function assert-preconditions {
 	fi
 
     assert-debvars
-    assert-debian-dir
+    assert-debian-files
 	PRECONDITIONS_CHECKED=true
 }
 
@@ -1180,7 +1291,7 @@ function package {
 		return
 	fi
 
-	# this requires debian/changelog and it's required when there is not a changelog yet
+	# this cmd requires a debian/changelog and it's executed when there is not a changelog yet
 	# _PACKAGE=$(dpkg-parsechangelog -ldebian/changelog --show-field=Source)
 	_PACKAGE=$(grep "^Source:" debian/control | cut -f2 -d:  | tr -d " ")
 	package
@@ -1220,7 +1331,8 @@ function debian-version {
 		return
 	fi
 
-#    head -n 1 debian/changelog | cut -f2 -d " " | tr -d "()"
+	sc-assert-files-exist debian/changelog
+	# head -n 1 debian/changelog | cut -f2 -d " " | tr -d "()"
 	_DEBIAN_VERSION=$(dpkg-parsechangelog -ldebian/changelog --show-field=Version)
 	debian-version
 }
@@ -1285,7 +1397,7 @@ function product-paths {
 	done
 }
 
-function cmd:show-products {
+function cmd:list-products {
 ##:200:cmd:list product files
 	product-filenames
 	binary-filenames
@@ -1354,12 +1466,38 @@ function builddeps-assure {
 	log-ok "build deps"
 }
 
-function ian-sudo() {
-	sc-assert-run "sudo $*" "ian exec"
+
+function indent {
+	sed "s/^/    $1/g"
+}
+function indent2 {
+	sed "s/^/    $1/g"
 }
 
-function ian-run() {
-	sc-assert-run "$*" "ian exec"
+function ian-sudo {
+	local command="$1"
+	local msg="ian: $command"
+
+	sc-log-info "$msg"
+	if ! eval sudo $command 2> >(indent "$ROOT_ERR_SIGN") > >(indent "$ROOT_OUT_SIGN"); then
+		sc-log-fail "$msg"
+		exit 1
+	fi
+}
+
+function check-run() {
+	local command="$1"
+	local msg="ian: $command"
+
+	sc-log-info "$msg"
+	if ! eval $command 2> >(indent "$CHECK_ERR_SIGN") > >(indent "$CHECK_OUT_SIGN"); then
+		sc-log-fail "$msg"
+		exit 1
+	fi
+}
+
+function ian-run {
+	eval $1 2> >(indent "$ERR_SIGN") > >(indent "$OUT_SIGN")
 }
 
 function cmd:create() {
@@ -1387,7 +1525,8 @@ function cmd:create() {
 	create-rules
 
 	log-info "Creating initial release (date based version applied)"
-	do-release-date true "Initial release"
+	do-release "0.$TODAY" 1 true "Initial release"
+
 
 	create-copyright
 
@@ -1421,7 +1560,7 @@ Section: utils
 Priority: extra
 Maintainer: $DEBFULLNAME <$DEBEMAIL>
 Build-Depends: debhelper (>= 7.0.50~), quilt
-Standards-Version: 3.9.6
+Standards-Version: 3.9.8
 
 Package: $pkgname
 Architecture: all
@@ -1450,85 +1589,53 @@ License: GPL (/usr/share/common-licenses/GPL)
 EOF
 }
 
-#-- jail support --
+#-- vagrant boxes --
 
-function assure-jail-is-ok {
-    if jail:is-ok; then
-		return 0
-	fi
+VAGRANT_FILES="Vagrantfile playbook.yml"
 
-	log-warning "rebuilding jail $(jail:name)..."
-	cmd:jail-destroy
+function cmd:vagrant-gen-files {
+##:150:cmd:generate vagrant related files to boxed compilation
+	assert-no-more-args
 
-	jail:create
-	jail:setup
-	sync
-	jail:install-ian
-	jail:clean
+    (
+    assert-preconditions
+
+	for i in $VAGRANT_FILES; do
+		cp $IAN_ROOT/$i .
+	done
+
+	log-ok "generated: $VAGRANT_FILES"
+    )
 }
 
-function ian-jail {
-	sc-assert-var-defined JAIL_ARCH "no jail defined. Are you using ian-386?"
+function cmd:vagrant-build {
+##:151:cmd:build package in the vagrant boxes
+	assert-no-more-args
 
-    log-info "Running \"$__cmd__\" in the jail \"$(jail:name)\""
+    (
+    assert-preconditions
+	sc-assert-files-exist $VAGRANT_FILES
 
-	sc-assure-deb-pkg-installed $JAIL_PKGS
-	assure-jail-is-ok
+	local ian_pwd=$(basename $(pwd))
 
-	local jail_manag_cmds=(jail-upgrade jail-destroy login)
-	case "${jail_manag_cmds[@]}" in  *"$__cmd__"*)
-        main
-		return
-	esac
-
-	local line="\n---------------------------------------"
-	log-ok "$line\n--  entering jail '$(jail:name)'$line"
-    jail:run ian $__cmd__ $__args__
+	vagrant up --provision amd64
+	vagrant ssh amd64 -c "cd /vagrant/$ian_pwd; ian build -m"
+	vagrant up --provision i386
+	vagrant ssh i386 -c "cd /vagrant/$ian_pwd; ian build -bm"
+    )
 }
 
-function cmd:login {
-##:201:cmd:login into the jail
-	sc-assert-var-defined JAIL_ARCH "this command must be applied on a jail"
+function cmd:vagrant-clean {
+##:151:cmd:remove vagrant related files
+	assert-no-more-args
 
-	sc-log-info "login into $(jail:name)..."
-	sc-log-warn "#####################################################"
-	sc-log-warn "#    You are loging in a volatile schroot jail.     #"
-	sc-log-warn "# All changes (but your HOME) will be lost on exit. #"
-	sc-log-warn "#####################################################"
-	jail:run
+    (
+    assert-preconditions
+
+	vagrant destroy  -f
+	rm $VAGRANT_FILES
+    )
 }
-
-function cmd:jail-upgrade {
-##:202:cmd:upgrade source jail
-	sc-assert-var-defined JAIL_ARCH "this command must be applied on a jail"
-
-    jail:src:sudo apt-get update
-    jail:src:sudo apt-get -y --allow-unauthenticated install ian
-    jail:src:sudo apt-get -y upgrade
- }
-
-function cmd:jail-destroy {
-##:203:cmd:destroy jail files
-	sc-assert-var-defined JAIL_ARCH "this command must be applied on a jail"
-
-    if ! sc-file-exists $(jail:tarball); then
-		log-warning "removing jail: file $(jail:name) does NOT exist"
-		return
-	fi
-
-    local OLD=$(jail:tarball)-$(uuidgen)
-	ian-sudo "mv $(jail:tarball) $OLD"
-    log-warning "old jail was moved to $OLD"
-    log-ok "jail destroyed"
-}
-
-#-- mirror --
-
-function ian-mirror-create {
-	debmirror --host=$MIRROR --root=debian --cleanup --nosource --ignore-missing-release --progress --ignore-release-gpg \
-		--arch=i386,amd64 --dist=sid --method=http --section=main debian-root
-}
-
 
 function main {
 	if [[ -z "$__cmd__" ]]; then
@@ -1551,15 +1658,9 @@ function main {
 }
 
 function ian {
-#	echo "ian running at jail" $JAIL_ARCH
 #	echo ian: $*
 #	echo "--"
 	main
-}
-
-function ian-386 {
-	export JAIL_ARCH=i386
-	ian-jail
 }
 
 __file__=$0
