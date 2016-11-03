@@ -26,7 +26,7 @@ See https://bitbucket.org/DavidVilla/ian/src/tip/README.rst
 COPYRIGHT
 =========
 
-Copyright © 2015 David Villa Alises
+Copyright © 2012-2016 David Villa Alises
 
 This manual page was written for the Debian system (and may be used by
 others).
