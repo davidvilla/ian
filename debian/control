@@ -13,7 +13,6 @@ Depends: ${misc:Depends}, quilt, gnupg,
 	 devscripts, equivs,
 	 libwww-perl, bc,
 	 unzip, xz-utils, openssh-client
-Suggests: debootstrap, schroot, uuid-runtime
 Replaces: arco-devel (<< 0.20141029-1)
 Breaks: arco-devel (<< 0.20141029-1)
 Description: command line helper to maintain Debian packages

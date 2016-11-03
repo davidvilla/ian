@@ -12,24 +12,17 @@ clean:
 
 install:
 	install -vd $(BASE)
-	install -v -m 444 jail.sh  $(BASE)/
 	install -v -m 444 shell-commodity.sh  $(BASE)/
 	install -v -m 444 unittest.sh  $(BASE)/
 	install -v -m 555 ian.sh $(BASE)
-
-	install -vd $(DESTDIR)/etc/schroot/chroot.d/
-	install -v -m 600 schroot/ian $(DESTDIR)/etc/schroot/chroot.d/ian
-
-	install -vd $(DESTDIR)/etc/schroot/ian/
-	install -v -m 644 schroot/fstab $(DESTDIR)/etc/schroot/ian/fstab
+	install -v -m 444 vagrant/* $(BASE)/
 
 	install -vd $(DESTDIR)/usr/bin
 	install -v -m 555 last-pypi-version.py $(DESTDIR)/usr/bin/last-pypi-version
 	install -v -m 555 version-summary.sh $(DESTDIR)/usr/bin/version-summary
 
-	install -vd $(DESTDIR)/etc/bash_completion.d/
-	install -v -m 644 completion $(DESTDIR)/etc/bash_completion.d/ian
+	install -vd $(DESTDIR)/usr/share/bash-completion/completions
+	install -v -m 644 completion $(DESTDIR)/usr/share/bash-completion/completions/ian
 
 	install -vd $(DESTDIR)/usr/share/man/man1
 	install ian.1 $(DESTDIR)/usr/share/man/man1
-	install ian-386.1 $(DESTDIR)/usr/share/man/man1

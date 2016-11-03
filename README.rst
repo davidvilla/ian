@@ -192,26 +192,19 @@ You may provide these functions in your **~/.config/ian/config** file.
 Compiling i386 packages in a amd64 computer
 ===========================================
 
-Create/update a i386 chroot::
+$ ian vagrant-gen-files
+ian: generated: Vagrantfile playbook.yml
 
-  hello-2.9$ ian-386 jail-upgrade
-
-
-Compile amd64 version::
-
-  hello-2.9$ ian clean
-  hello-2.9$ BUILDOPTIONS=-b ian build
-
-
-Compile i386 version in its chroot::
-
-  hello-2.9$ ian-386
+$ vagrant up --provision amd64
+$ vagrant ssh amd64 -c "cd /vagrant/<package-directory>; ian build -m"
+$ vagrant up --provision i386
+$ vagrant ssh i386 -c "cd /vagrant/<package-directory>; ian build -bm"
 
 
 Similar software
 ================
 
-* https://github.com/Jimdo/buildtasks 
+* https://github.com/Jimdo/buildtasks
 * https://blog.codeship.com/using-docker-build-debian-packages/
 
 .. Local Variables:
