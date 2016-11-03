@@ -1,0 +1,20 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: add pike apt key
+      apt_key: keyserver=pgp.mit.edu id=0x28380433 state=present
+    - name: add pike repo
+      apt_repository: repo='deb http://pike.esi.uclm.es/arco sid main' state=present
+
+    - name: update apt
+      apt: update_cache=yes
+
+    - name: install ian
+      apt: name=ian state=latest
+
+    - name: ian config dir
+      file: path=/home/vagrant/.config/ian state=directory
+
+    - name: copy ian config
+      copy: src=~/.config/ian/config dest=/home/vagrant/.config/ian/config

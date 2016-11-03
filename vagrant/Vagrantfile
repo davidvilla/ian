@@ -1,0 +1,26 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  config.vm.synced_folder '..', '/vagrant'
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.verbose = "v"
+    ansible.playbook = "playbook.yml"
+  end
+
+  config.vm.provider :virtualbox do |vb|
+    vb.memory = 4096
+    vb.cpus = 2
+  end
+
+  config.vm.define "amd64" do |amd64|
+    amd64.vm.box = "deb/jessie-amd64"
+    amd64.vm.hostname = "amd64"
+  end
+
+  config.vm.define "i386" do |i386|
+    i386.vm.box = "deb/jessie-i386"
+    i386.vm.hostname = "i386"
+  end
+end
