@@ -108,12 +108,17 @@ ian release
 
 creates a new debian package release. It opens your editor asking for comments.
 
+* **-i**: increment final version component (like 'dch -i')
+* **-y**: do not ask for release comments
+* **-m**: set comment as CLI argument
 
-ian release-date [-y] [-m message]
+
+ian release-date [-i] [-y] [-m message]
 ----------------------------------
 
 use a date based version format for the new package.
 
+* **-i**: increment final version component (like 'dch -i')
 * **-y**: do not ask for release comments
 * **-m**: set comment as CLI argument
 
@@ -131,6 +136,8 @@ ian remove
 
 remove package from a remote package repository.
 
+* **-y**: do not ask for confirmation
+
 
 ian binary-contents
 -------------------
@@ -138,8 +145,8 @@ ian binary-contents
 list files on generated binary packages.
 
 
-ian show-generated
-------------------
+ian list-products
+-----------------
 
 list all generated files
 
@@ -147,13 +154,13 @@ list all generated files
 ian create
 ----------
 
-Basic wizard to create a new debian package
+very basic wizard to create a new debian package
 
 
 ian lintian-fix
 ---------------
 
-automatically try to fix some lintian issues (after a successful build).
+automatically try to fix some common lintian issues (after a successful build).
 
 
 Configuration
@@ -195,11 +202,13 @@ Compiling i386 packages in a amd64 computer
 $ ian vagrant-gen-files
 ian: generated: Vagrantfile playbook.yml
 
-$ vagrant up --provision amd64
-$ vagrant ssh amd64 -c "cd /vagrant/<package-directory>; ian build -m"
-$ vagrant up --provision i386
-$ vagrant ssh i386 -c "cd /vagrant/<package-directory>; ian build -bm"
+$ ian vagrant-build
+vagrant up --provision amd64
+vagrant ssh amd64 -c "cd /vagrant/<package-directory>; ian build -m"
+vagrant up --provision i386
+vagrant ssh i386 -c "cd /vagrant/<package-directory>; ian build -bm"
 
+$ ian vagrant-clean
 
 Similar software
 ================
