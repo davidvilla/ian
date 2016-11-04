@@ -14,7 +14,7 @@ install:
 	install -vd $(BASE)
 	install -v -m 444 shell-commodity.sh  $(BASE)/
 	install -v -m 444 unittest.sh  $(BASE)/
-	install -v -m 555 ian.sh $(BASE)
+	install -v -m 555 ian*.sh $(BASE)
 	install -v -m 444 vagrant/* $(BASE)/
 
 	install -vd $(DESTDIR)/usr/bin
