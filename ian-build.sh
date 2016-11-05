@@ -16,26 +16,26 @@ function cmd:build {
     local OPTIND=1 OPTARG OPTION
 
     while getopts :bcfims OPTION "${__args__[@]}"; do
-	case $OPTION in
-	    b)
-		build_binary=true ;;
-	    c)
-		clean=true ;;
-	    f)
-		force=true ;;
-	    i)
-		install=true ;;
-	    m)
-		merge=true ;;
-	    s)
-		include_source=true ;;
-	    \?)
-		echo "invalid option: -$OPTARG"
-		exit 1 ;;
-	    :)
-		echo "option -$OPTARG requires an argument"
-		exit 1 ;;
-	esac
+		case $OPTION in
+			b)
+				build_binary=true ;;
+			c)
+				clean=true ;;
+			f)
+				force=true ;;
+			i)
+				install=true ;;
+			m)
+				merge=true ;;
+			s)
+				include_source=true ;;
+			\?)
+				echo "invalid option: -$OPTARG"
+				exit 1 ;;
+			:)
+				echo "option -$OPTARG requires an argument"
+				exit 1 ;;
+		esac
     done
 
     assert-no-more-args $OPTIND
@@ -94,6 +94,7 @@ function _build-merging-upstream {
     cp -r ./debian $tmp_build_dir/
     cp $(orig-path) $tmp_build_area/
     chmod -R u+r+w+X,g+r-w+X,o+r-w+X -- $tmp_build_dir
+
     (
     cd $tmp_build_dir
     _build-standard
@@ -101,10 +102,10 @@ function _build-merging-upstream {
 
     cp -v $tmp_build_area/$(package)_$(debian-version)* $(build-dir)
     for pkg in $(binary-names) $(dbgsym-names); do
-	local fname="$tmp_build_area/${pkg}_$(debian-version)*.deb"
-	if [ -e $fname ]; then
-	    cp -v $fname $(build-dir)
-	fi
+		local fname="$tmp_build_area/${pkg}_$(debian-version)*.deb"
+		if [ -e $fname ]; then
+			cp -v $fname $(build-dir)
+		fi
     done
 
     cp -v $tmp_build_dir/debian/files ./debian

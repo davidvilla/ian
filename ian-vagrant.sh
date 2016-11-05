@@ -29,10 +29,12 @@ function cmd:vagrant-build {
 
     local ian_pwd=$(basename $(pwd))
 
-    echo vagrant up --provision amd64
-    echo vagrant ssh amd64 -c "cd /vagrant/$ian_pwd; ian build -m"
+	echo \# Run this to build amd64 and i386 binaries
+	echo ian clean
     echo vagrant up --provision i386
-    echo vagrant ssh i386 -c "cd /vagrant/$ian_pwd; ian build -bm"
+    echo "vagrant ssh i386 -c \"cd /vagrant/$ian_pwd; ian build -mb\""
+    echo vagrant up --provision amd64
+    echo "vagrant ssh amd64 -c \"cd /vagrant/$ian_pwd; ian build -m\""
     )
 }
 

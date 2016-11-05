@@ -1,5 +1,4 @@
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
-
 #-- install ----------------------------------------------------------
 
 function cmd:install {
@@ -12,8 +11,8 @@ function cmd:install {
 
     log-info "install"
     ian-sudo "dpkg -i $(binary-paths)"
-    log-ok "install"
     notify-install
+    log-ok "install"
     )
 }
 
