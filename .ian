@@ -1,7 +1,9 @@
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
 
 function say() {
-	spd-say -t female1 -r 20 "$1"
+	if [ "$(type -t espeak)" == "file" ]; then
+		espeak "$1"
+	fi
 }
 
 function ian-clean-hook() {
@@ -9,12 +11,17 @@ function ian-clean-hook() {
 	say clean
 }
 
-function ian-build-hook() {
-	echo "sample build hook"
-	say built
+function ian-build-start-hook() {
+	echo "sample build start hook"
+	say "build starts"
 }
 
-function ian-install-hook {
+function ian-build-end-hook() {
+	echo "sample build end hook"
+	say "build finish"
+}
+
+function ian-install-hook() {
 	echo "sample install hook"
 	say installed
 }

@@ -23,13 +23,14 @@ function binary-paths {
     done
 }
 
-function _changes-filename {
+# repo
+function changes-filename {
     echo $(package)_$(debian-version)_$(host-arch).changes
 }
 
 # repo, main, path, lintian, summary
 function changes-path {
-    echo $(build-dir)/$(_changes-filename)
+    echo $(build-dir)/$(changes-filename)
 }
 
 # repo
@@ -50,7 +51,7 @@ function product-paths {
 
 function _product-filenames {
     orig-filename
-    _changes-filename
+    changes-filename
     dsc-filename
     local deb_prefix=$(package)_$(debian-version)
     echo $deb_prefix.debian.tar.gz
