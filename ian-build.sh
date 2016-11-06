@@ -57,7 +57,8 @@ function cmd:build {
 
     sc-assert cmd:orig
 
-    _assure-user-is-uploader $force
+    _assert-user-is-uploader $force
+    _assert-user-last-changelog-entry $force
     _builddeps-assure
     log-info "build"
 
@@ -156,7 +157,7 @@ function _builddeps-assure {
     log-ok "build deps"
 }
 
-function _assure-user-is-uploader {
+function _assert-user-is-uploader {
 	local force=$1
 	if grep -e "^Maintainer:" -e "^Uploaders:" debian/control | grep $DEBEMAIL > /dev/null; then
 		log-ok "User '$DEBEMAIL' is an uploader."
@@ -164,7 +165,24 @@ function _assure-user-is-uploader {
 	fi
 
 	log-error "User '$DEBEMAIL' is NOT an uploader!."
+	_check-force
+}
 
+function _assert-user-last-changelog-entry {
+	local force=$1
+	local expected="$DEBFULLNAME <$DEBEMAIL>"
+	local last="$(dpkg-parsechangelog --show-field "Maintainer")"
+
+	if [ "$last" == "$expected" ]; then
+		log-ok "User '$DEBEMAIL' owns the last changelog entry"
+		return 0
+	fi
+
+	log-error "User '$DEBEMAIL' does NOT own the last changelog entry!."
+	_check-force
+}
+
+function _check-force {
 	if [ "$force" = true ]; then
 		log-warning "build continues because 'force' is enabled."
 		return 0
