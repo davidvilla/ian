@@ -10,6 +10,10 @@ DOCDIR=$(DESTDIR)/usr/share/doc
 clean:
 	$(RM) $(shell find -name *~)
 
+tests:
+	test/shell-commodity-tests.sh
+	test/ian-tests.sh
+
 install:
 	install -vd $(BASE)
 	install -v -m 444 shell-commodity.sh  $(BASE)/

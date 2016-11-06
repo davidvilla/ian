@@ -9,12 +9,23 @@ function testfail {
 	sc-log-fail $testname
 }
 
+function testok {
+    sc-log-ok $testname
+}
+
+function sc-negative-test {
+    sc-clear-trap
+	sc-set-trap testok
+	success=testfail
+}
+
 function run-test {
 	local testname=$1
+	success=testok
     (
     	sc-set-trap testfail
     	eval $testname
-    	sc-log-ok $testname
+		eval $success
     	sc-clear-trap
     )
 }
