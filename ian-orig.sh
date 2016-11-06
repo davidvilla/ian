@@ -25,11 +25,11 @@ function cmd:orig {
 	log-info "orig"
 
     if _has-rule get-orig-source; then
-	cmd:orig-from-rule
+		cmd:orig-from-rule
     elif valid-watch-present; then
-	cmd:orig-uscan
+		cmd:orig-uscan
     else
-	cmd:orig-from-local
+		cmd:orig-from-local
     fi
 
     sc-assert-files-exist $(orig-path)
@@ -89,18 +89,18 @@ function orig-path {
 # summary
 function orig-methods {
     if _has-rule get-orig-source; then
-	methods[0]='from-rule'
+		methods[0]='from-rule'
     fi
     if valid-watch-present; then
-	methods[1]='uscan'
+		methods[1]='uscan'
     fi
     if [ $(ls | wc -l) -gt 1 ]; then
-	methods[2]='from-local'
+		methods[2]='from-local'
     fi
 
     if [ ${#methods[@]} -eq 0 ]; then
-	echo "none!"
-	return
+		echo "none!"
+		return
     fi
 
     echo "${methods[@]}"

@@ -42,28 +42,41 @@ function dsc-filename {
 #     echo $(build-dir)/$(dsc-filename)
 # }
 
+function _debian-source-filename {
+	local pattern="$deb_prefix.debian.tar.*"
+	local found=
+
+	found=$(ls $(build-dir)/$pattern 2> /dev/null)
+	if [ $? -ne 0 ]; then
+		echo $pattern
+		return
+	fi
+
+	echo $(basename $found)
+}
+
 # clean
 function product-paths {
     for fname in $(_product-filenames); do
-	echo $(build-dir)/$fname;
+		echo $(build-dir)/$fname;
     done
 }
 
 function _product-filenames {
-    orig-filename
-    changes-filename
-    dsc-filename
-    local deb_prefix=$(package)_$(debian-version)
-    echo $deb_prefix.debian.tar.gz
-    echo $deb_prefix.diff.gz
-    echo $deb_prefix.upload
+	orig-filename
+	changes-filename
+	dsc-filename
+	local deb_prefix=$(package)_$(debian-version)
+	_debian-source-filename
+	echo $deb_prefix.diff.gz
+	echo $deb_prefix.upload
 }
 
 function _binary-arch {
     # $1: package name
     if [ $(_control-arch $1) == "all" ]; then
-	echo "all"
+		echo "all"
     else
-	host-arch
+		host-arch
     fi
 }
