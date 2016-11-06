@@ -56,9 +56,9 @@ function cmd:build {
     fi
 
     sc-assert cmd:orig
-
     _assert-user-is-uploader $force
     _assert-user-last-changelog-entry $force
+
     _builddeps-assure
     log-info "build"
 
