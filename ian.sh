@@ -29,7 +29,7 @@
 ##:ian-map:152:vagrant-clean
 
 IAN_CONFIG=$HOME/.config/ian/config
-IAN_THIS_CONFIG=./.ian
+IAN_CWD_CONFIG=./.ian
 BUILDOPTIONS=${BUILDOPTIONS:-""}
 TODAY=$(date +%Y%m%d)
 
@@ -41,13 +41,19 @@ DIM=$(tput dim)
 BLUE=$(tput setf 1)
 GREY=$(tput setf 7)
 
+OUT_SIGN=" |"
+ERR_SIGN=">|"
+CHECK_OUT_SIGN="$BLUE$OUT_SIGN$NORMAL"
+CHECK_ERR_SIGN="$BLUE$ERR_SIGN$NORMAL"
+SU_OUT_SIGN="$RED$OUT_SIGN$NORMAL"
+SU_ERR_SIGN="$RED$ERR_SIGN$NORMAL"
 
 if [ -e $IAN_CONFIG ]; then
 	source $IAN_CONFIG
 fi
 
-if [ -e $IAN_THIS_CONFIG ]; then
-	source $IAN_THIS_CONFIG
+if [ -e $IAN_CWD_CONFIG ]; then
+	source $IAN_CWD_CONFIG
 fi
 
 __file__=$0
