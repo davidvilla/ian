@@ -39,10 +39,9 @@ function cmd:release {
 }
 
 function _do-release-standard {
-    local quiet="$2"
-    local msg="$3"
+    local quiet="$1"
+    local msg="$2"
 
-    local old_version=$(upstream-version)
     local version_but_last=$(_upstream-version-but-last)
     local micro_version=$(_micro-upsteam-version)
 
@@ -62,28 +61,28 @@ function cmd:release-date {
 
     # FIXME DRY
     while getopts m:yi OPTION "${__args__[@]}"; do
-	case $OPTION in
-	    m)
-		msg="$OPTARG" ;;
-	    y)
-		quiet=true ;;
-	    i)
-		revision=true ;;
-	    \?)
-		echo "invalid option: -$OPTARG"
-		exit 1 ;;
-	    :)
-		echo "option -$OPTARG requires an argument"
-		exit 1 ;;
-	esac
-    done
+		case $OPTION in
+			m)
+				msg="$OPTARG" ;;
+			y)
+				quiet=true ;;
+			i)
+				revision=true ;;
+			\?)
+				echo "invalid option: -$OPTARG"
+				exit 1 ;;
+			:)
+				echo "option -$OPTARG requires an argument"
+				exit 1 ;;
+		esac
+	done
 
     assert-no-more-args $OPTIND
 
-    if [ "$revision" = true ]; then
-	_do-release-next-revision
-	return
-    fi
+	if [ "$revision" = true ]; then
+		_do-release-next-revision
+		return
+	fi
 
     _do-release-date "$quiet" "$msg"
 }
@@ -131,18 +130,18 @@ $(package) ($version-$revision) unstable; urgency=low
 
 EOF
 
-    if sc-file-exists "debian/changelog"; then
-	cat debian/changelog >> $CHLOG
-    fi
+	if sc-file-exists "debian/changelog"; then
+		cat debian/changelog >> $CHLOG
+	fi
 
-    mv $CHLOG debian/changelog
-    assert-debian-files
-    _log-release
+	mv $CHLOG debian/changelog
+	assert-debian-files
+	_log-release
 
-    if [ "$quiet" = false ]; then
-	log-info "Openning \$EDITOR ($EDITOR) to get user release comments"
-	$EDITOR debian/changelog
-    fi
+	if [ "$quiet" = false ]; then
+		log-info "Openning \$EDITOR ($EDITOR) to get user release comments"
+		$EDITOR debian/changelog
+	fi
 
     notify-release
     )
@@ -161,7 +160,8 @@ function _upstream-version-but-last {
 
 function _micro-upsteam-version {
     # 1.2.3 -> 3
-    echo $(upstream-version) | cut -d'.' -f3
+	local upstream=$(upstream-version)
+	echo ${upstream##*.}
 }
 
 function _do-release-next-revision {
