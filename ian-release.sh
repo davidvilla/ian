@@ -12,27 +12,27 @@ function cmd:release {
     local OPTIND=1 OPTARG OPTION
 
     while getopts m:yi OPTION "${__args__[@]}"; do
-	case $OPTION in
-	    m)
-		msg="$OPTARG" ;;
-	    y)
-		quiet=true ;;
-	    i)
-		revision=true ;;
-	    \?)
-		echo "invalid option: -$OPTARG"
-		exit 1 ;;
-	    :)
-		echo "option -$OPTARG requires an argument"
-		exit 1 ;;
-	esac
+		case $OPTION in
+			m)
+				msg="$OPTARG" ;;
+			y)
+				quiet=true ;;
+			i)
+				revision=true ;;
+			\?)
+				echo "invalid option: -$OPTARG"
+				exit 1 ;;
+			:)
+				echo "option -$OPTARG requires an argument"
+				exit 1 ;;
+		esac
     done
 
     assert-no-more-args $OPTIND
 
     if [ "$revision" = true ]; then
-	_do-release-next-revision
-	return
+		_do-release-next-revision
+		return
     fi
 
     _do-release-standard "$quiet" "$msg"
