@@ -2,7 +2,7 @@
 
 function say() {
 	if [ "$(type -t espeak)" == "file" ]; then
-		espeak "$1"
+		espeak "$1" &
 	fi
 }
 
