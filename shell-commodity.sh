@@ -117,6 +117,17 @@ function sc-assert {
     fi
 }
 
+function sc-assert-false {
+	local callable="$1"
+	local arg="$2"
+    local msg=${3:-"Assertion failed: $1 $2"}
+
+    if eval "$callable" "$arg"; then
+		sc-log-error "$msg"
+		exit 1
+    fi
+}
+
 function sc-assert-run {
 # assert command execution
 	# $1: command
