@@ -25,3 +25,8 @@ function ian-install-hook() {
 	echo "sample install hook"
 	say installed
 }
+
+function ian-upload-hook() {
+	echo "sample upload hook"
+	say upload
+}

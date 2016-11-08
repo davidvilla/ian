@@ -17,8 +17,8 @@ function check-run() {
 
     sc-log-info "$msg"
     if ! eval $command 2> >(_indent "$CHECK_ERR_SIGN") > >(_indent "$CHECK_OUT_SIGN"); then
-	sc-log-fail "$msg"
-	exit 1
+		sc-log-fail "$msg"
+		exit 1
     fi
 }
 

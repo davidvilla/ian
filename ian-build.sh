@@ -40,49 +40,49 @@ function cmd:build {
 
     assert-no-more-args $OPTIND
 
-    (
-    assert-preconditions
+	(
+		assert-preconditions
 
-    if [ "$build_binary" = true ]; then
-	BUILDOPTIONS="$BUILDOPTIONS -b"
-    fi
+		if [ "$build_binary" = true ]; then
+			BUILDOPTIONS="$BUILDOPTIONS -b"
+		fi
 
-    if [ "$clean" = true ]; then
-	cmd:clean
-    fi
+		if [ "$clean" = true ]; then
+			cmd:clean
+		fi
 
-    if [ "$include_source" = true ]; then
-	BUILDOPTIONS="$BUILDOPTIONS -sa"
-    fi
+		if [ "$include_source" = true ]; then
+			BUILDOPTIONS="$BUILDOPTIONS -sa"
+		fi
 
-    sc-assert cmd:orig
-    _assert-user-is-uploader $force
-    _assert-user-last-changelog-entry $force
+		sc-assert cmd:orig
+		_assert-user-is-uploader $force
+		_assert-user-last-changelog-entry $force
 
-    _builddeps-assure
-    log-info "build"
+		_builddeps-assure
+		log-info "build"
 
-    notify-build-start
-    if uses-svn; then
-	_build-svn
-    elif [ "$merge" = true ]; then
-	_build-merging-upstream
-    else
-	_build-standard
-    fi
+		notify-build-start
+		if uses-svn; then
+			_build-svn
+		elif [ "$merge" = true ]; then
+			_build-merging-upstream
+		else
+			_build-standard
+		fi
 
-    changes=$(changes-path)
-    log-info "lintian $changes"
-    ian-run "unbuffer lintian -I $changes"
+		changes=$(changes-path)
+		log-info "lintian $changes"
+		ian-run "unbuffer lintian -I $changes"
 
-    sc-assert-files-exist $(binary-paths)
-    log-ok "build"
-    notify-build-end
+		sc-assert-files-exist $(binary-paths)
+		log-ok "build"
+		notify-build-end
 
-    if [ "$install" = true ]; then
-	cmd:install
-    fi
-    )
+		if [ "$install" = true ]; then
+			cmd:install
+		fi
+	)
 }
 
 function _build-merging-upstream {
@@ -113,45 +113,41 @@ function _build-merging-upstream {
 }
 
 function _build-standard {
-    (
     assert-preconditions
     local build_command="dpkg-buildpackage -uc -us $BUILDOPTIONS"
     check-run "$build_command"
-    )
 }
 
 function _build-svn {
-    (
     assert-preconditions
     assert-uses-svn
     #	sc-assure-dir ../build-area
     log-info "running svn-buildpackage"
     check-run "svn-buildpackage -rfakeroot -us -uc --svn-ignore --svn-ignore-new --svn-move --svn-noninteractive --svn-override origDir=.."
-    )
 }
 
 function _builddeps-assure {
     local deps=$(builddeps)
     if [[ -z "$deps" ]]; then
-	return
+		return
     fi
 
     log-info "installing build deps: $deps"
 
     if [ -n "$deps" ]; then
-	ian-sudo "mk-build-deps --arch $(host-arch) --tool \"apt-get -y\" --install --remove debian/control"
+		ian-sudo "mk-build-deps --arch $(host-arch) --tool \"apt-get -y\" --install --remove debian/control"
     fi
 
     local deps=$(builddeps)
     if [ -n "$deps" ]; then
-	ian-sudo "apt-get install $deps"
+		ian-sudo "apt-get install $deps"
     fi
 
     ian-sudo "apt-get install ian"
     local deps=$(builddeps)
     if [ -n "$deps" ]; then
-	log-error "Unmet build dependencies: $deps"
-	exit 1
+		log-error "Unmet build dependencies: $deps"
+		exit 1
     fi
 
     log-ok "build deps"

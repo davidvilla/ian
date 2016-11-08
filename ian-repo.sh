@@ -39,6 +39,7 @@ function _do-upload {
     if [ $rcode -eq 0 ]; then
 		ian-run "cat ${outputs[1]}"
 		log-ok "upload"
+		notify-upload
     else
 		ian-run "cat ${outputs[2]}"
 		log-fail "upload"
@@ -65,10 +66,9 @@ function _check-dupload-errors {
 		check-run "dpkg-genchanges -b > $changes_path"
 		return
     elif _file-contains "$stderr" "$ORIG_ALREADY_REGISTERED"; then
-		if [ $(debian-release) -eq 1 ]; then
-			sc-log-error "different orig already uploaded! Create a new release"
-		else
-			sc-log-error "orig already uploaded! Try 'ian build -b' and upload again"
+		sc-log-error "1. orig already uploaded! Try 'ian build -b' and upload again"
+		if [ $(debian-release) -ne 1 ]; then
+			sc-log-error "2. different orig already uploaded! Create a new release"
 		fi
     elif _file-contains "$stderr" "$DEB_ALREADY_REGISTERED"; then
 		sc-log-error "deb already uploaded! Create a new release"
