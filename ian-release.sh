@@ -44,9 +44,10 @@ function _do-release-standard {
 
     local version_but_last=$(_upstream-version-but-last)
     local micro_version=$(_micro-upsteam-version)
+	local version_last_field=$(_version-last-field)
 
-    ((micro_version++))
-    do-release "$version_but_last.$micro_version" 1 "$quiet" "$msg"
+    ((version_last_field++))
+    do-release "$version_but_last.$version_last_field" 1 "$quiet" "$msg"
 }
 
 function cmd:release-date {
@@ -98,14 +99,14 @@ function _do-release-date {
     local micro_version=$(_micro-upsteam-version)
 
     local new_version=$major_version.$date_version
-    if ! [ -z "$micro_version" ]; then
-	new_version=$new_version.$micro_version
-    fi
+	if ! [ -z "$micro_version" ]; then
+		new_version=$new_version.$micro_version
+	fi
 
-    if [ "$old_version" == "$new_version" ]; then
-	((micro_version++))
-	new_version=$major_version.$date_version.$micro_version
-    fi
+	if [ "$old_version" == "$new_version" ]; then
+		((micro_version++))
+		new_version=$major_version.$date_version.$micro_version
+	fi
 
     do-release "$new_version" 1 "$quiet" "$msg"
 }
@@ -159,9 +160,14 @@ function _upstream-version-but-last {
 }
 
 function _micro-upsteam-version {
-    # 1.2.3 -> 3
+    # 1.2.3 -> 3  (third, not last!)
+    echo $(upstream-version) | cut -d'.' -f3
+}
+
+function _version-last-field {
+    # 1.2.3 -> 3  (last!)
 	local upstream=$(upstream-version)
-	echo ${upstream##*.}
+    echo ${upstream##*.}
 }
 
 function _do-release-next-revision {

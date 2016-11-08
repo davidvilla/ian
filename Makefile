@@ -10,9 +10,10 @@ DOCDIR=$(DESTDIR)/usr/share/doc
 clean:
 	$(RM) $(shell find -name *~)
 
+# export PRINT_OUTPUT=true
 tests:
 	test/shell-commodity-tests.sh
-	test/ian-tests.sh
+	test/ian-release-tests.sh
 
 install:
 	install -vd $(BASE)

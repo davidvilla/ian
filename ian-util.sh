@@ -70,15 +70,19 @@ function dbgsym-names {
 
 # release, build, summary
 function debian-version {
-    if sc-var-defined _DEBIAN_VERSION; then
-	echo $_DEBIAN_VERSION
-	return
-    fi
+	if sc-var-defined _DEBIAN_VERSION; then
+		echo $_DEBIAN_VERSION
+		return
+	fi
 
     sc-assert-files-exist debian/changelog
     # head -n 1 debian/changelog | cut -f2 -d " " | tr -d "()"
     _DEBIAN_VERSION=$(dpkg-parsechangelog -ldebian/changelog --show-field=Version)
     debian-version
+}
+
+function debian-release {
+	debian-version | cut -d'-' -f2
 }
 
 # orig, build
