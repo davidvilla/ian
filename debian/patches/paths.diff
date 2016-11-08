@@ -10,12 +10,12 @@ Index: ian/unittest.sh
 +source /usr/share/ian/shell-commodity.sh
  
  __file__=$0
- 
+ __testname__=$1
 Index: ian/ian.sh
 ===================================================================
 --- ian.orig/ian.sh
 +++ ian/ian.sh
-@@ -64,7 +64,7 @@ __cmd__=$1
+@@ -61,7 +61,7 @@ __cmd__=$1
  shift
  __args__=("$@")
  
