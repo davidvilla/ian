@@ -4,42 +4,70 @@
 source shell-commodity.sh
 
 __file__=$0
+__testname__=$1
 
-function testfail {
-	sc-log-fail $testname
+function __test-log-fail {
+	sc-log-fail $__test_name
 }
 
-function testok {
-    sc-log-ok $testname
+function __test-log-ok {
+    sc-log-ok $__test_name
+}
+
+function trap-handler {
+	eval $test_failed
+	if [ $test_failed == __test-log-ok ]; then
+		echo 0 > $test_result
+	else
+		echo 1 > $test_result
+	fi
+}
+
+function sc-positive-test {
+	test_success="__test-log-ok"
+	test_failed="__test-log-fail"
 }
 
 function sc-negative-test {
-    sc-clear-trap
-	sc-set-trap testok
-	success=testfail
+	test_success="__test-log-fail"
+	test_failed="__test-log-ok"
 }
 
 function run-test {
-	local testname=$1
-	success=testok
+	__test_name=$1
+	if [ "$PRINT_OUTPUT" != true ]; then
+		__test_name="$__test_name > /dev/null"
+	fi
+
+	test_result=$(mktemp)
+	echo 0 > $test_result
     (
-    	sc-set-trap testfail
-    	eval $testname
-		eval $success
+		sc-set-trap trap-handler
+		sc-positive-test
+    	eval "$__test_name"
+		eval "$test_success"
     	sc-clear-trap
     )
+	local retval=$(cat $test_result)
+
+	rm -f $test_result
+	return $retval
 }
 
 function run-testsuit {
-	local testname=$1
+	local retval=0
+	local test=
 
-	if [[ -n $testname ]]; then
-		run-test $testname
+	if [[ -n $__testname__ ]]; then
+		run-test $__testname__
 		return
 	fi
 
-    grep "^function test-" $__file__ | while read line; do
-        testname=$(echo $line | cut -d' ' -f 2)
+	for testname in $(grep "^function test-" $__file__ | cut -d' ' -f2); do
 		run-test $testname
+		if [ $? -ne 0 ]; then
+			retval=1
+		fi
     done
+	return $retval
 }
