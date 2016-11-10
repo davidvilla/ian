@@ -1,10 +1,10 @@
-hello-ian (0.20161105-1) unstable; urgency=low
+hello-ian (0.19990203.2-2) unstable; urgency=low
 
   * New release
 
- -- David Villa Alises <David.Villa@gmail.com>  Tue, 08 Nov 2016 15:31:14 +0000
+ -- David Villa Alises <David.Villa@gmail.com>  Thu, 10 Nov 2016 14:44:19 +0000
 
-hello-ian (0.20161104-1) unstable; urgency=low
+hello-ian (0.19990203.2-1) unstable; urgency=low
 
   * Initial release
 

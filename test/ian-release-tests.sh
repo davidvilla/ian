@@ -4,12 +4,15 @@
 source shell-commodity.sh
 source unittest.sh
 
+TODAY=$(date +%Y%m%d)
+
 function test-user-is-uploader-ok {
     export DEBEMAIL="David.Villa@gmail.com"
 
     source ian-util.sh
     source ian-build.sh
     cd test/fixtures/hello-ian
+
     _assert-user-is-uploader
 }
 
@@ -55,41 +58,162 @@ hello-ian (0.20161104-1) unstable; urgency=low
 EOF
 }
 
-function test-release {
+# 0.1-1          | release         | 0.2-1
+# 0.1-1          | release -i      | 0.1-2
+# 0.0.1-1        | release         | 0.0.2-1
+# 0.0.1-1        | release -i      | 0.0.1-2
+# 0.19990203-1   | release         | 0.19990204-1
+# 0.19990203-1   | release -i      | 0.19990203-1
+# 0.1-1          | release-date    | 0.20001122-1
+# 0.1-1          | release-date -i | 0.1-2
+# 0.0.1-1        | release-date    | 0.0.20021122-1
+# 0.0.1-1        | release-date -i | 0.0.1-2
+# 0.19990203-1   | release-date    | 0.20001122-1
+# 0.19990203-1   | release-date -i | 0.19990203-2
+# 0.19990203.2-1 | release-date    | 0.20001122-1
+# 0.19990203.2-1 | release-date -i | 0.19990203.2-2
+
+
+function _get-version {
+	dpkg-parsechangelog -ldebian/changelog --show-field=Version
+}
+
+function _set-changelog-version {
+	local version="$1"
+
+	cat <<EOF > debian/changelog
+hello-ian ($version) unstable; urgency=low
+
+  * Initial release
+
+ -- David Villa Alises <David.Villa@gmail.com>  Fri, 04 Nov 2016 17:32:12 +0000
+EOF
+}
+
+function test-release-0_1-1 {
 	cd test/fixtures/hello-ian
 
-	reset-changelog
+	_set-changelog-version "0.1-1"
 	ian release -y
-	sc-assert "head -n1 debian/changelog | grep '0.20161105-1'"
+
+	ssc-assert sc-equals '$(_get-version)' 0.2-1
 }
 
-function test-release-i {
+function test-release-i-0_1-1 {
 	cd test/fixtures/hello-ian
 
-	reset-changelog
-	ian release -yi
+	_set-changelog-version "0.1-1"
+	ian release -iy
 
-	sc-assert "head -n1 debian/changelog | grep '0.20161104-2'"
+	ssc-assert sc-equals '$(_get-version) 0.1-2'
 }
 
-function test-release-date {
+function test-release-0_0_1-1 {
 	cd test/fixtures/hello-ian
 
-	reset-changelog
+	_set-changelog-version "0.0.1-1"
+	ian release -y
+
+	ssc-assert sc-equals '$(_get-version) 0.0.2-1'
+}
+
+function test-release-i-0_0_1-1 {
+	cd test/fixtures/hello-ian
+
+	_set-changelog-version "0.0.1-1"
+	ian release -iy
+
+	ssc-assert sc-equals '$(_get-version) 0.0.1-2'
+}
+
+function test-release-0_date-1 {
+	cd test/fixtures/hello-ian
+
+	_set-changelog-version "0.19990203-1"
+	ian release -y
+
+	ssc-assert sc-equals '$(_get-version) 0.19990204-1'
+}
+
+function test-release-i-0_date-1 {
+	cd test/fixtures/hello-ian
+
+	_set-changelog-version "0.19990203-1"
+	ian release -iy
+
+	ssc-assert sc-equals '$(_get-version) 0.19990203-2'
+}
+
+function test-release-date-0_1-1 {
+	cd test/fixtures/hello-ian
+
+	_set-changelog-version "0.1-1"
 	ian release-date -y
 
-	TODAY=$(date +%Y%m%d)
-	sc-assert "head -n1 debian/changelog | grep '0.$TODAY-1'"
+	ssc-assert sc-equals '$(_get-version) 0.$TODAY-1'
 }
 
-function test-release-date-i {
+function test-release-date-i-0_1-1 {
 	cd test/fixtures/hello-ian
 
-	reset-changelog
-	ian release-date -yi
+	_set-changelog-version "0.1-1"
+	ian release-date -iy
 
-	TODAY=$(date +%Y%m%d)
-	sc-assert "head -n1 debian/changelog | grep '0.20161104-2'"
+	ssc-assert sc-equals '$(_get-version) 0.1-2'
+}
+
+function test-release-date-0_0_1-1 {
+	cd test/fixtures/hello-ian
+
+	_set-changelog-version "0.0.1-1"
+	ian release-date -y
+
+	ssc-assert sc-equals '$(_get-version) 0.$TODAY-1'
+}
+
+function test-release-date-i-0_0_1-1 {
+	cd test/fixtures/hello-ian
+
+	_set-changelog-version "0.0.1-1"
+	ian release-date -iy
+
+	ssc-assert sc-equals '$(_get-version) 0.0.1-2'
+}
+
+function test-release-date-0_date-1 {
+	cd test/fixtures/hello-ian
+
+	_set-changelog-version "0.19990203-1"
+	ian release-date -y
+
+	ssc-assert sc-equals '$(_get-version) 0.$TODAY-1'
+}
+
+function test-release-date-i-0_date-1 {
+	cd test/fixtures/hello-ian
+
+	_set-changelog-version "0.19990203-1"
+	ian release-date -iy
+
+	ssc-assert sc-equals '$(_get-version) 0.19990203-2'
+}
+
+function test-release-date-0_date_2-1 {
+	cd test/fixtures/hello-ian
+
+	_set-changelog-version "0.19990203.2-1"
+	ian release-date -y
+
+	ssc-assert sc-equals '$(_get-version) 0.$TODAY-1'
+}
+
+function test-release-date-i-0_date_2-1 {
+	cd test/fixtures/hello-ian
+
+	_set-changelog-version "0.19990203.2-1"
+	ian release-date -iy
+
+	ssc-assert sc-equals '$(_get-version) 0.19990203.2-2'
 }
 
 run-testsuit
