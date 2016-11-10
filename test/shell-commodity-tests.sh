@@ -66,4 +66,16 @@ function test-str-split {
 	sc-assert '[ $result -eq 3 ]'
 }
 
+function test-equals {
+	ssc-assert sc-equals '"test output" "test output"'
+	ssc-assert sc-equals '"$(echo test output)" "test output"'
+	ssc-assert sc-equals '1 1'
+}
+
+function test-not-equals {
+	ssc-assert sc-not-equals '"test output" "other output"'
+}
+
+
+
 run-testsuit
