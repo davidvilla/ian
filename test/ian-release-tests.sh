@@ -96,7 +96,7 @@ function test-release-0_1-1 {
 	_set-changelog-version "0.1-1"
 	ian release -y
 
-	ssc-assert sc-equals '$(_get-version)' 0.2-1
+	sc-assert-equals $(_get-version) 0.2-1
 }
 
 function test-release-i-0_1-1 {
@@ -105,7 +105,7 @@ function test-release-i-0_1-1 {
 	_set-changelog-version "0.1-1"
 	ian release -iy
 
-	ssc-assert sc-equals '$(_get-version) 0.1-2'
+	sc-assert-equals $(_get-version) 0.1-2
 }
 
 function test-release-0_0_1-1 {
@@ -114,7 +114,7 @@ function test-release-0_0_1-1 {
 	_set-changelog-version "0.0.1-1"
 	ian release -y
 
-	ssc-assert sc-equals '$(_get-version) 0.0.2-1'
+	sc-assert-equals $(_get-version) 0.0.2-1
 }
 
 function test-release-i-0_0_1-1 {
@@ -123,7 +123,7 @@ function test-release-i-0_0_1-1 {
 	_set-changelog-version "0.0.1-1"
 	ian release -iy
 
-	ssc-assert sc-equals '$(_get-version) 0.0.1-2'
+	sc-assert-equals $(_get-version) 0.0.1-2
 }
 
 function test-release-0_date-1 {
@@ -132,7 +132,7 @@ function test-release-0_date-1 {
 	_set-changelog-version "0.19990203-1"
 	ian release -y
 
-	ssc-assert sc-equals '$(_get-version) 0.19990204-1'
+	sc-assert-equals $(_get-version) 0.19990204-1
 }
 
 function test-release-i-0_date-1 {
@@ -141,7 +141,7 @@ function test-release-i-0_date-1 {
 	_set-changelog-version "0.19990203-1"
 	ian release -iy
 
-	ssc-assert sc-equals '$(_get-version) 0.19990203-2'
+	sc-assert-equals $(_get-version) 0.19990203-2
 }
 
 function test-release-date-0_1-1 {
@@ -150,7 +150,7 @@ function test-release-date-0_1-1 {
 	_set-changelog-version "0.1-1"
 	ian release-date -y
 
-	ssc-assert sc-equals '$(_get-version) 0.$TODAY-1'
+	sc-assert-equals $(_get-version) 0.$TODAY-1
 }
 
 function test-release-date-i-0_1-1 {
@@ -159,7 +159,7 @@ function test-release-date-i-0_1-1 {
 	_set-changelog-version "0.1-1"
 	ian release-date -iy
 
-	ssc-assert sc-equals '$(_get-version) 0.1-2'
+	sc-assert-equals $(_get-version) 0.1-2
 }
 
 function test-release-date-0_0_1-1 {
@@ -168,7 +168,7 @@ function test-release-date-0_0_1-1 {
 	_set-changelog-version "0.0.1-1"
 	ian release-date -y
 
-	ssc-assert sc-equals '$(_get-version) 0.$TODAY-1'
+	sc-assert-equals $(_get-version) 0.$TODAY-1
 }
 
 function test-release-date-i-0_0_1-1 {
@@ -177,7 +177,7 @@ function test-release-date-i-0_0_1-1 {
 	_set-changelog-version "0.0.1-1"
 	ian release-date -iy
 
-	ssc-assert sc-equals '$(_get-version) 0.0.1-2'
+	sc-assert-equals $(_get-version) 0.0.1-2
 }
 
 function test-release-date-0_date-1 {
@@ -186,7 +186,7 @@ function test-release-date-0_date-1 {
 	_set-changelog-version "0.19990203-1"
 	ian release-date -y
 
-	ssc-assert sc-equals '$(_get-version) 0.$TODAY-1'
+	sc-assert-equals $(_get-version) 0.$TODAY-1
 }
 
 function test-release-date-i-0_date-1 {
@@ -195,7 +195,7 @@ function test-release-date-i-0_date-1 {
 	_set-changelog-version "0.19990203-1"
 	ian release-date -iy
 
-	ssc-assert sc-equals '$(_get-version) 0.19990203-2'
+	sc-assert-equals $(_get-version) 0.19990203-2
 }
 
 function test-release-date-0_date_2-1 {
@@ -204,7 +204,7 @@ function test-release-date-0_date_2-1 {
 	_set-changelog-version "0.19990203.2-1"
 	ian release-date -y
 
-	ssc-assert sc-equals '$(_get-version) 0.$TODAY-1'
+	sc-assert-equals $(_get-version) 0.$TODAY-1
 }
 
 function test-release-date-i-0_date_2-1 {
@@ -213,7 +213,7 @@ function test-release-date-i-0_date_2-1 {
 	_set-changelog-version "0.19990203.2-1"
 	ian release-date -iy
 
-	ssc-assert sc-equals '$(_get-version) 0.19990203.2-2'
+	sc-assert-equals $(_get-version) 0.19990203.2-2
 }
 
 run-testsuit

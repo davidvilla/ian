@@ -4,10 +4,18 @@
 function cmd:upload {
 ##:090:cmd:sign and upload binary packages to configured package repository
     assert-no-more-args
+	sc-assert-files-exist $(binary-paths)
+
+	local retval=0
 
     for changes_path in $(_postbuild-changes-filenames); do
 		_do-upload $changes_path
+		if [ $? -ne 0 ]; then
+			retval=1
+		fi
     done
+
+	return $retval
 }
 
 function _do-upload {
@@ -46,6 +54,7 @@ function _do-upload {
     fi
 
     rm ${outputs[@]}
+	return $rcode
     )
 }
 

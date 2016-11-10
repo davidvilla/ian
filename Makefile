@@ -10,7 +10,7 @@ DOCDIR=$(DESTDIR)/usr/share/doc
 clean:
 	$(RM) $(shell find -name *~)
 
-# export PRINT_OUTPUT=true
+# export DEBUG=true
 tests:
 	test/shell-commodity-tests.sh
 	test/ian-release-tests.sh

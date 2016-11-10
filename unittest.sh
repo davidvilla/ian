@@ -6,15 +6,19 @@ source shell-commodity.sh
 __file__=$0
 __testname__=$1
 
-function __test-log-fail {
-	sc-log-fail $__test_name
-}
-
 function __test-log-ok {
     sc-log-ok $__test_name
 }
 
-function trap-handler {
+function __test-log-fail {
+	sc-log-fail $__test_name
+}
+
+function __test-log-error {
+    sc-log-error $__test_name
+}
+
+function _trap-handler {
 	eval $test_failed
 	if [ $test_failed == __test-log-ok ]; then
 		echo 0 > $test_result
@@ -23,7 +27,7 @@ function trap-handler {
 	fi
 }
 
-function sc-positive-test {
+function _positive-test {
 	test_success="__test-log-ok"
 	test_failed="__test-log-fail"
 }
@@ -33,19 +37,37 @@ function sc-negative-test {
 	test_failed="__test-log-ok"
 }
 
+function _trap-handler-negative {
+	__test-log-ok
+}
+
+function sc-test-not {
+	(
+		sc-set-trap _trap-handler-negative
+		eval "$*"
+		__test-log-fail
+	)
+}
+
 function run-test {
-	__test_name=$1
-	if [ "$PRINT_OUTPUT" != true ]; then
+	__test_name="$1"
+	if [ "$DEBUG" != true ]; then
 		__test_name="$__test_name > /dev/null"
+	else
+		__test_name="$__test_name > >(sed 's/^/     |/g')"
 	fi
 
 	test_result=$(mktemp)
 	echo 0 > $test_result
     (
-		sc-set-trap trap-handler
-		sc-positive-test
+		sc-set-trap _trap-handler
+		_positive-test
     	eval "$__test_name"
-		eval "$test_success"
+		if [ $? -ne 0 ]; then
+			__test-log-error
+		else
+			eval "$test_success"
+		fi
     	sc-clear-trap
     )
 	local retval=$(cat $test_result)
