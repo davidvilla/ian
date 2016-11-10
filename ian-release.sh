@@ -95,17 +95,12 @@ function _do-release-date {
     local old_version=$(upstream-version)
 
     local major_version=$(_major-upstream-version)
-    local date_version=$TODAY
     local micro_version=$(_micro-upsteam-version)
 
-    local new_version=$major_version.$date_version
-	if ! [ -z "$micro_version" ]; then
-		new_version=$new_version.$micro_version
-	fi
-
+    local new_version=$major_version.$TODAY
 	if [ "$old_version" == "$new_version" ]; then
 		((micro_version++))
-		new_version=$major_version.$date_version.$micro_version
+		new_version=$major_version.$TODAY.$micro_version
 	fi
 
     do-release "$new_version" 1 "$quiet" "$msg"

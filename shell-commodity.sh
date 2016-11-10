@@ -71,6 +71,14 @@ function sc-str-split() {
 
 #-- Predicates --
 
+function sc-equals {
+	[ "$1" == "$2" ]
+}
+
+function sc-not-equals {
+	! sc-equals "$1" "$2"
+}
+
 function sc-var-defined {
     [ ! -z "$(eval echo \$${1})" ]
 }
@@ -106,13 +114,13 @@ function sc-function-exists {
 }
 
 function sc-assert {
-	# assert any predicate
+	# assert any predicate: sc-assert "callable" "args" "msg"
 	local callable="$1"
 	local arg="$2"
     local msg=${3:-"Assertion failed: $1 $2"}
 
     if ! eval "$callable" "$arg"; then
-		sc-log-error "$msg"
+		sc-log-fail "$msg"
 		exit 1
     fi
 }
@@ -123,10 +131,31 @@ function sc-assert-false {
     local msg=${3:-"Assertion failed: $1 $2"}
 
     if eval "$callable" "$arg"; then
-		sc-log-error "$msg"
+		sc-log-fail "$msg"
 		exit 1
     fi
 }
+
+function sc-assert-equals {
+	local actual="$1"
+	local expected="$2"
+
+	if ! sc-equals "$actual" "$expected"; then
+		sc-log-fail "it was \'$actual\', but expected \'$expected\'"
+		exit 1
+	fi
+}
+
+function sc-assert-not-equals {
+	local actual="$1"
+	local expected="$2"
+
+	if sc-equals "$actual" "$expected"; then
+		sc-log-fail "it was \'$actual\', but expected be different"
+		exit 1
+	fi
+}
+
 
 function sc-assert-run {
 # assert command execution
@@ -285,10 +314,12 @@ function sc-log-warn {
 
 function sc-log-error {
 	sc-log-notify EE "$1"
+	return 1
 }
 
 function sc-log-fail {
 	sc-log-notify FF "$1"
+	return 1
 }
 
 function sc-log-ok {
