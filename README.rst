@@ -199,16 +199,17 @@ You may provide these functions in your **~/.config/ian/config** file.
 Compiling i386 packages in a amd64 computer
 ===========================================
 
-$ ian vagrant-gen-files
-ian: generated: Vagrantfile playbook.yml
+    $ ian vagrant-gen-files  
+    ian: generated: Vagrantfile playbook.yml
 
-$ ian vagrant-build
-vagrant up --provision amd64
-vagrant ssh amd64 -c "cd /vagrant/<package-directory>; ian build -m"
-vagrant up --provision i386
-vagrant ssh i386 -c "cd /vagrant/<package-directory>; ian build -bm"
+    $ ian vagrant-build
+    vagrant up --provision amd64
+    vagrant ssh amd64 -c "cd /vagrant/<package-directory>; ian build -m"
+    vagrant up --provision i386
+    vagrant ssh i386 -c "cd /vagrant/<package-directory>; ian build -bm"
 
-$ ian vagrant-clean
+    $ ian vagrant-clean
+
 
 Similar software
 ================
