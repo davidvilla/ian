@@ -114,6 +114,13 @@ function _build-merging-upstream {
 
 function _build-standard {
     assert-preconditions
+
+	local buildopts=
+	if [ -z $BUILDOPTIONS ] && [ $(debian-release) -ne 1 ]; then
+		BUILDOPTIONS='-b'
+		log-info "no source code included because debian revision > 1"
+	fi
+
     local build_command="dpkg-buildpackage -uc -us $BUILDOPTIONS"
     check-run "$build_command"
 }
@@ -156,11 +163,11 @@ function _builddeps-assure {
 function _assert-user-is-uploader {
 	local force=$1
 	if grep -e "^Maintainer:" -e "^Uploaders:" debian/control | grep $DEBEMAIL > /dev/null; then
-		log-ok "User '$DEBEMAIL' is an uploader."
+		log-ok "User '$DEBEMAIL' is an uploader"
 		return 0
 	fi
 
-	log-error "User '$DEBEMAIL' is NOT an uploader!."
+	log-error "User '$DEBEMAIL' is NOT an uploader!"
 	_check-force
 }
 
@@ -174,16 +181,16 @@ function _assert-user-last-changelog-entry {
 		return 0
 	fi
 
-	log-error "User '$DEBEMAIL' does NOT own the last changelog entry!."
+	log-error "User '$DEBEMAIL' does NOT own the last changelog entry!"
 	_check-force
 }
 
 function _check-force {
 	if [ "$force" = true ]; then
-		log-warning "build continues because 'force' is enabled."
+		log-warning "build continues because 'force' was enabled"
 		return 0
 	fi
 
-	log-error "Execute 'build -f' to overcome."
+	log-error "Fix issue or run 'build -f' to overcome"
 	exit 1
 }

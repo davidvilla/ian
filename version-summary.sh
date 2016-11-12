@@ -54,4 +54,4 @@ fi
 
 echo  version summary
 echo "---------------"
-cat $log | sort
+cat $log
