@@ -12,12 +12,12 @@ function cmd:help {
     local cmd="${__args__[0]}"
 
     if ! [[ -z $cmd ]]; then
-	if ! get-command-list "ian-map" | grep "$cmd" > /dev/null; then
-	    unknown-command "$cmd"
-	fi
+		if ! get-command-list "ian-map" | grep "$cmd" > /dev/null; then
+			unknown-command "$cmd"
+		fi
 
-	_print-usage-details "ian-map" "$cmd"
-	return
+		_print-usage-details "ian-map" "$cmd"
+		return
     fi
 
     _help-command-summary
@@ -70,7 +70,7 @@ function _get-command-code {
 
 function _print-usage {
     local code="$1"
-    grep -h "^##:$code:cmd:" $IAN_ROOT/ian*.sh | cut -d: -f4
+    grep -h "^##:$code:cmd:" $IAN_ROOT/ian-*.sh | cut -d: -f4
 }
 
 function _print-usage-details() {
@@ -78,7 +78,7 @@ function _print-usage-details() {
     local cmd="$2"
     local code=$(_get-command-code "$map" "$cmd")
 
-    local usage=$(grep "^##:$code:usage:" $IAN_ROOT/ian-*.sh | cut -d: -f4)
+    local usage=$(grep -h "^##:$code:usage:" $IAN_ROOT/ian-*.sh | cut -d: -f4 | tr ';' ':')
     local usage_lines=$(echo "$usage" | wc -l)
 
     if [[ -z "$usage" ]]; then

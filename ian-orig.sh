@@ -6,7 +6,7 @@
 # - uscan
 # - from "local" files
 function cmd:orig {
-##:015:cmd:generate or download .orig. file
+##:015:cmd:generate or download the .orig. file
 
     assert-no-more-args
 
@@ -38,7 +38,7 @@ function cmd:orig {
 }
 
 function cmd:orig-from-rule {
-##:017:cmd:execute "get-orig-source" rule of debian/rules to get .orig. file
+##:017:cmd:run debian/rules "get-orig-source" rule to get .orig.
     assert-no-more-args
 
     check-run "make -f ./debian/rules get-orig-source"
@@ -47,7 +47,7 @@ function cmd:orig-from-rule {
 
 # http://people.debian.org/~piotr/uscan-dl
 function cmd:orig-uscan {
-##:018:cmd:execute uscan to download the .orig. file
+##:018:cmd:run uscan to download the .orig.
     assert-no-more-args
 
     _assert-valid-watch
@@ -56,7 +56,7 @@ function cmd:orig-uscan {
 }
 
 function cmd:orig-from-local {
-##:016:cmd:create an .orig. file from current directory content
+##:016:cmd:create an .orig. from current directory content
     assert-no-more-args
 
     log-info "orig-from-local"
