@@ -37,7 +37,8 @@ function deb_version() {
 }
 
 function repo_version() {
-	local package=$(dpkg-parsechangelog -ldebian/changelog --show-field=Source)
+	# local package=$(dpkg-parsechangelog -ldebian/changelog --show-field=Source)
+	local package=$(grep "^Package:" debian/control | cut -f2 -d:  | tr -d " " | head -n1)
     field_value "$(apt-cache policy $package | grep Candidate)"
 }
 

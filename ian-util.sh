@@ -48,8 +48,8 @@ function _control-arch {
 # release, repo, orig, build, path, lintian, summary
 function package {
     if sc-var-defined _PACKAGE; then
-	echo $_PACKAGE
-	return
+		echo $_PACKAGE
+		return
     fi
 
     # Done dpkg-parsechangelog cause this function is used when no changelog file
