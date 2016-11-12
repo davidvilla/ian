@@ -2,7 +2,7 @@
 #-- repo actions -----------------------------------------------------
 
 function cmd:upload {
-##:090:cmd:sign and upload binary packages to configured package repository
+##:090:cmd:sign and upload binary packages to the configured pool
     assert-no-more-args
 	sc-assert-files-exist $(binary-paths)
 
