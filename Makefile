@@ -14,6 +14,7 @@ clean:
 tests:
 	test/shell-commodity-tests.sh
 	test/ian-release-tests.sh
+	hg revert test/fixtures/hello-ian/debian/changelog
 
 install:
 	install -vd $(BASE)

@@ -89,21 +89,22 @@ function cmd:release-date {
 }
 
 function _do-release-date {
-    local quiet="$1"
-    local msg="$2"
+	local quiet="$1"
+	local msg="$2"
 
-    local old_version=$(upstream-version)
+	local old_version=$(upstream-version)
 
-    local major_version=$(_major-upstream-version)
-    local micro_version=$(_micro-upsteam-version)
+	local major_version=$(_major-upstream-version)
+	local but_last=$(_upstream-version-but-last)
+	local micro_version=$(_micro-upsteam-version)
 
-    local new_version=$major_version.$TODAY
-	if [ "$old_version" == "$new_version" ]; then
+	local new_version=$major_version.$TODAY
+	if [ "$but_last" == "$new_version" ]; then
 		((micro_version++))
 		new_version=$major_version.$TODAY.$micro_version
 	fi
 
-    do-release "$new_version" 1 "$quiet" "$msg"
+	do-release "$new_version" 1 "$quiet" "$msg"
 }
 
 function do-release() {
