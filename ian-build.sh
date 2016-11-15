@@ -47,12 +47,13 @@ function cmd:build {
 			BUILDOPTIONS="$BUILDOPTIONS -b"
 		fi
 
-		if [ "$clean" = true ]; then
-			cmd:clean
-		fi
-
 		if [ "$include_source" = true ]; then
 			BUILDOPTIONS="$BUILDOPTIONS -sa"
+		fi
+
+		if [ "$clean" = true ]; then
+			# cmd:clean
+			rm -f $(orig-path)
 		fi
 
 		sc-assert cmd:orig

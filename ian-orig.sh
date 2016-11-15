@@ -52,7 +52,7 @@ function cmd:orig-uscan {
 
     _assert-valid-watch
     log-info "orig-uscan"
-    uscan --verbose --download-current-version --force-download --repack --rename --destdir $(orig-dir)
+    check-run "uscan --verbose --download-current-version --force-download --repack --rename --destdir $(orig-dir)"
 }
 
 function cmd:orig-from-local {
