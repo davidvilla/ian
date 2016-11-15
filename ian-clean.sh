@@ -26,8 +26,6 @@ function cmd:clean {
 function _clean-common {
     (
     assert-preconditions
-    log-info "clean-common"
-
     ian-run "rm -vf $(product-paths) $(binary-paths)"
     )
 }
