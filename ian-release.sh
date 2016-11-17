@@ -92,14 +92,12 @@ function _do-release-date {
 	local quiet="$1"
 	local msg="$2"
 
-	local old_version=$(upstream-version)
-
 	local major_version=$(_major-upstream-version)
-	local but_last=$(_upstream-version-but-last)
+	local two_first=$(_upstream-version-two-first)
 	local micro_version=$(_micro-upsteam-version)
 
 	local new_version=$major_version.$TODAY
-	if [ "$but_last" == "$new_version" ]; then
+	if [ "$two_first" == "$new_version" ]; then
 		((micro_version++))
 		new_version=$major_version.$TODAY.$micro_version
 	fi
@@ -151,8 +149,16 @@ function _major-upstream-version {
 
 function _upstream-version-but-last {
     # 1.2.3 -> 1.2
+    # 1.2   -> 1
     local upstream_version=$(upstream-version)
     echo ${upstream_version%.*}
+}
+
+function _upstream-version-two-first {
+    # 1.2.3 -> 1.2
+	# 1.2   -> 1.2
+    local upstream_version=$(upstream-version)
+    echo $upstream_version | awk -F. '{ printf "%s.%s", $1, $2 }'
 }
 
 function _micro-upsteam-version {

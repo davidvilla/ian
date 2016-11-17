@@ -76,7 +76,7 @@ function _create-rules() {
 #!/usr/bin/make -f
 
 %:
-	dh \$@ --with quilt
+	dh \$@  # --with quilt,python2,python3
 EOF
     chmod +x ./debian/rules
 }
