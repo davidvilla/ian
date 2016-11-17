@@ -54,15 +54,16 @@ function test-user-last-changelog-entry-fail {
 # 0.0.1-1        | release -i      | 0.0.1-2
 # 0.19990203-1   | release         | 0.19990204-1
 # 0.19990203-1   | release -i      | 0.19990203-1
-# 0.1-1          | release-date    | 0.20001122-1
+# 0.1-1          | release-date    | 0.TODAY-1
 # 0.1-1          | release-date -i | 0.1-2
 # 0.0.1-1        | release-date    | 0.0.20021122-1
 # 0.0.1-1        | release-date -i | 0.0.1-2
-# 0.19990203-1   | release-date    | 0.20001122-1
+# 0.19990203-1   | release-date    | 0.TODAY-1
 # 0.19990203-1   | release-date -i | 0.19990203-2
-# 0.19990203.2-1 | release-date    | 0.20001122-1
+# 0.19990203.2-1 | release-date    | 0.TODAY-1
 # 0.19990203.2-1 | release-date -i | 0.19990203.2-2
-# 0.20001122.1-1 | release-date    | 0.20001122.2-1
+# 0.TODAY-1      | release-date    | 0.TODAY.1-1
+# 0.TODAY.1-1    | release-date    | 0.TODAY.2-1
 
 
 function _get-version {
@@ -205,6 +206,15 @@ function test-release-date-i-0_date_2-1 {
 	ian release-date -iy
 
 	sc-assert-equals $(_get-version) 0.19990203.2-2
+}
+
+function test-release-date-0_today-1 {
+	cd test/fixtures/hello-ian
+
+	_set-changelog-version "0.$TODAY-1"
+	$(get-project-dir)/ian release-date -y
+
+	sc-assert-equals $(_get-version) 0.$TODAY.1-1
 }
 
 function test-release-date-0_today_1-1 {
