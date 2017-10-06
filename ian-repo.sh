@@ -22,11 +22,11 @@ function _do-upload {
     local changes_path="$1"
 
     (
-    sc-assert-files-exist ~/.gnupg/secring.gpg
+    # sc-assert-files-exist ~/.gnupg/secring.gpg
     sc-assert-files-exist $changes_path $(binary-paths)
 
     while true; do
-		sc-assert-run "LANG=$NATIVE_LANG debsign --no-re-sign $changes_path"
+		sc-assert-run "LANG=$NATIVE_LANG debsign -k$DEBSIGN_KEYID --no-re-sign $changes_path"
 
 		local -a outputs
 		sc-call-out-err outputs "dupload -f $changes_path"
