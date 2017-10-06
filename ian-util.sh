@@ -95,6 +95,11 @@ function upstream-version {
     echo $(debian-version) | cut -f1 -d "-"
 }
 
+function version-upstream {
+	upstream-version
+	(>&2 echo "function 'version-upstream' is DEPRECATED!")
+}
+
 # build, summary
 function builddeps {
     dpkg-checkbuilddeps 2>&1 | cut -f3 -d':' | sed -e 's/([^][]*)//g'
