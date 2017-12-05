@@ -4,6 +4,7 @@
 function cmd:upload {
 ##:090:cmd:sign and upload binary packages to the configured pool
     assert-no-more-args
+	assert-debian-files
 	sc-assert-files-exist $(binary-paths)
 
 	local retval=0
