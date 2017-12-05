@@ -17,6 +17,7 @@ function assert-debvars {
     sc-assert-var-defined DEBEMAIL
     sc-assert-var-defined DEBSIGN_KEYID
     sc-assert-var-defined DEBREPO_URL
+	sc-assert-var-defined EDITOR
     sc-clear-trap
 }
 
