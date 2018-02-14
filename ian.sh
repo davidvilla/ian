@@ -130,17 +130,6 @@ function cmd:debvars {
 	echo "DEBREPO_URL:  " $DEBREPO_URL
 }
 
-function cmd:binary-contents {
-##:060:cmd:show binary package file listings
-	assert-no-more-args
-
-    (
-    assert-preconditions
-	sc-assert-files-exist $(changes-path)
-	debc $(changes-path)
-    )
-}
-
 function ian {
 	if [[ -z "$__cmd__" ]]; then
 		cmd:help
