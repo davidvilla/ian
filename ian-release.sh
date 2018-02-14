@@ -1,5 +1,4 @@
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
-#-- release ------------------------------------------------------
 
 function cmd:release {
 ##:020:cmd:add a new changelog entry

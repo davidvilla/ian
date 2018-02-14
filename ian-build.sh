@@ -1,5 +1,15 @@
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
-#-- build ------------------------------------------------------------
+
+function cmd:binary-contents {
+##:060:cmd:show binary package file listings
+	assert-no-more-args
+
+    (
+    assert-preconditions
+	sc-assert-files-exist $(changes-path)
+	debc $(changes-path)
+    )
+}
 
 function cmd:build {
 ##:040:cmd:build all binary packages
