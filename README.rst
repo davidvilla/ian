@@ -193,7 +193,7 @@ ian may execute user provided shell functions AFTER important events in the proc
 * ian-build-end-hook
 * ian-install-hook
 
-You may provide these functions in your **~/.config/ian/config** file.
+You may provide these functions in your **~/.config/ian/config** file or the project **.ian** file.
 
 
 Compiling i386 packages in a amd64 computer
