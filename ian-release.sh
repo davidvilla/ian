@@ -28,6 +28,7 @@ function cmd:release {
     done
 
     assert-no-more-args $OPTIND
+    assert-preconditions
 
     if [ "$revision" = true ]; then
 		_do-release-next-revision
@@ -78,6 +79,7 @@ function cmd:release-date {
 	done
 
     assert-no-more-args $OPTIND
+    assert-preconditions
 
 	if [ "$revision" = true ]; then
 		_do-release-next-revision

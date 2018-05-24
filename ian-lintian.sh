@@ -3,6 +3,7 @@
 function cmd:lintian-fix() {
 ##:140:cmd:try to automatically solve lintian issues
     assert-no-more-args
+    assert-preconditions
     sc-assert-files-exist $(changes-path)
 
     lintian_log=$(lintian -I $changes)

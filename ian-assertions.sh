@@ -1,7 +1,7 @@
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
 
-# release, assertions
 function assert-debian-files {
+    cd_package_root
     sc-assert-directory-exists ./debian
     sc-assert-files-exist ./debian/control ./debian/rules ./debian/changelog
 }
@@ -21,7 +21,6 @@ function assert-debvars {
     sc-clear-trap
 }
 
-# ""many"
 function assert-preconditions {
     if [ "$PRECONDITIONS_CHECKED" = true ]; then
 	return 0

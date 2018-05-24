@@ -2,6 +2,8 @@
 
 function cmd:list-products {
 ##:200:cmd:list product files
+
+    assert-preconditions
     _product-filenames
     _binary-filenames
 }
