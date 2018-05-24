@@ -110,3 +110,33 @@ function builddeps {
 function build-dir {
     echo ".."
 }
+
+function find_dir_in_ancestors {
+	local base="$1"
+	local target="$2"
+
+    if [ -d "$base/$target" ]; then
+		echo "$base"
+		return 0
+    fi
+
+    if [ "$base" = "/" ]; then
+		return 1;
+    fi
+
+	find_dir_in_ancestors "$(dirname $base)" "$target"
+	return $?
+}
+
+function cd_package_root {
+	local target=$(find_dir_in_ancestors "$(pwd)" debian)
+	if [ -z "$target" ]; then
+		log-fail "package root directory (containing \"./debian\") not found"
+		exit 1
+	else
+		if [ "$target" != "$(pwd)" ]; then
+			log-info "package root directory found at \"$target\""
+			cd "$target"
+		fi
+	fi
+}

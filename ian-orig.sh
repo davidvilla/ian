@@ -40,6 +40,7 @@ function cmd:orig {
 function cmd:orig-from-rule {
 ##:017:cmd:run debian/rules "get-orig-source" rule to get .orig.
     assert-no-more-args
+    assert-preconditions
 
     check-run "make -f ./debian/rules get-orig-source"
     mv -v $(orig-filename) $(orig-dir)/
@@ -49,6 +50,7 @@ function cmd:orig-from-rule {
 function cmd:orig-uscan {
 ##:018:cmd:run uscan to download the .orig.
     assert-no-more-args
+    assert-preconditions
 
     _assert-valid-watch
     log-info "orig-uscan"
@@ -58,6 +60,7 @@ function cmd:orig-uscan {
 function cmd:orig-from-local {
 ##:016:cmd:create an .orig. from current directory content
     assert-no-more-args
+    assert-preconditions
 
     log-info "orig-from-local"
 
