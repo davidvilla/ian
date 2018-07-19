@@ -97,7 +97,7 @@ function upstream-version {
 
 function version-upstream {
 	upstream-version
-	(>&2 echo "function 'version-upstream' is DEPRECATED!")
+	(>&2 echo "function 'version-upstream' is DEPRECATED! Use 'upstream-version'")
 }
 
 # build, summary
