@@ -5,6 +5,7 @@ source shell-commodity.sh
 source unittest.sh
 
 IAN=$(pwd)/ian
+TERM=xterm
 
 
 TODAY=$(date +%Y%m%d)
