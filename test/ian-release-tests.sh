@@ -83,10 +83,11 @@ EOF
 }
 
 function test-release-0_1-1 {
+	IAN=$(pwd)/ian
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.1-1"
-	ian release -y
+	$IAN release -y
 
 	sc-assert-equals $(_get-version) 0.2-1
 }
