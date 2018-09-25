@@ -9,5 +9,5 @@ pipelines:
   default:
     - step:
         script:
-          - apt install make--
+          - apt-get install make
           - make tests
