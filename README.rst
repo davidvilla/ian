@@ -24,13 +24,16 @@ Compiling a simple package with **ian**::
 
 **NOTE:** Your user should be a "sudoer" to easly complete several ian tasks.
 
+
 commands
 ========
+
 
 ian help
 --------
 
 show help about the specified command.
+
 
 
 ian summary
