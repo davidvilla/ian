@@ -32,6 +32,7 @@ function test-user-is-uploader-fail {
 }
 
 function test-user-last-changelog-entry-ok {
+	export DEBFULLNAME="David Villa Alises"
     export DEBEMAIL="David.Villa@gmail.com"
 
     source ian-util.sh
@@ -86,7 +87,16 @@ hello-ian ($version) unstable; urgency=low
 EOF
 }
 
+function _define-deb-env {
+	export DEBFULLNAME="David Villa Alises"
+    export DEBEMAIL="David.Villa@gmail.com"
+	export DEBSIGN_KEYID=D0FE7AFB
+	export DEBREPO_URL=john.doe@debian.repository.org/var/repo
+	export EDITOR="nano"
+}
+
 function test-release-0_1-1 {
+	_define-deb-env
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.1-1"
@@ -96,6 +106,7 @@ function test-release-0_1-1 {
 }
 
 function test-release-i-0_1-1 {
+	_define-deb-env
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.1-1"
@@ -105,6 +116,7 @@ function test-release-i-0_1-1 {
 }
 
 function test-release-0_0_1-1 {
+	_define-deb-env
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.0.1-1"
@@ -114,6 +126,7 @@ function test-release-0_0_1-1 {
 }
 
 function test-release-i-0_0_1-1 {
+	_define-deb-env
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.0.1-1"
@@ -123,6 +136,7 @@ function test-release-i-0_0_1-1 {
 }
 
 function test-release-0_date-1 {
+	_define-deb-env
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.19990203-1"
@@ -132,6 +146,7 @@ function test-release-0_date-1 {
 }
 
 function test-release-i-0_date-1 {
+	_define-deb-env
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.19990203-1"
@@ -141,6 +156,7 @@ function test-release-i-0_date-1 {
 }
 
 function test-release-date-0_1-1 {
+	_define-deb-env
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.1-1"
@@ -150,6 +166,7 @@ function test-release-date-0_1-1 {
 }
 
 function test-release-date-i-0_1-1 {
+	_define-deb-env
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.1-1"
@@ -159,6 +176,7 @@ function test-release-date-i-0_1-1 {
 }
 
 function test-release-date-0_0_1-1 {
+	_define-deb-env
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.0.1-1"
@@ -168,6 +186,7 @@ function test-release-date-0_0_1-1 {
 }
 
 function test-release-date-i-0_0_1-1 {
+	_define-deb-env
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.0.1-1"
@@ -177,6 +196,7 @@ function test-release-date-i-0_0_1-1 {
 }
 
 function test-release-date-0_date-1 {
+	_define-deb-env
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.19990203-1"
@@ -186,6 +206,7 @@ function test-release-date-0_date-1 {
 }
 
 function test-release-date-i-0_date-1 {
+	_define-deb-env
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.19990203-1"
@@ -195,6 +216,7 @@ function test-release-date-i-0_date-1 {
 }
 
 function test-release-date-0_date_2-1 {
+	_define-deb-env
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.19990203.2-1"
@@ -204,6 +226,7 @@ function test-release-date-0_date_2-1 {
 }
 
 function test-release-date-i-0_date_2-1 {
+	_define-deb-env
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.19990203.2-1"
@@ -213,6 +236,7 @@ function test-release-date-i-0_date_2-1 {
 }
 
 function test-release-date-0_today-1 {
+	_define-deb-env
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.$TODAY-1"
@@ -222,6 +246,7 @@ function test-release-date-0_today-1 {
 }
 
 function test-release-date-0_today_1-1 {
+	_define-deb-env
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.$TODAY.1-1"
@@ -229,6 +254,5 @@ function test-release-date-0_today_1-1 {
 
 	sc-assert-equals $(_get-version) 0.$TODAY.2-1
 }
-
 
 run-testsuit
