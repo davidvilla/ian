@@ -4,6 +4,9 @@
 source shell-commodity.sh
 source unittest.sh
 
+IAN=$(pwd)/ian
+
+
 TODAY=$(date +%Y%m%d)
 
 function test-user-is-uploader-ok {
@@ -83,7 +86,6 @@ EOF
 }
 
 function test-release-0_1-1 {
-	IAN=$(pwd)/ian
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.1-1"
@@ -96,7 +98,7 @@ function test-release-i-0_1-1 {
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.1-1"
-	ian release -iy
+	$IAN release -iy
 
 	sc-assert-equals $(_get-version) 0.1-2
 }
@@ -105,7 +107,7 @@ function test-release-0_0_1-1 {
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.0.1-1"
-	ian release -y
+	$IAN release -y
 
 	sc-assert-equals $(_get-version) 0.0.2-1
 }
@@ -114,7 +116,7 @@ function test-release-i-0_0_1-1 {
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.0.1-1"
-	ian release -iy
+	$IAN release -iy
 
 	sc-assert-equals $(_get-version) 0.0.1-2
 }
@@ -123,7 +125,7 @@ function test-release-0_date-1 {
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.19990203-1"
-	ian release -y
+	$IAN release -y
 
 	sc-assert-equals $(_get-version) 0.19990204-1
 }
@@ -132,7 +134,7 @@ function test-release-i-0_date-1 {
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.19990203-1"
-	ian release -iy
+	$IAN release -iy
 
 	sc-assert-equals $(_get-version) 0.19990203-2
 }
@@ -141,7 +143,7 @@ function test-release-date-0_1-1 {
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.1-1"
-	ian release-date -y
+	$IAN release-date -y
 
 	sc-assert-equals $(_get-version) 0.$TODAY-1
 }
@@ -150,7 +152,7 @@ function test-release-date-i-0_1-1 {
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.1-1"
-	ian release-date -iy
+	$IAN release-date -iy
 
 	sc-assert-equals $(_get-version) 0.1-2
 }
@@ -159,7 +161,7 @@ function test-release-date-0_0_1-1 {
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.0.1-1"
-	ian release-date -y
+	$IAN release-date -y
 
 	sc-assert-equals $(_get-version) 0.$TODAY-1
 }
@@ -168,7 +170,7 @@ function test-release-date-i-0_0_1-1 {
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.0.1-1"
-	ian release-date -iy
+	$IAN release-date -iy
 
 	sc-assert-equals $(_get-version) 0.0.1-2
 }
@@ -177,7 +179,7 @@ function test-release-date-0_date-1 {
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.19990203-1"
-	ian release-date -y
+	$IAN release-date -y
 
 	sc-assert-equals $(_get-version) 0.$TODAY-1
 }
@@ -186,7 +188,7 @@ function test-release-date-i-0_date-1 {
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.19990203-1"
-	ian release-date -iy
+	$IAN release-date -iy
 
 	sc-assert-equals $(_get-version) 0.19990203-2
 }
@@ -195,7 +197,7 @@ function test-release-date-0_date_2-1 {
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.19990203.2-1"
-	ian release-date -y
+	$IAN release-date -y
 
 	sc-assert-equals $(_get-version) 0.$TODAY-1
 }
@@ -204,7 +206,7 @@ function test-release-date-i-0_date_2-1 {
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.19990203.2-1"
-	ian release-date -iy
+	$IAN release-date -iy
 
 	sc-assert-equals $(_get-version) 0.19990203.2-2
 }
@@ -213,7 +215,7 @@ function test-release-date-0_today-1 {
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.$TODAY-1"
-	$(get-project-dir)/ian release-date -y
+	$IAN release-date -y
 
 	sc-assert-equals $(_get-version) 0.$TODAY.1-1
 }
@@ -222,7 +224,7 @@ function test-release-date-0_today_1-1 {
 	cd test/fixtures/hello-ian
 
 	_set-changelog-version "0.$TODAY.1-1"
-	$(get-project-dir)/ian release-date -y
+	$IAN release-date -y
 
 	sc-assert-equals $(_get-version) 0.$TODAY.2-1
 }
