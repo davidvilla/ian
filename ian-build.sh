@@ -18,14 +18,15 @@ function cmd:build {
 ##:040:usage:  -c;  run "ian clean" before "build"
 ##:040:usage:  -f;  force build
 ##:040:usage:  -i;  run "ian install" after "build"
+##:040:usage:  -l;  creates orig with "ian orig-from-local"
 ##:040:usage:  -m;  merge ./debian with upstream .orig. bypassing directory contents
 ##:040:usage:  -s;  include full source. See 'dpkg-genchanges -sa'
 
 
-    local clean=false build_binary=false foce=false install=false merge=false include_source=false
+    local clean=false build_binary=false force=false install=false local=false merge=false include_source=false
     local OPTIND=1 OPTARG OPTION
 
-    while getopts :bcfims OPTION "${__args__[@]}"; do
+    while getopts :bcfilms OPTION "${__args__[@]}"; do
 		case $OPTION in
 			b)
 				build_binary=true ;;
@@ -35,6 +36,8 @@ function cmd:build {
 				force=true ;;
 			i)
 				install=true ;;
+			l)
+				local=true ;;
 			m)
 				merge=true ;;
 			s)
@@ -66,7 +69,12 @@ function cmd:build {
 			rm -f $(orig-path)
 		fi
 
-		sc-assert cmd:orig
+		if [ "$local" = true ]; then
+			sc-assert cmd:orig-from-local
+		else
+			sc-assert cmd:orig
+		fi
+
 		_assert-user-is-uploader $force
 		_assert-user-last-changelog-entry $force
 
