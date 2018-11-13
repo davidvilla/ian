@@ -11,6 +11,13 @@ function cmd:binary-contents {
     )
 }
 
+function quilt-pop {
+	if grep quilt debian/source/format > /dev/null; then
+		sc-log-info "quilt pop"
+		ian-run "quilt pop -a"
+	fi
+}
+
 function cmd:build {
 ##:040:cmd:build all binary packages
 ##:040:usage:ian build [-b] [-c] [-f] [-i] [-m] [-s]
@@ -82,6 +89,8 @@ function cmd:build {
 		log-info "build"
 
 		notify-build-start
+
+		sc-set-trap quilt-pop
 		if uses-svn; then
 			_build-svn
 		elif [ "$merge" = true ]; then
@@ -89,6 +98,7 @@ function cmd:build {
 		else
 			_build-standard
 		fi
+		sc-clear-trap
 
 		changes=$(changes-path)
 		log-info "lintian $changes"
