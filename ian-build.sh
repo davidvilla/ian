@@ -196,7 +196,7 @@ function _assert-user-is-uploader {
 		return 0
 	fi
 
-	log-error "User '$DEBEMAIL' is NOT an uploader!"
+	log-error "User '$DEBEMAIL' is NOT an uploader! You won't be able to upload the package."
 	_check-force
 }
 
@@ -210,7 +210,7 @@ function _assert-user-last-changelog-entry {
 		return 0
 	fi
 
-	log-error "User '$DEBEMAIL' does NOT own the last changelog entry!"
+	log-error "User '$DEBEMAIL' does NOT own the current changelog entry!. You won't be able to upload the package."
 	_check-force
 }
 
