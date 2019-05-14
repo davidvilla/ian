@@ -2,7 +2,7 @@
 #-- repo actions -----------------------------------------------------
 
 function cmd:upload {
-##:090:cmd:sign and upload binary packages to the configured pool
+##:090:cmd:sign and upload binary packages to the configured remote pool
     assert-no-more-args
 	assert-debian-files
 	sc-assert-files-exist $(binary-paths)
@@ -102,7 +102,7 @@ function _reprepro-cmd {
 }
 
 function cmd:remove {
-##:100:cmd:remove package from configured package repository
+##:100:cmd:remove package from configured remote pool
 ##:100:usage:ian remove [-y]
 ##:100:usage:  -y;  do not ask for confirmation
 

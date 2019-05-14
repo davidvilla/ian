@@ -61,7 +61,7 @@ __cmd__=$1
 shift
 __args__=("$@")
 
-IAN_ROOT=$(readlink -f $(dirname $__file__))
+IAN_ROOT=/usr/share/ian
 NATIVE_LANG="$LANG"
 LANG=C
 
