@@ -196,7 +196,7 @@ function _assert-user-is-uploader {
 		return 0
 	fi
 
-	log-error "User '$DEBEMAIL' is NOT an uploader! You won't be able to upload the package."
+	log-error "User '$DEBEMAIL' is NOT an uploader! You can't upload the resulting package."
 	_check-force
 }
 

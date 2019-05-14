@@ -1,7 +1,7 @@
 #!/bin/bash --
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
 
-source shell-commodity.sh
+source /usr/share/ian/shell-commodity.sh
 
 __file__=$0
 __testname__=$1
