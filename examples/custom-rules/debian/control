@@ -1,6 +1,6 @@
 Source: custom-rules
 Section: utils
-Priority: extra
+Priority: optional
 Maintainer: David Villa Alises <David.Villa@gmail.com>
 Build-Depends: debhelper (>= 7.0.50~), quilt
 Standards-Version: 3.9.8
