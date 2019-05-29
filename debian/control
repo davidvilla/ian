@@ -1,6 +1,6 @@
 Source: ian
 Section: shells
-Priority: extra
+Priority: optional
 Maintainer: David Villa Alises <David.Villa@gmail.com>
 Build-Depends: debhelper (>= 7.0.50~), quilt, python-docutils
 Standards-Version: 3.9.8

@@ -57,7 +57,7 @@ function _create-control() {
     cat <<EOF > ./debian/control
 Source: $pkgname
 Section: utils
-Priority: extra
+Priority: optional
 Maintainer: $DEBFULLNAME <$DEBEMAIL>
 Build-Depends: debhelper (>= 7.0.50~), quilt
 Standards-Version: 3.9.8
