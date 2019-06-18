@@ -41,9 +41,16 @@ function notify-install {
     fi
 }
 
-function notify-upload {
-    if sc-function-exists ian-upload-hook; then
-		log-info "exec ian-upload-hook"
-		ian-run ian-upload-hook
+function notify-upload-start {
+    if sc-function-exists ian-upload-start-hook; then
+		log-info "exec ian-upload-start-hook"
+		ian-run ian-upload-start-hook
+    fi
+}
+
+function notify-upload-end {
+    if sc-function-exists ian-upload-end-hook; then
+		log-info "exec ian-upload-end-hook"
+		ian-run ian-upload-end-hook
     fi
 }

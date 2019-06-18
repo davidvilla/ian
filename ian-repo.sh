@@ -26,6 +26,8 @@ function _do-upload {
     # sc-assert-files-exist ~/.gnupg/secring.gpg
     sc-assert-files-exist $changes_path $(binary-paths)
 
+	notify-upload-start
+
     while true; do
 		sc-assert-run "LANG=$NATIVE_LANG debsign -k$DEBSIGN_KEYID --no-re-sign $changes_path"
 
@@ -48,7 +50,7 @@ function _do-upload {
     if [ $rcode -eq 0 ]; then
 		ian-run "cat ${outputs[1]}"
 		log-ok "upload"
-		notify-upload
+		notify-upload-end
     else
 		ian-run "cat ${outputs[2]}"
 		log-fail "upload"
