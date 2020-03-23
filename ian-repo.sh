@@ -10,6 +10,7 @@ function cmd:upload {
 	local retval=0
 
     for changes_path in $(_postbuild-changes-filenames); do
+		_create-dupload-config
 		_do-upload $changes_path
 		if [ $? -ne 0 ]; then
 			retval=1
@@ -19,12 +20,45 @@ function cmd:upload {
 	return $retval
 }
 
+function _dupload-filename {
+	echo "/tmp/$USER-dupload.config"
+}
+
+function _create-dupload-config {
+	log-info "creating $(_dupload-filename)"
+	cat <<EOF > $(_dupload-filename)
+# .ssh/config
+# Host debrepo
+#      Hostname <your-repo-host>
+#      User $(_repo-user)
+#      IdentityFile ~/.ssh/your-private-key-for-debrepo
+
+package config;
+
+\$default_host = "debrepo";
+
+\$cfg{'debrepo'} = {
+   fqdn => "debrepo",
+   login => "$(_repo-user)",
+   method => "scpb",
+   incoming => "$(repo-path)/incoming/",
+
+   # The dinstall on ftp-master sends emails itself
+   dinstall_runs => 1,
+};
+
+\$postupload{'changes'} = 'ssh $(_repo-account) "reprepro -V -b $(repo-path) processincoming sid-process"';
+
+1;  # DO NOT remove this line!
+EOF
+}
+
 function _do-upload {
     local changes_path="$1"
 
     (
-    # sc-assert-files-exist ~/.gnupg/secring.gpg
-    sc-assert-files-exist $changes_path $(binary-paths)
+	# sc-assert-files-exist ~/.gnupg/secring.gpg
+    sc-assert-files-exist $changes_path $(binary-paths) $(_dupload-filename)
 
 	notify-upload-start
 
@@ -32,7 +66,7 @@ function _do-upload {
 		sc-assert-run "LANG=$NATIVE_LANG debsign -k$DEBSIGN_KEYID --no-re-sign $changes_path"
 
 		local -a outputs
-		sc-call-out-err outputs "dupload -f $changes_path"
+		sc-call-out-err outputs "dupload -c $(_dupload-filename) -f $changes_path"
 		local rcode=$?
 
 		if [ $rcode -eq 0 ]; then
@@ -167,6 +201,19 @@ function _repo-account {
     (
     sc-assert-var-defined DEBREPO_URL
     echo ${DEBREPO_URL%%/*}
+    )
+}
+
+function _repo-user {
+	local username
+    (
+    sc-assert-var-defined DEBREPO_URL
+    username=${DEBREPO_URL%%@*}
+	if [ "$username" == "$DEBREPO_URL" ]; then
+		echo $USER
+	else
+		echo $username
+	fi
     )
 }
 

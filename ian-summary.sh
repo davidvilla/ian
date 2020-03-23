@@ -26,11 +26,22 @@ function cmd:summary {
     )
 }
 
+function cmd:name {
+##:009:cmd:show package name and current version
+
+    assert-no-more-args
+
+    (
+	assert-preconditions
+	echo $(package)-$(debian-version)
+	)
+}
+
 function _pkg-vcs {
     # the <VCS-buildpackage> that the maintainer uses to manage de package
     if uses-svn; then
 	echo "svn"
-	return
+	    return
     fi
     echo "none"
 }
