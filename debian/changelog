@@ -1,3 +1,9 @@
+ian (0.20200430-1) unstable; urgency=low
+
+  * New release
+
+ -- David Villa Alises <David.Villa@gmail.com>  Thu, 30 Apr 2020 10:04:12 +0200
+
 ian (0.20200323.16-1) unstable; urgency=low
 
   * New release
@@ -97,7 +103,7 @@ ian (0.20200323.1-1) unstable; urgency=low
 ian (0.20200323-1) unstable; urgency=low
 
   * New release
-  * Generate ad-hoc dupload.conf 
+  * Generate ad-hoc dupload.conf
 
  -- David Villa Alises <David.Villa@gmail.com>  Mon, 23 Mar 2020 16:04:58 +0100
 

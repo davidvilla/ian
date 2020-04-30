@@ -3,7 +3,11 @@
 
 function cmd:upload {
 ##:090:cmd:sign and upload binary packages to the configured remote pool
-    assert-no-more-args
+##:090:usage:ian upload [nickname]
+##:090:usage:   nickname;  Upload to nickname'd host (see dupload -t option)
+
+	local nickname="${__args__[@]}"
+
 	assert-debian-files
 	sc-assert-files-exist $(binary-paths)
 
@@ -11,7 +15,7 @@ function cmd:upload {
 
     for changes_path in $(_postbuild-changes-filenames); do
 		_create-dupload-config
-		_do-upload $changes_path
+		_do-upload $changes_path $nickname
 		if [ $? -ne 0 ]; then
 			retval=1
 		fi
@@ -49,12 +53,24 @@ package config;
 
 \$postupload{'changes'} = 'ssh $(_repo-account) "reprepro -V -b $(repo-path) processincoming sid-process"';
 
+\$cfg{'local'} = {
+   method => "copy",
+   incoming => "$(repo-local-path)/incoming/",
+
+   dinstall_runs => 1,
+};
+
+\$cfg{'local'}{postupload}{'changes'} = 'reprepro -V -b $(repo-local-path) processincoming sid-process';
+
 1;  # DO NOT remove this line!
 EOF
 }
 
 function _do-upload {
     local changes_path="$1"
+	local nickname="$2"
+
+	nickname=${nickname:+"-t $nickname"}
 
     (
 	# sc-assert-files-exist ~/.gnupg/secring.gpg
@@ -66,7 +82,7 @@ function _do-upload {
 		sc-assert-run "LANG=$NATIVE_LANG debsign -k$DEBSIGN_KEYID --no-re-sign $changes_path"
 
 		local -a outputs
-		sc-call-out-err outputs "dupload -c $(_dupload-filename) -f $changes_path"
+		sc-call-out-err outputs "dupload -c $(_dupload-filename) -f $changes_path" $nickname
 		local rcode=$?
 
 		if [ $rcode -eq 0 ]; then
@@ -224,6 +240,13 @@ function repo-path {
     sc-assert-var-defined DEBREPO_URL
     echo /${DEBREPO_URL#*/}
     )
+}
+
+function repo-local-path {
+	(
+	sc-assert-var-defined DEBREPO_LOCAL_DIR
+	echo $DEBREPO_LOCAL_DIR
+	)
 }
 
 function cmd:repo-list {
