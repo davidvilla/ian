@@ -161,3 +161,9 @@ DEBSIGN_KEYID=D0FE7AFB  # man debsign
 DEBREPO_URL=john.doe@debian.repository.org/var/repo
 EOF
 }
+
+function cmd:config {
+##:012:cmd:show found environment variables
+##:012:usage:ian config
+	cmd:debvars
+}

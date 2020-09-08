@@ -42,6 +42,9 @@ function cmd:orig-from-rule {
     assert-no-more-args
     assert-preconditions
 
+    log-info "orig-from-rule"
+    cmd:clean
+
     check-run "make -f ./debian/rules get-orig-source"
     mv -v $(orig-filename) $(orig-dir)/
 }
@@ -63,6 +66,7 @@ function cmd:orig-from-local {
     assert-preconditions
 
     log-info "orig-from-local"
+    cmd:clean
 
     local orig_tmp=$(upstream-fullname)
     mkdir -p $orig_tmp

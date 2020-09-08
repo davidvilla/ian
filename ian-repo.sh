@@ -82,7 +82,7 @@ function _do-upload {
 		sc-assert-run "LANG=$NATIVE_LANG debsign -k$DEBSIGN_KEYID --no-re-sign $changes_path"
 
 		local -a outputs
-		sc-call-out-err outputs "dupload -c $(_dupload-filename) -f $changes_path" $nickname
+		sc-call-out-err outputs "dupload -c $(_dupload-filename) -f $changes_path $nickname"
 		local rcode=$?
 
 		if [ $rcode -eq 0 ]; then

@@ -7,6 +7,7 @@
 ##:ian-map:000:help
 ##:ian-map:009:name
 ##:ian-map:010:summary
+##:ian-map:012:config
 ##:ian-map:060:binary-contents
 ##:ian-map:200:list-products
 

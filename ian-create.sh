@@ -20,7 +20,7 @@ function cmd:create() {
     mkdir -p debian/source
     echo "3.0 (quilt)" > ./debian/source/format
     # echo "compression = \"gzip\"" > ./debian/source/options
-    echo 7 > ./debian/compat
+    echo 10 > ./debian/compat
 
     _create-control "$pkgname"
     _create-rules
@@ -59,8 +59,8 @@ Source: $pkgname
 Section: utils
 Priority: optional
 Maintainer: $DEBFULLNAME <$DEBEMAIL>
-Build-Depends: debhelper (>= 7.0.50~), quilt
-Standards-Version: 3.9.8
+Build-Depends: debhelper (>= 7.0.50~), debhelper-compat (= 12), quilt
+Standards-Version: 4.5.0
 
 Package: $pkgname
 Architecture: all
@@ -76,7 +76,7 @@ function _create-rules() {
 #!/usr/bin/make -f
 
 %:
-	dh \$@  # --with quilt,python2,python3
+	dh \$@  # --with python2,python3
 EOF
     chmod +x ./debian/rules
 }
