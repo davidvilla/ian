@@ -41,7 +41,7 @@ function _pkg-vcs {
     # the <VCS-buildpackage> that the maintainer uses to manage de package
     if uses-svn; then
 	echo "svn"
-	    return
+	return
     fi
     echo "none"
 }

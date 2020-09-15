@@ -32,3 +32,7 @@ install:
 
 	install -vd $(DESTDIR)/usr/share/man/man1
 	install ian.1 $(DESTDIR)/usr/share/man/man1
+
+push:
+	git push
+	git push git@github.com:davidvilla/ian.git
