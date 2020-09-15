@@ -2,7 +2,7 @@
 #-- install ----------------------------------------------------------
 
 function cmd:install {
-##:070:cmd:install (with sudo dpkg) all binary packages
+##:070:cmd:install (sudo dpkg) all binary packages
     assert-no-more-args
 
     (

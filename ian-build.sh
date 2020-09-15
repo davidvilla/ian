@@ -168,11 +168,11 @@ function _builddeps-assure {
 		return
     fi
 
-    log-info "installing build deps: $deps"
+    log-warning "installing build deps: $deps"
 
-    if [ -n "$deps" ]; then
-		ian-sudo "mk-build-deps --arch $(host-arch) --tool \"apt-get -y\" --install --remove debian/control"
-    fi
+    # if [ -n "$deps" ]; then
+	# 	ian-sudo "mk-build-deps --arch $(host-arch) --tool \"apt-get -y\" --install --remove debian/control"
+    # fi
 
     local deps=$(builddeps)
     if [ -n "$deps" ]; then

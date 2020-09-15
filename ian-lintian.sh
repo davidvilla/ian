@@ -1,7 +1,7 @@
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
 
 function cmd:lintian-fix() {
-##:140:cmd:try to automatically solve lintian issues
+##:140:cmd:try to automatically solve some lintian issues
     assert-no-more-args
     assert-preconditions
     sc-assert-files-exist $(changes-path)

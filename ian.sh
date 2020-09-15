@@ -87,7 +87,7 @@ source $IAN_ROOT/ian-vagrant.sh
 
 
 #FIXME: generate missing lines in ~/.config/ian/config
-function cmd:debvars-luser {
+function cmd:debvars-newbie {
 	local TMP=$(mktemp)
 	local need_vars=false
 
@@ -111,15 +111,15 @@ function cmd:debvars-luser {
 		need_vars=true
 	fi
 
-	if ! sc-var-defined DEBREPO_URL; then
+	if ! sc-var-defined DEBPOOL; then
 		fakepath="$USERNAME@your.server.net/path/to/repo"
-		echo "DEBREPO_URL=$fakepath" >> $TMP
-		log-warning "exporting placeholder 'DEBREPO_URL=$fakepath'"
+		echo "DEBPOOL=$fakepath" >> $TMP
+		log-warning "exporting placeholder 'DEBPOOL=$fakepath'"
 		need_vars=true
 	fi
 
 	if [ "$need_vars" = false ]; then
-		log-info "Your environment is already right. You don't seem a luser."
+		log-info "Your environment is already right. You don't seem a newbie."
 	else
 		log-warning "run: 'cat $TMP >> $IAN_CONFIG', make your changes and retry."
 	fi

@@ -54,3 +54,22 @@ function notify-upload-end {
 		ian-run ian-upload-end-hook
     fi
 }
+
+function notify-remove {
+    if sc-function-exists ian-remove-hook; then
+		log-info "exec ian-remove-hook"
+		ian-run ian-remove-hook
+    fi
+}
+
+
+ # FIXME: rename hooks
+ # ian-build-pre-hook
+ # ian-build-ok-book
+ # ian-build-fail-hook
+ # ian-install-ok-hook
+ # ian-install-fail-hook
+ # ian-upload-pre-hook
+ # ian-upload-ok-hook
+ # ian-upload-fail-hook
+ # ian-remove-hook

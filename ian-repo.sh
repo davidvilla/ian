@@ -1,17 +1,20 @@
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
-#-- repo actions -----------------------------------------------------
+#-- pool actions -----------------------------------------------------
 
 function cmd:upload {
-##:090:cmd:sign and upload binary packages to the configured remote pool
+##:090:cmd:sign and upload binary packages to the configured pool
 ##:090:usage:ian upload [nickname]
-##:090:usage:   nickname;  Upload to nickname'd host (see dupload -t option)
+##:090:usage:  nickname;  upload to nickname'd host (see dupload -t option)
 
 	local nickname="${__args__[@]}"
 
-	assert-debian-files
+	assert-preconditions
+	sc-assert-deb-pkgs-installed reprepro
 	sc-assert-files-exist $(binary-paths)
 
 	local retval=0
+
+	log-info "Debian pool is: $DEBPOOL"
 
     for changes_path in $(_postbuild-changes-filenames); do
 		_create-dupload-config
@@ -30,37 +33,54 @@ function _dupload-filename {
 
 function _create-dupload-config {
 	log-info "creating $(_dupload-filename)"
+	if _pool-is-remote; then
+		_create-dupload-remote-config
+	else
+		_create-dupload-local-config
+	fi
+}
+
+function _create-dupload-remote-config {
 	cat <<EOF > $(_dupload-filename)
 # .ssh/config
 # Host debrepo
 #      Hostname <your-repo-host>
-#      User $(_repo-user)
+#      User $(_pool-user)
 #      IdentityFile ~/.ssh/your-private-key-for-debrepo
 
 package config;
 
-\$default_host = "debrepo";
+\$default_host = "default";
 
-\$cfg{'debrepo'} = {
+\$cfg{'default'} = {
    fqdn => "debrepo",
-   login => "$(_repo-user)",
+   login => "$(_pool-user)",
    method => "scpb",
-   incoming => "$(repo-path)/incoming/",
+   incoming => "$(_pool-path)/incoming/",
 
-   # The dinstall on ftp-master sends emails itself
    dinstall_runs => 1,
 };
 
-\$postupload{'changes'} = 'ssh $(_repo-account) "reprepro -V -b $(repo-path) processincoming sid-process"';
+\$postupload{'changes'} = 'ssh $(_pool-account) "reprepro -V -b $(_pool-path) processincoming sid-process"';
 
-\$cfg{'local'} = {
+1;  # DO NOT remove this line!
+EOF
+}
+
+function _create-dupload-local-config {
+	cat <<EOF > $(_dupload-filename)
+package config;
+
+\$default_host = "default";
+
+\$cfg{'default'} = {
    method => "copy",
-   incoming => "$(repo-local-path)/incoming/",
+   incoming => "$DEBPOOL/incoming/",
 
    dinstall_runs => 1,
 };
 
-\$cfg{'local'}{postupload}{'changes'} = 'reprepro -V -b $(repo-local-path) processincoming sid-process';
+\$postupload{'changes'} = 'reprepro -V -b $DEBPOOL processincoming sid-process';
 
 1;  # DO NOT remove this line!
 EOF
@@ -143,14 +163,16 @@ function _file-contains {
     cat "$1" | grep "$2"
 }
 
-# function sign-and-upload {
-#     sc-assert-run "LANG=$NATIVE_LANG debsign $(changes-path)"
-#     sc-assert-run "dupload -f $(changes-path)"
-# }
-
-
 function _reprepro-cmd {
-    check-run "ssh $(_repo-account) \"reprepro -b $(repo-path) $*\""
+	if _pool-is-remote; then
+		ian-run "ssh $(_pool-account) \"reprepro --nothingiserror -b $(_pool-path) $*\""
+	else
+		ian-run "reprepro --nothingiserror -b $DEBPOOL $*"
+	fi
+}
+
+function _pool-is-remote {
+	! [[ "$DEBPOOL" == "/"* ]]
 }
 
 function cmd:remove {
@@ -176,12 +198,12 @@ function cmd:remove {
 
     assert-no-more-args $OPTIND
 
-    echo "Related files in '$DEBREPO_URL':"
-    cmd:repo-list
+    echo "Listing pool files in '$DEBPOOL' for package '$(package)':"
+    cmd:pool-list
     echo
 
     if [ $quiet = false ]; then
-		if ! _user-confirm "Delete them"; then
+		if ! _user-confirm "Delete pool files"; then
 			return
 		fi
     fi
@@ -189,6 +211,8 @@ function cmd:remove {
     for pkg in $(sc-filter-dups $(binary-names) $(dbgsym-names) $(package)); do
 		_remove-package "$pkg" "$arch"
     done
+
+	notify-remove
 }
 
 function _user-confirm {
@@ -206,26 +230,26 @@ function _remove-package {
     local package=$1
     local arch
 
-    if [ ! -z $2 ]; then
+    if [ ! -z $3 ]; then
 		local arch="-A $2"
     fi
 
     _reprepro-cmd $arch -V remove sid $package
 }
 
-function _repo-account {
+function _pool-account {
     (
-    sc-assert-var-defined DEBREPO_URL
-    echo ${DEBREPO_URL%%/*}
+    sc-assert-var-defined DEBPOOL
+    echo ${DEBPOOL%%/*}
     )
 }
 
-function _repo-user {
+function _pool-user {
 	local username
     (
-    sc-assert-var-defined DEBREPO_URL
-    username=${DEBREPO_URL%%@*}
-	if [ "$username" == "$DEBREPO_URL" ]; then
+    sc-assert-var-defined DEBPOOL
+    username=${DEBPOOL%%@*}
+	if [ "$username" == "$DEBPOOL" ]; then
 		echo $USER
 	else
 		echo $username
@@ -234,23 +258,16 @@ function _repo-user {
 }
 
 # help
-# repo
-function repo-path {
+# pool
+function _pool-path {
     (
-    sc-assert-var-defined DEBREPO_URL
-    echo /${DEBREPO_URL#*/}
+    sc-assert-var-defined DEBPOOL
+    echo /${DEBPOOL#*/}
     )
 }
 
-function repo-local-path {
-	(
-	sc-assert-var-defined DEBREPO_LOCAL_DIR
-	echo $DEBREPO_LOCAL_DIR
-	)
-}
-
-function cmd:repo-list {
-# list related packages in the public repository
+function cmd:pool-list {
+# list related packages in the public pool repository
 
     for pkg in $(sc-filter-dups $(binary-names) $(dbgsym-names) $(package)); do
 		_reprepro-cmd list sid $pkg

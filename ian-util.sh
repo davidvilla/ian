@@ -102,8 +102,9 @@ function version-upstream {
 
 # build, summary
 function builddeps {
-    dpkg-checkbuilddeps 2>&1 | cut -f3 -d':' | sed -e 's/([^][]*)//g'
-    return ${PIPESTATUS[0]}
+    LANG=C pkgnames=$(dpkg-checkbuilddeps 2>&1)  # | cut -f3 -d':' | sed -e 's/([^][]*)//g'
+    echo ${pkgnames##*:}
+    # return ${PIPESTATUS[0]}
 }
 
 # repo, build, path
