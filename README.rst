@@ -2,7 +2,7 @@
 ian
 ===
 
-*simple tool for really lazy Debian package maintainers*
+*simple tool for lazy Debian package maintainers*
 
 
 at a glance
@@ -11,15 +11,15 @@ at a glance
 Compiling a simple package with **ian**::
 
   $ apt source hello
-  $ cd hello-2.9
-  hello-2.9$ ian build
+  $ cd hello-2.10
+  hello-2.10$ ian build -f
   ... a lot of stuff ...
-  hello-2.9$ ls -la ../hello_*
-  -rw-r--r--  1 david david   1798 oct 31 16:02 ../hello_2.9-1_amd64.changes
-  -rw-r--r--  1 david david  50462 oct 31 16:02 ../hello_2.9-1_amd64.deb
-  -rw-r--r--  1 david david   8584 oct 31 16:02 ../hello_2.9-1.debian.tar.gz
-  -rw-r--r--  1 david david    793 oct 31 16:02 ../hello_2.9-1.dsc
-  -rw-r--r--  1 david david 730504 oct 31 16:02 ../hello_2.9.orig.tar.gz
+  hello-2.10$ ls -la ../hello_*
+  -rw-r--r--  1 david david   1798 oct 31 16:02 ../hello_2.10-2_amd64.changes
+  -rw-r--r--  1 david david  50462 oct 31 16:02 ../hello_2.10-2_amd64.deb
+  -rw-r--r--  1 david david   8584 oct 31 16:02 ../hello_2.10-2.debian.tar.gz
+  -rw-r--r--  1 david david    793 oct 31 16:02 ../hello_2.10-2.dsc
+  -rw-r--r--  1 david david 730504 oct 31 16:02 ../hello_2.10.orig.tar.gz
 
 
 **NOTE:** Your user should be a "sudoer" to easly complete several ian tasks.
@@ -41,14 +41,14 @@ ian summary
 
 prints information about the current directory Debian package::
 
-  hello-2.9$ ian summary
+  hello-2.10$ ian summary
   source:              hello
-  uptream:             2.9
+  upstream:            2.10
   watch:               2.10
-  version:             2.9-2
-  orig:                ../hello_2.9.orig.tar.gz
-    methods:           uscan from-local
-  changes:             ../hello_2.9-2_i386.changes
+  version:             2.10-2
+  orig:                ../hello_2.10.orig.tar.gz
+  - methods:           uscan from-local
+  changes:             ../hello_2.10-2_amd64.changes
   binaries:            hello
   pkg vcs:             none
 
@@ -65,8 +65,8 @@ create or download the .orig file.
 * orig-from-local: generates .orig from current directory files
 
 
-ian build [-c] [-f] [-i] [-m] [-s]
-----------------------------------
+ian build [-b] [-c] [-f] [-i] [-m] [-s]
+---------------------------------------
 
 compiles Debian sources to generate binary packages.
 
@@ -80,11 +80,14 @@ compiles Debian sources to generate binary packages.
 
 there are several available options:
 
+* **-b**: skip 'source' target. See 'dpkg-buildpackage -b'
 * **-c**: run "ian clean" before "build"
-* **-f**;  force build (even the user is not a package maintainer)
+* **-f**: force build
 * **-i**: run "ian install" after "build"
+* **-l**: creates orig with "ian orig-from-local"
 * **-m**: merge ./debian with upstream .orig. bypassing directory contents
-* **-s**: include full source code at upload
+* **-s**: include full source. See 'dpkg-genchanges -sa'
+
 
 ian clean
 ---------
@@ -123,7 +126,7 @@ use a date based version format for the new package.
 
 * **-i**: increment final version component (like 'dch -i')
 * **-y**: do not ask for release comments
-* **-m**: set comment as CLI argument
+* **-m**: release message for debian/changelog entry
 
 
 ian upload
@@ -174,15 +177,13 @@ ian requires you define some environment variables. An example::
   DEBFULLNAME="John Doe"
   DEBEMAIL=john.doe@email.com
   DEBSIGN_KEYID=D0FE7AFB
-  DEBREPO_URL=john.doe@debian.repository.org/var/repo
+  DEBPOOL=john.doe@debian.repository.org/var/repo
 
 
 The latter two are required only if you want upload you package to a remote Debian
 repository.
 
-ian can load these variables from a **~/.config/ian/config** if you have one.
-
-FIXME: To do
+ian can load these variables from a **~/.config/ian/config**.
 
 
 hooks
