@@ -129,7 +129,7 @@ function cmd:debvars {
 	echo "DEBFULLNAME:  " $DEBFULLNAME
 	echo "DEBEMAIL:     " $DEBEMAIL
 	echo "DEBSIGN_KEYID:" $DEBSIGN_KEYID
-	echo "DEBREPO_URL:  " $DEBREPO_URL
+	echo "DEBPOOL:      " $DEBPOOL
 }
 
 function ian {
