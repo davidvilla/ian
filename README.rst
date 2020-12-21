@@ -66,8 +66,8 @@ create or download the .orig file.
 * orig-from-local: generates .orig from current directory files
 
 
-ian build [-b] [-c] [-f] [-i] [-m] [-s]
----------------------------------------
+ian build
+---------
 
 compiles Debian sources to generate binary packages.
 
@@ -117,17 +117,17 @@ creates a new debian package release. It opens your editor asking for comments.
 
 * **-i**: increment final version component (like 'dch -i')
 * **-y**: do not ask for release comments
-* **-m**: release message for debian/changelog entry
+* **-m** message: release message for debian/changelog entry
 
 
-ian release-date [-i] [-y] [-m message]
-----------------------------------
+ian release-date
+----------------
 
 use a date based version format for the new package.
 
 * **-i**: increment final version component (like 'dch -i')
 * **-y**: do not ask for release comments
-* **-m**: release message for debian/changelog entry
+* **-m** message: release message for debian/changelog entry
 
 
 ian upload
