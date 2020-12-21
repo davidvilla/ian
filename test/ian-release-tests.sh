@@ -91,7 +91,7 @@ function _define-debvars {
 	export DEBFULLNAME="David Villa Alises"
     export DEBEMAIL="David.Villa@gmail.com"
 	export DEBSIGN_KEYID=D0FE7AFB
-	export DEBREPO_URL=debrepo/shared
+	export DEBPOOL=debrepo/shared
 	export EDITOR="nano"
 }
 

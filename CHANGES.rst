@@ -1,3 +1,9 @@
+0.20200908
+==========
+
+* DEBREPO_URL and DEBREPO_LOCAL_DIR are now same variable: DEBPOOL
+
+
 0.20140321
 ==========
 
