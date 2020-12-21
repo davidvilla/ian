@@ -1,2 +1,7 @@
 .vscode/*
 ian-build-deps_*
+*~
+.pc
+debian/tmp
+debian/*.log
+debian/*.substvars

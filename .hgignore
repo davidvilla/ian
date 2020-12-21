@@ -1,7 +1,0 @@
-syntax: glob
-
-*~
-.pc
-debian/tmp
-debian/*.log
-debian/*.substvars
