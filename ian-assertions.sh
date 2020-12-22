@@ -11,13 +11,15 @@ function _debvars-missing {
     exit 1
 }
 
+#FIMXE: move to ian-config.sh
+#FIXME: rename "debvars" to "config"
 function assert-debvars {
     if sc-var-defined DEBREPO_URL; then
-        log-warning "Variable DEBREPO_URL is now deprecated. Rename to DEBPOOL."
+        log-warning "Variable DEBREPO_URL is now deprecated. Rename to DEBPOOL"
     fi
 
     if sc-var-defined DEBREPO_LOCAL_DIR; then
-        log-warning "Variable DEBREPO_LOCAL_DIR is now deprecated. Rename to DEBPOOL."
+        log-warning "Variable DEBREPO_LOCAL_DIR is now deprecated. Rename to DEBPOOL"
     fi
 
     sc-set-trap _debvars-missing

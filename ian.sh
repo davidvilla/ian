@@ -30,7 +30,8 @@
 ##:ian-map:151:vagrant-build
 ##:ian-map:152:vagrant-clean
 
-IAN_CONFIG=$HOME/.config/ian/config
+IAN_LEGACY_CONFIG=$HOME/.config/ian/config
+IAN_CONFIG=$HOME/.config/ian
 IAN_CWD_CONFIG=./.ian
 BUILDOPTIONS=${BUILDOPTIONS:-""}
 TODAY=$(date +%Y%m%d)
@@ -50,14 +51,6 @@ CHECK_ERR_SIGN="$BLUE$ERR_SIGN$NORMAL"
 SU_OUT_SIGN="$RED$OUT_SIGN$NORMAL"
 SU_ERR_SIGN="$RED$ERR_SIGN$NORMAL"
 
-if [ -e $IAN_CONFIG ]; then
-	source $IAN_CONFIG
-fi
-
-if [ -e $IAN_CWD_CONFIG ]; then
-	source $IAN_CWD_CONFIG
-fi
-
 __file__=$0
 __cmd__=$1
 shift
@@ -69,6 +62,9 @@ LANG=C
 
 source $IAN_ROOT/shell-commodity.sh
 source $IAN_ROOT/ian-util.sh
+source $IAN_ROOT/ian-config.sh
+load-config
+
 source $IAN_ROOT/ian-exec.sh
 source $IAN_ROOT/ian-assertions.sh
 source $IAN_ROOT/ian-path.sh
@@ -85,52 +81,6 @@ source $IAN_ROOT/ian-repo.sh
 source $IAN_ROOT/ian-clean.sh
 source $IAN_ROOT/ian-vagrant.sh
 
-
-#FIXME: generate missing lines in ~/.config/ian/config
-function cmd:debvars-newbie {
-	local TMP=$(mktemp)
-	local need_vars=false
-
-	if ! sc-var-defined DEBFULLNAME; then
-		echo "DEBFULLNAME=$USERNAME" >> $TMP
-		log-warning "exporting placeholder 'DEBFULLNAME=$USERNAME'"
-		need_vars=true
-	fi
-
-	if ! sc-var-defined DEBEMAIL; then
-		fakemail="$LOGNAME@$HOSTNAME"
-		echo "DEBEMAIL=\"$fakemail\"" >> $TMP
-		log-warning "exporting placeholder 'DEBEMAIL=$fakemail'"
-		need_vars=true
-	fi
-
-	if ! sc-var-defined DEBSIGN_KEYID; then
-		fakeid="DEADBEE"
-		echo "DEBSIGN_KEYID=$fakeid" >> $TMP
-		log-warning "exporting placeholder 'DEBSIGN_KEYID=$fakeid'"
-		need_vars=true
-	fi
-
-	if ! sc-var-defined DEBPOOL; then
-		fakepath="$USERNAME@your.server.net/path/to/repo"
-		echo "DEBPOOL=$fakepath" >> $TMP
-		log-warning "exporting placeholder 'DEBPOOL=$fakepath'"
-		need_vars=true
-	fi
-
-	if [ "$need_vars" = false ]; then
-		log-info "Your environment is already right. You don't seem a newbie."
-	else
-		log-warning "run: 'cat $TMP >> $IAN_CONFIG', make your changes and retry."
-	fi
-}
-
-function cmd:debvars {
-	echo "DEBFULLNAME:  " $DEBFULLNAME
-	echo "DEBEMAIL:     " $DEBEMAIL
-	echo "DEBSIGN_KEYID:" $DEBSIGN_KEYID
-	echo "DEBPOOL:      " $DEBPOOL
-}
 
 function ian {
 	if [[ -z "$__cmd__" ]]; then

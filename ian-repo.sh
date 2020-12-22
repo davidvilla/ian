@@ -14,7 +14,7 @@ function cmd:upload {
 
 	local retval=0
 
-	log-info "Debian pool is: $DEBPOOL"
+	log-info "Debian pool: $DEBPOOL"
 
     for changes_path in $(_postbuild-changes-filenames); do
 		_create-dupload-config
