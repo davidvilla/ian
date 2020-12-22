@@ -5,3 +5,4 @@ ian-build-deps_*
 debian/tmp
 debian/*.log
 debian/*.substvars
+.vagrant/*

@@ -20,20 +20,21 @@ function quilt-pop {
 
 function cmd:build {
 ##:040:cmd:build all binary packages
-##:040:usage:ian build [-b] [-c] [-f] [-i] [-m] [-s]
+##:040:usage:ian build [-b] [-c] [-f] [-i] [-m] [-s] [-x]
 ##:040:usage:  -b;  skip 'source' target. See 'dpkg-buildpackage -b'
-##:040:usage:  -c;  run "ian clean" before "build"
+##:040:usage:  -c;  run "ian clean" then "build"
 ##:040:usage:  -f;  force build
-##:040:usage:  -i;  run "ian install" after "build"
+##:040:usage:  -i;  run "ian build" then "install"
 ##:040:usage:  -l;  creates orig with "ian orig-from-local"
 ##:040:usage:  -m;  merge ./debian with upstream .orig. bypassing directory contents
 ##:040:usage:  -s;  include full source. See 'dpkg-genchanges -sa'
+##:040:usage:  -x;  skip lintian
 
 
     local clean=false build_binary=false force=false install=false local=false merge=false include_source=false
     local OPTIND=1 OPTARG OPTION
 
-    while getopts :bcfilms OPTION "${__args__[@]}"; do
+    while getopts :bcfilmsx OPTION "${__args__[@]}"; do
 		case $OPTION in
 			b)
 				build_binary=true ;;
@@ -49,6 +50,8 @@ function cmd:build {
 				merge=true ;;
 			s)
 				include_source=true ;;
+			x)
+			    skip_lintian=true ;;
 			\?)
 				echo "invalid option: -$OPTARG"
 				exit 1 ;;
@@ -100,9 +103,13 @@ function cmd:build {
 		fi
 		sc-clear-trap
 
-		changes=$(changes-path)
-		log-info "lintian $changes"
-		ian-run "unbuffer lintian -I $changes"
+        if [ "$skip_lintian" = true ]; then
+		    log-info "lintian was skipped as requested"
+		else
+		    changes=$(changes-path)
+		    log-info "lintian $changes"
+		    ian-run "unbuffer lintian -I $changes"
+		fi
 
 		sc-assert-files-exist $(binary-paths)
 		log-ok "build"
