@@ -4,6 +4,8 @@ ian
 
 *simple tool for lazy Debian package maintainers*
 
+``ìan`` is essentially a frontend for several official Debian packaging tools.
+
 
 at a glance
 ===========
@@ -22,18 +24,17 @@ Compiling a simple package with **ian**::
   -rw-r--r--  1 david david 730504 oct 31 16:02 ../hello_2.10.orig.tar.gz
 
 
-**NOTE:** Your user should be a "sudoer" to easly complete several ian tasks.
+**NOTE:** Your user should be a "sudoer" to easly complete several ``ian`` tasks.
 
 
 commands
 ========
 
 
-ian help
---------
+ian help [command]
+------------------
 
 show help about the specified command.
-
 
 
 ian summary
@@ -47,7 +48,7 @@ prints information about the current directory Debian package::
   watch:               2.10
   version:             2.10-2
   orig:                ../hello_2.10.orig.tar.gz
-  - methods:           uscan from-local
+  orig methods:        uscan from-local
   changes:             ../hello_2.10-2_amd64.changes
   binaries:            hello
   pkg vcs:             none
@@ -60,13 +61,13 @@ create or download the .orig file.
 
 **ian** chooses between these backends (all of them are commands too):
 
-* orig-uscan:      download latest upstream with uscan
+* orig-uscan:      download latest upstream with ``uscan``
 * orig-from-rule:  execute the rule "get-orig" in the debian/rules
 * orig-from-local: generates .orig from current directory files
 
 
-ian build [-b] [-c] [-f] [-i] [-m] [-s]
----------------------------------------
+ian build
+---------
 
 compiles Debian sources to generate binary packages.
 
@@ -116,31 +117,32 @@ creates a new debian package release. It opens your editor asking for comments.
 
 * **-i**: increment final version component (like 'dch -i')
 * **-y**: do not ask for release comments
-* **-m**: set comment as CLI argument
+* **-m** message: release message for debian/changelog entry
 
 
-ian release-date [-i] [-y] [-m message]
-----------------------------------
+ian release-date
+----------------
 
 use a date based version format for the new package.
 
 * **-i**: increment final version component (like 'dch -i')
 * **-y**: do not ask for release comments
-* **-m**: release message for debian/changelog entry
+* **-m** message: release message for debian/changelog entry
 
 
 ian upload
 ----------
 
-upload binary packages to a remote package repository.
+upload binary packages to the configured package repository.
 
-* runs debsign and dupload
+* run ``debsign``
+* configure and run ``dupload``
 
 
 ian remove
 ----------
 
-remove package from a remote package repository.
+remove package from the configured package repository.
 
 * **-y**: do not ask for confirmation
 
@@ -183,13 +185,13 @@ ian requires you define some environment variables. An example::
 The latter two are required only if you want upload you package to a remote Debian
 repository.
 
-ian can load these variables from a **~/.config/ian/config**.
+``ian`` can load these variables from a **~/.config/ian/config**.
 
 
 hooks
 =====
 
-ian may execute user provided shell functions AFTER important events in the process. Allowed hooks are:
+ian may execute user provided shell functions at important events in the process. Allowed hooks are:
 
 * ian-clean-hook
 * ian-release-hook
