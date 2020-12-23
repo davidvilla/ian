@@ -36,6 +36,9 @@ ian help [command]
 
 show help about the specified command.
 
+if you just exec ``ian help``, you get a command summary::
+
+
 
 ian summary
 -----------
@@ -153,8 +156,8 @@ ian binary-contents
 list files on generated binary packages.
 
 
-ian list-products
------------------
+ian ls
+------
 
 list all generated files
 
@@ -198,8 +201,11 @@ ian may execute user provided shell functions at important events in the process
 * ian-build-start-hook
 * ian-build-end-hook
 * ian-install-hook
+* ian-upload-start-hook
+* ian-run ian-upload-end-hook
+* ian-run ian-remove-hook
 
-You may provide these functions in your **~/.config/ian/config** file or the project **.ian** file.
+You may provide these functions in your **~/.config/ian** file or the by-project **.ian** file.
 
 
 Compiling i386 packages in a amd64 computer
