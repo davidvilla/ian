@@ -13,9 +13,6 @@
 
 #- actions -
 ##:ian-map:015:orig
-##:ian-map:016:orig-from-local
-##:ian-map:017:orig-from-rule
-##:ian-map:018:orig-uscan
 ##:ian-map:020:release
 ##:ian-map:021:release-date
 ##:ian-map:030:clean
