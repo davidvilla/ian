@@ -219,7 +219,7 @@ Compiling i386 packages in a amd64 computer
   $ ian vagrant-clean
 
 
-Sign and upload cross-compiled packages
+Sign and upload externally compiled packages
 ==============================
 
 You may upload binaries compiled in a different architecture (ie: RPi armhf) from your desktop computer. You need:
