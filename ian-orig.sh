@@ -6,31 +6,59 @@
 # - uscan
 # - from "local" files
 function cmd:orig {
-##:015:cmd:generate or download the .orig. file
+##:015:cmd:generate or download the .orig. file (see 'ian help orig')
+##:015:usage:ian orig [mode]
+##:015:usage:  mode;    the way to create orig [rule|uscan|local]
+##:015:usage:
+##:015:usage:  - rule;  run debian/rules "get-orig-source" rule to get/build .orig.
+##:015:usage:  - uscan; run uscan to download the .orig.
+##:015:usage:  - local; create an .orig. from current directory contents.
 
+    local mode="${__args__[@]}"
     assert-no-more-args
+
+	  if [ -f $(orig-path) ]; then
+	      log-error "orig $(orig-path) is present"
+	      return
+	  fi
+
+    echo "--->" $mode
+
+    if [ -z $mode ]; then
+        local mode=$(_detect-orig-mode)
+        log-ok "aplying detected orig mode: $mode"
+    else
+        log-info "orig mode: $mode"
+    fi
+
+    case $mode in
+    rule)
+    local orig_func="orig-from-rule"
+    ;;
+
+    uscan)
+    local orig_func="orig-uscan"
+    ;;
+
+    local)
+    local orig_func="orig-from-local"
+    ;;
+
+    *)
+    log-error "wrong orig mode: $mode. See 'ian help orig'"
+    exit 1
+    ;;
+    esac
 
     (
     assert-preconditions
-	if [ -f $(orig-path) ]; then
-	    log-warning "orig $(orig-path) is present"
-	    return
-	fi
+	  if [ ! -f $(orig-path) ]; then
+	      log-warning "missing orig '$(orig-path)', getting/creating it"
+	  fi
+    cmd:clean
+    sc-assure-dir $(orig-dir)
 
-	log-warning "orig $(orig-path) DOES NOT exist, getting/creating it"
-
-	cmd:clean
-
-	sc-assure-dir $(orig-dir)
-	log-info "orig"
-
-    if _has-rule get-orig-source; then
-		cmd:orig-from-rule
-    elif valid-watch-present; then
-		cmd:orig-uscan
-    else
-		cmd:orig-from-local
-    fi
+    $orig_func
 
     sc-assert-files-exist $(orig-path)
     log-ok "orig"
@@ -38,36 +66,33 @@ function cmd:orig {
 }
 
 function cmd:orig-from-rule {
-##:017:cmd:run debian/rules "get-orig-source" rule to get .orig.
-    assert-no-more-args
-    assert-preconditions
+    log-warning "command orig-from-rule is deprecated. Use 'ian orig rule'"
+}
 
-    log-info "orig-from-rule"
-    cmd:clean
+function cmd:orig-uscan {
+    log-warning "command orig-uscan is deprecated. Use 'ian orig uscan'"
+}
+
+function cmd:orig-from-local {
+    log-warning "command orig-from-local is deprecated. Use 'ian orig local'"
+}
+
+
+function orig-from-rule {
+    sc-assert _has-rule get-orig-source "missing 'get-orig-source' in 'debian/rules'"
 
     check-run "make -f ./debian/rules get-orig-source"
     mv -v $(orig-filename) $(orig-dir)/
 }
 
 # http://people.debian.org/~piotr/uscan-dl
-function cmd:orig-uscan {
-##:018:cmd:run uscan to download the .orig.
-    assert-no-more-args
-    assert-preconditions
-
+function orig-uscan {
     _assert-valid-watch
-    log-info "orig-uscan"
+
     check-run "uscan --verbose --download-current-version --force-download --repack --rename --destdir $(orig-dir)"
 }
 
-function cmd:orig-from-local {
-##:016:cmd:create an .orig. from current directory content
-    assert-no-more-args
-    assert-preconditions
-
-    log-info "orig-from-local"
-    cmd:clean
-
+function orig-from-local {
     local orig_tmp=$(upstream-fullname)
     mkdir -p $orig_tmp
 
@@ -76,7 +101,7 @@ function cmd:orig-from-local {
     tar $EXCLUDE -cf - . | ( cd $orig_tmp && tar xf - )
     tar czf $(orig-path) $orig_tmp
     \rm -rf $orig_tmp
-	log-ok "orig file created: $(orig-path)"
+	  log-ok "orig file created: $(orig-path)"
 }
 
 # clean, orig
@@ -93,22 +118,26 @@ function orig-path {
     echo $(orig-dir)/$(orig-filename)
 }
 
+function _detect-orig-mode {
+    echo $(orig-modes) | awk '{print $1;}'
+}
+
 # summary
-function orig-methods {
+function orig-modes {
     if _has-rule get-orig-source; then
-		methods[0]='from-rule'
+		methods[0]='rule'
     fi
     if valid-watch-present; then
 		methods[1]='uscan'
     fi
-    if [ $(ls | wc -l) -gt 1 ]; then
-		methods[2]='from-local'
-    fi
+    # if [ $(ls | wc -l) -gt 1 ]; then
+		methods[2]='local'
+    # fi
 
-    if [ ${#methods[@]} -eq 0 ]; then
-		echo "none!"
-		return
-    fi
+    # if [ ${#methods[@]} -eq 0 ]; then
+		# echo "none!"
+		# return
+    # fi
 
     echo "${methods[@]}"
 }
