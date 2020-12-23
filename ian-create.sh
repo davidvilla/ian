@@ -20,7 +20,7 @@ function cmd:create() {
     mkdir -p debian/source
     echo "3.0 (quilt)" > ./debian/source/format
     # echo "compression = \"gzip\"" > ./debian/source/options
-    echo 10 > ./debian/compat
+    # echo 10 > ./debian/compat
 
     _create-control "$pkgname"
     _create-rules
