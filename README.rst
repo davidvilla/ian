@@ -219,6 +219,33 @@ Compiling i386 packages in a amd64 computer
   $ ian vagrant-clean
 
 
+Sign and upload cross-compiled packages
+==============================
+
+You may upload binaries compiled in a different architecture (ie: RPi armhf) from your desktop computer. You need:
+
+* The same ``debian`` directory and same ``changelog`` version
+* Package compiled files in parent directory.
+
+::
+
+  foo/
+    mypackage_0.20201223.orig.tar.gz
+    mypackage_0.20201223-1_armhf.buildinfo
+    mypackage_0.20201223-1_armhf.changes
+    mypackage_0.20201223-1_armhf.deb
+    mypackage_0.20201223-1_armhf.upload
+    mypackage_0.20201223-1.debian.tar.gz
+    mypackage_0.20201223-1.dsc
+    mypackage_0.20201223.orig.tar.gz
+    mypackage/
+      debian/
+           
+Then, at your desktop (amd64), just upload indicating package architecture::
+
+  foo/mypackage$ ian upload armhf
+
+
 Similar software
 ================
 
