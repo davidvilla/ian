@@ -2,9 +2,9 @@
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
 
 function clean {
-	sudo dpkg -r hello-ian
-	ian clean
-	rm -rf ./debian test
+    sudo dpkg -r hello-ian
+    ian clean
+    rm -rf ./debian
 }
 
 clean
