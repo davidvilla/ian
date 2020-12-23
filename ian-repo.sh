@@ -3,10 +3,20 @@
 
 function cmd:upload {
 ##:090:cmd:sign and upload binary packages to the configured pool
-##:090:usage:ian upload [nickname]
-##:090:usage:  nickname;  upload to nickname'd host (see dupload -t option)
+##:090:usage:ian upload [arch]
+##:090:usage:  arch;  overwrite detected package architecture, for a cross-compiled package.
 
-	local nickname="${__args__[@]}"
+
+	local arch="${__args__[@]}"
+
+	if [ ! -z "$arch" ]; then
+        log-warning "looking for cross-compiled package with arch '$arch'"
+
+		# monkey-patch detected arch
+        function _binary-arch() {
+			echo "$arch"
+		}
+	fi
 
 	assert-preconditions
 	sc-assert-deb-pkgs-installed reprepro
@@ -18,7 +28,7 @@ function cmd:upload {
 
     for changes_path in $(_postbuild-changes-filenames); do
 		_create-dupload-config
-		_do-upload $changes_path $nickname
+		_do-upload $changes_path
 		if [ $? -ne 0 ]; then
 			retval=1
 		fi
@@ -88,9 +98,6 @@ EOF
 
 function _do-upload {
     local changes_path="$1"
-	local nickname="$2"
-
-	nickname=${nickname:+"-t $nickname"}
 
     (
 	# sc-assert-files-exist ~/.gnupg/secring.gpg
@@ -102,7 +109,8 @@ function _do-upload {
 		sc-assert-run "LANG=$NATIVE_LANG debsign -k$DEBSIGN_KEYID --no-re-sign $changes_path"
 
 		local -a outputs
-		sc-call-out-err outputs "dupload -c $(_dupload-filename) -f $changes_path $nickname"
+		sc-call-out-err outputs "dupload -c $(_dupload-filename) -f $changes_path"
+		echo "dupload -c $(_dupload-filename) -f $changes_path"
 		local rcode=$?
 
 		if [ $rcode -eq 0 ]; then
@@ -150,10 +158,10 @@ function _check-dupload-errors {
     elif _file-contains "$stderr" "$ORIG_ALREADY_REGISTERED"; then
 		sc-log-error "1. orig already uploaded! Try 'ian build -b' and upload again"
 		if [ $(debian-release) -ne 1 ]; then
-			sc-log-error "2. different orig already uploaded! Create a new release"
+			sc-log-error "different orig already uploaded! Create a new release."
 		fi
     elif _file-contains "$stderr" "$DEB_ALREADY_REGISTERED"; then
-		sc-log-error "deb already uploaded! Create a new release"
+		sc-log-error "deb already uploaded! Create a new release."
     fi
 
     return 1
@@ -199,7 +207,7 @@ function cmd:remove {
     assert-no-more-args $OPTIND
 
     echo "Listing pool files in '$DEBPOOL' for package '$(package)':"
-    cmd:pool-list
+    cmd:pool-ls
     echo
 
     if [ $quiet = false ]; then
@@ -266,8 +274,9 @@ function _pool-path {
     )
 }
 
-function cmd:pool-list {
-# list related packages in the public pool repository
+function cmd:pool-ls {
+##:101:cmd:list related packages in the configured pool repository
+##:101:usage:ian pool-ls [-y]
 
     for pkg in $(sc-filter-dups $(binary-names) $(dbgsym-names) $(package)); do
 		_reprepro-cmd list sid $pkg

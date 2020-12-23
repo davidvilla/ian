@@ -1,7 +1,13 @@
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
 
 function cmd:list-products {
-##:200:cmd:list product files
+	log-warning "\"list-products\" is deprecated. Use \"ian ls\""
+	cmd:ls
+}
+
+
+function cmd:ls {
+##:150:cmd:list generated files
 
     assert-preconditions
     _product-filenames
