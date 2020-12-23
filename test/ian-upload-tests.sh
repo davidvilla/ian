@@ -8,7 +8,7 @@ function test-deb-already-registered {
 	# same upstream-version and debian-release but different package contents
 
 	cd test/fixtures/upload-issues
-	hg revert debian
+	git checkout debian 2> /dev/null
 	ian remove -y
 
 	echo 1 > content
@@ -27,7 +27,7 @@ function test-orig-not-yet-registered {
 	# Upload a -2 version with no previous upload, so no sources in the pool
 
 	cd test/fixtures/upload-issues
-	hg revert debian
+	git checkout debian 2> /dev/null
 	ian remove -y
 
 	echo 1 > content
@@ -43,7 +43,7 @@ function test-orig-already-registered {
 	# A different orig was uploaded for the same upstream version
 
 	cd test/fixtures/upload-issues
-	hg revert debian
+    git checkout debian 2> /dev/null
 	ian remove -y
 
 	echo 1 > content

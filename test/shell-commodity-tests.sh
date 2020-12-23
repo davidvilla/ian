@@ -76,6 +76,19 @@ function test-not-equals {
 	sc-assert-not-equals "test output" "other output"
 }
 
+function test-call-out-err {
+    local -a outputs
+    sc-call-out-err outputs ./test/write_out_err.py
+
+    local stdout=${outputs[1]}
+    local stderr=${outputs[2]}
+
+    local stdout_content=$(cat $stdout)
+    local stderr_content=$(cat $stderr)
+
+	sc-assert "[ $stdout_content == stdout-write ]"
+	sc-assert "[ $stderr_content == stderr-write ]"
+}
 
 
 run-testsuit
