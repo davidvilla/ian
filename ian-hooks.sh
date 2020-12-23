@@ -2,61 +2,61 @@
 #-- hooks ------------------------------------------------------------
 
 function notify-clean {
-    if sc-function-exists ian-clean-hook; then
+    if ! sc-var-defined IAN_DISABLE_HOOKS && sc-function-exists ian-clean-hook; then
 		log-info "exec ian-clean-hook"
 		ian-run ian-clean-hook
     fi
 }
 
 function notify-release {
-    if sc-function-exists ian-release-hook; then
+    if ! sc-var-defined IAN_DISABLE_HOOKS && sc-function-exists ian-release-hook; then
 		log-info "exec ian-release-hook"
 		ian-run ian-release-hook
     fi
 }
 
 function notify-build-start {
-    if sc-function-exists ian-build-start-hook; then
+    if ! sc-var-defined IAN_DISABLE_HOOKS && sc-function-exists ian-build-start-hook; then
 		log-info "exec ian-build-start-hook"
 		ian-run ian-build-start-hook
     fi
 }
 
 function notify-build-end {
-    if sc-function-exists ian-build-end-hook; then
+    if ! sc-var-defined IAN_DISABLE_HOOKS && sc-function-exists ian-build-end-hook; then
 		log-info "exec ian-build-end-hook"
 		ian-run ian-build-end-hook
     fi
 
-    if sc-function-exists ian-build-hook; then
+    if ! sc-var-defined IAN_DISABLE_HOOKS && sc-function-exists ian-build-hook; then
 		log-info "exec ian-build-end-hook"
 		ian-run ian-build-hook
     fi
 }
 
 function notify-install {
-    if sc-function-exists ian-install-hook; then
+    if ! sc-var-defined IAN_DISABLE_HOOKS && sc-function-exists ian-install-hook; then
 		log-info "exec ian-install-hook"
 		ian-run ian-install-hook
     fi
 }
 
 function notify-upload-start {
-    if sc-function-exists ian-upload-start-hook; then
+    if ! sc-var-defined IAN_DISABLE_HOOKS && sc-function-exists ian-upload-start-hook; then
 		log-info "exec ian-upload-start-hook"
 		ian-run ian-upload-start-hook
     fi
 }
 
 function notify-upload-end {
-    if sc-function-exists ian-upload-end-hook; then
+    if ! sc-var-defined IAN_DISABLE_HOOKS && sc-function-exists ian-upload-end-hook; then
 		log-info "exec ian-upload-end-hook"
 		ian-run ian-upload-end-hook
     fi
 }
 
 function notify-remove {
-    if sc-function-exists ian-remove-hook; then
+    if ! sc-var-defined IAN_DISABLE_HOOKS && sc-function-exists ian-remove-hook; then
 		log-info "exec ian-remove-hook"
 		ian-run ian-remove-hook
     fi
