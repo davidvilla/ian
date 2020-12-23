@@ -60,4 +60,6 @@ function assert-no-more-args {
 		log-error "unexpected arguments: $remaining"
 		exit 1
 	fi
+
+    __args__=""
 }

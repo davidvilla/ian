@@ -3,8 +3,8 @@
 function cmd:release {
 ##:020:cmd:add a new changelog entry
 ##:020:usage:ian release [-i] [-y] [-m release-message]
-##:020:usage:  -i;      increment final version component (like 'dch -i')
-##:020:usage:  -y;      do not ask for a release message
+##:020:usage:  -i;      increment debian version suffix (like 'dch -i')
+##:020:usage:  -y;      don't ask for a release message
 ##:020:usage:  -m MSG;  release message for debian/changelog entry
 
     local quiet=false msg="New release" revision=false

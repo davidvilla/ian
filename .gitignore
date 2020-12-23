@@ -3,6 +3,10 @@ ian-build-deps_*
 *~
 .pc
 debian/tmp
+debian/files
 debian/*.log
 debian/*.substvars
+debian/.debhelper
+debian/ian
+debian/debhelper*
 .vagrant/*

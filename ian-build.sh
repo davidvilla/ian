@@ -75,7 +75,7 @@ function cmd:build {
 		fi
 
 		if [ "$clean" = true ]; then
-			# cmd:clean
+			# force orig create
 			rm -f $(orig-path)
 		fi
 
@@ -203,7 +203,7 @@ function _assert-user-is-uploader {
 		return 0
 	fi
 
-	log-error "User '$DEBEMAIL' is NOT an uploader! You can't upload the resulting package."
+	log-error "User '$DEBEMAIL' is NOT an uploader! You won't be able to upload the resulting package."
 	_check-force
 }
 
@@ -217,7 +217,7 @@ function _assert-user-last-changelog-entry {
 		return 0
 	fi
 
-	log-error "User '$DEBEMAIL' does NOT own the current changelog entry!. You won't be able to upload the package."
+	log-error "User '$DEBEMAIL' does NOT own the current changelog entry!. You won't be able to upload the resulting package."
 	_check-force
 }
 

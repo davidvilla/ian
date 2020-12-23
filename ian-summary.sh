@@ -14,7 +14,7 @@ function cmd:summary {
     fi
     echo "version:            " $(debian-version)
     echo "orig:               " $(orig-path)
-    echo "orig methods:       " $(orig-methods)
+    echo "orig modes:         " $(orig-modes)
     echo "changes:            " $(changes-path)
     echo "binaries:           " $(binary-names)
     echo "pkg vcs:            " $(_pkg-vcs)
