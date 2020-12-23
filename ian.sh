@@ -9,7 +9,7 @@
 ##:ian-map:010:summary
 ##:ian-map:012:config
 ##:ian-map:060:binary-contents
-##:ian-map:200:list-products
+##:ian-map:150:ls
 
 #- actions -
 ##:ian-map:015:orig
@@ -24,11 +24,12 @@
 ##:ian-map:070:install
 ##:ian-map:090:upload
 ##:ian-map:100:remove
+##:ian-map:101:pool-ls
 ##:ian-map:120:create
 ##:ian-map:140:lintian-fix
-##:ian-map:150:vagrant-gen-files
-##:ian-map:151:vagrant-build
-##:ian-map:152:vagrant-clean
+##:ian-map:200:vagrant-gen-files
+##:ian-map:201:vagrant-build
+##:ian-map:202:vagrant-clean
 
 IAN_LEGACY_CONFIG=$HOME/.config/ian/config
 IAN_CONFIG=$HOME/.config/ian

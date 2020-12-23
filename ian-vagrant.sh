@@ -5,7 +5,7 @@
 VAGRANT_FILES="Vagrantfile playbook.yml"
 
 function cmd:vagrant-gen-files {
-##:150:cmd:generate vagrant related files to boxed compilation
+##:200:cmd:generate vagrant related files to boxed compilation
     assert-no-more-args
 
     (
@@ -20,7 +20,7 @@ function cmd:vagrant-gen-files {
 }
 
 function cmd:vagrant-build {
-##:151:cmd:build package in the vagrant boxes
+##:201:cmd:build package in the vagrant boxes
     assert-no-more-args
 
     (
@@ -39,7 +39,7 @@ function cmd:vagrant-build {
 }
 
 function cmd:vagrant-clean {
-##:152:cmd:remove vagrant related files
+##:202:cmd:remove vagrant related files
     assert-no-more-args
 
     (
