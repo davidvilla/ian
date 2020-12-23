@@ -10,7 +10,8 @@ DOCDIR=$(DESTDIR)/usr/share/doc
 clean:
 	$(RM) $(shell find -name *~)
 
-# export DEBUG=true
+export DEBUG=true
+tests: export DEBPOOL=$HOME/repos/ian-test-pool/docs
 tests:
 	test/shell-commodity-tests.sh
 	test/ian-release-tests.sh
