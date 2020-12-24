@@ -1,0 +1,18 @@
+Source: two-binaries
+Section: utils
+Priority: optional
+Maintainer: David Villa Alises <David.Villa@gmail.com>
+Build-Depends: debhelper (>= 7.0.50~), debhelper-compat (= 11), quilt
+Standards-Version: 4.5.0
+
+Package: two-binaries-1
+Architecture: all
+Depends: ${misc:Depends}
+Description: FIXME: Short description of the two-binaries package
+ FIXME: long description about the basic features of the two-binaries package
+
+Package: two-binaries-2
+Architecture: all
+Depends: ${misc:Depends}
+Description: FIXME: Short description of the two-binaries package
+ FIXME: long description about the basic features of the two-binaries package
