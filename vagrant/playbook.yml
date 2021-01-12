@@ -17,4 +17,4 @@
       file: path=/home/vagrant/.config/ian state=directory
 
     - name: copy ian config
-      copy: src=~/.config/ian/config dest=/home/vagrant/.config/ian/config
+      copy: src=~/.config/ian dest=/home/vagrant/.config/ian

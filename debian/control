@@ -2,7 +2,7 @@ Source: ian
 Section: shells
 Priority: optional
 Maintainer: David Villa Alises <David.Villa@gmail.com>
-Build-Depends: debhelper (>= 7.0.50~), quilt, python-docutils
+Build-Depends: debhelper (>= 7.0.50~), quilt, python3-docutils
 Standards-Version: 4.5.0
 Homepage: https://bitbucket.org/DavidVilla/ian
 
@@ -12,7 +12,7 @@ Depends: ${misc:Depends}, quilt, gnupg,
 	 dupload, build-essential, sudo,
 	 devscripts, equivs,
 	 libwww-perl, bc,
-	 unzip, xz-utils, openssh-client, expect, python
+	 unzip, xz-utils, openssh-client, expect, python3
 Suggests: vagrant, virtualbox, ansible, reprepro
 Replaces: arco-devel (<< 0.20141029-1)
 Breaks: arco-devel (<< 0.20141029-1)
