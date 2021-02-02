@@ -36,6 +36,9 @@ ian help [command]
 
 show help about the specified command.
 
+if you just exec ``ian help``, you get a command summary::
+
+
 
 ian summary
 -----------
@@ -153,8 +156,8 @@ ian binary-contents
 list files on generated binary packages.
 
 
-ian list-products
------------------
+ian ls
+------
 
 list all generated files
 
@@ -198,8 +201,11 @@ ian may execute user provided shell functions at important events in the process
 * ian-build-start-hook
 * ian-build-end-hook
 * ian-install-hook
+* ian-upload-start-hook
+* ian-run ian-upload-end-hook
+* ian-run ian-remove-hook
 
-You may provide these functions in your **~/.config/ian/config** file or the project **.ian** file.
+You may provide these functions in your **~/.config/ian** file or the by-project **.ian** file.
 
 
 Compiling i386 packages in a amd64 computer
@@ -217,6 +223,33 @@ Compiling i386 packages in a amd64 computer
   vagrant ssh i386 -c "cd /vagrant/<package-directory>; ian build -bm"
 
   $ ian vagrant-clean
+
+
+Sign and upload externally compiled packages
+==============================
+
+You may upload binaries compiled in a different architecture (ie: RPi armhf) from your desktop computer. You need:
+
+* The same ``debian`` directory and same ``changelog`` version
+* Package compiled files in parent directory.
+
+::
+
+  foo/
+    mypackage_0.20201223.orig.tar.gz
+    mypackage_0.20201223-1_armhf.buildinfo
+    mypackage_0.20201223-1_armhf.changes
+    mypackage_0.20201223-1_armhf.deb
+    mypackage_0.20201223-1_armhf.upload
+    mypackage_0.20201223-1.debian.tar.gz
+    mypackage_0.20201223-1.dsc
+    mypackage_0.20201223.orig.tar.gz
+    mypackage/
+      debian/
+           
+Then, at your desktop (amd64), just upload indicating package architecture::
+
+  foo/mypackage$ ian upload armhf
 
 
 Similar software

@@ -109,7 +109,7 @@ function ian-help-setup {
 New maintainer process
 ----------------------
 
-- Define environment variables in your '~/.config/ian/config'
+- Define environment variables in your '~/.config/ian'
   (run: ian-help-debvars-examples)
 
 - Create a GPG key pair: gpg --gen-key)
@@ -153,7 +153,7 @@ EOF
 }
 
 function ian-help-debvars-examples {
-	log-info "define variables bellow in your '~/.config/ian/config' using your info:"
+	log-info "define variables bellow in your '~/.config/ian' with your info:"
     cat <<EOF
 DEBFULLNAME="John Doe"
 DEBEMAIL=john.doe@email.com

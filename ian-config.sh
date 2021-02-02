@@ -39,7 +39,7 @@ function load-config-files {
     fi
 }
 
-#FIXME: generate missing lines in ~/.config/ian/config
+#FIXME: generate missing lines in ~/.config/ian
 function cmd:debvars-newbie {
 	local TMP=$(mktemp)
 	local need_vars=false
