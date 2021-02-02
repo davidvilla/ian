@@ -1,7 +1,7 @@
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
 
 function cmd:list-products {
-	log-warning "\"list-products\" is deprecated. Use \"ian ls\""
+	(>&2 log-warning "command \"list-products\" is DEPRECATED. Use \"ian ls\"")
 	cmd:ls
 }
 
@@ -10,13 +10,17 @@ function cmd:ls {
 ##:150:cmd:list generated files
 
     assert-preconditions
-    _product-filenames
-    _binary-filenames
+	_product-filenames
+#    _binary-filenames
+
+	if ! _some-product; then
+        log-error "package was not built yet"
+	fi
 }
 
 function _binary-filenames {
     for pkg in $(binary-names); do
-	echo ${pkg}_$(debian-version)_$(_binary-arch $pkg).deb
+        echo ${pkg}_$(debian-version)_$(_binary-arch $pkg).deb
     done
 }
 
@@ -27,7 +31,7 @@ function _binary-filenames {
 function binary-paths {
     local build_path=".."
     for fname in $(_binary-filenames); do
-	echo $build_path/$fname
+        echo $build_path/$fname
     done
 }
 
@@ -50,18 +54,18 @@ function dsc-filename {
 #     echo $(build-dir)/$(dsc-filename)
 # }
 
-function _debian-source-filename {
-	local pattern="$deb_prefix.debian.tar.*"
-	local found=
-
-	found=$(ls $(build-dir)/$pattern 2> /dev/null)
-	if [ $? -ne 0 ]; then
-		echo $pattern
-		return
-	fi
-
-	echo $(basename $found)
-}
+# function _debian-source-filename {
+#     local pattern="$deb_prefix.debian.tar.*"
+#     local found=
+#
+#     found=$(ls $(build-dir)/$pattern 2> /dev/null)
+#     if [ $? -ne 0 ]; then
+#     	echo $pattern
+#     	return
+#     fi
+#
+#     echo $(basename $found)
+# }
 
 # clean
 function product-paths {
@@ -70,19 +74,45 @@ function product-paths {
     done
 }
 
+# function _product-filenames-old {
+#     orig-filename
+#     changes-filename
+#     dsc-filename
+#     local deb_prefix=$(package)_$(debian-version)
+#     _debian-source-filename
+#     echo $deb_prefix.diff.gz
+#     echo $deb_prefix.upload
+# }
+
 function _product-filenames {
-	orig-filename
-	changes-filename
-	dsc-filename
-	local deb_prefix=$(package)_$(debian-version)
-	_debian-source-filename
-	echo $deb_prefix.diff.gz
-	echo $deb_prefix.upload
+	for pattern in $(_product-patterns); do
+	    if ls $(build-dir)/$pattern > /dev/null 2>&1; then
+	        basename $(ls $(build-dir)/$pattern)
+			some=true
+		fi
+	done
+}
+
+function _some-product {
+    [ -z "$(_product-filenames)" ] && return 1 || return 0
+}
+
+function _product-patterns {
+	echo $(package)_$(upstream-version).orig.tar.gz
+	echo $(package)_$(debian-version)_$(host-arch).upload
+    echo $(package)_$(debian-version)_$(host-arch).changes
+	echo $(package)_$(debian-version)_$(host-arch).buildinfo
+	echo $(package)_$(debian-version).dsc
+	echo $(package)_$(debian-version).debian.tar.*
+	echo $(package)_$(debian-version).diff.gz
+	for fname in $(_binary-filenames); do
+        echo $fname
+	done
 }
 
 function _binary-arch {
-    # $1: package name
-    if [ $(_control-arch $1) == "all" ]; then
+	local package_name=$1
+    if [ $(_control-arch $package_name) == "all" ]; then
 		echo "all"
     else
 		host-arch
