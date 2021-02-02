@@ -11,3 +11,6 @@ debian/ian
 debian/debhelper*
 .vagrant/*
 ian.1
+examples/*.buildinfo
+examples/hello-ian/content
+examples/hello-ian/debian
