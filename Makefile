@@ -10,12 +10,17 @@ DOCDIR=$(DESTDIR)/usr/share/doc
 clean:
 	$(RM) $(shell find -name *~)
 
-export DEBUG=true
+# export DEBUG=true
+export IAN_DISABLE_HOOKS
 tests: export DEBPOOL=$HOME/repos/ian-test-pool/docs
 tests:
+	@git checkout test/fixtures/hello-ian/debian/changelog 2> /dev/null
+	@git checkout test/fixtures/upload-issues/debian/changelog 2> /dev/null
 	test/shell-commodity-tests.sh
 	test/ian-release-tests.sh
-	git checkout test/fixtures/hello-ian/debian/changelog
+	test/ian-upload-tests.sh
+	@git checkout test/fixtures/hello-ian/debian/changelog 2> /dev/null
+	@git checkout test/fixtures/upload-issues/debian/changelog 2> /dev/null
 
 install:
 	install -vd $(BASE)
