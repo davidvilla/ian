@@ -15,11 +15,11 @@ function _debvars-missing {
 #FIXME: rename "debvars" to "config"
 function assert-debvars {
     if sc-var-defined DEBREPO_URL; then
-        log-warning "Variable DEBREPO_URL is now deprecated. Rename to DEBPOOL"
+        (>&2 log-warning "Variable DEBREPO_URL is now DEPRECATED. Rename to DEBPOOL")
     fi
 
     if sc-var-defined DEBREPO_LOCAL_DIR; then
-        log-warning "Variable DEBREPO_LOCAL_DIR is now deprecated. Rename to DEBPOOL"
+        (>&2 log-warning "Variable DEBREPO_LOCAL_DIR is now DEPRECATED. Rename to DEBPOOL")
     fi
 
     sc-set-trap _debvars-missing

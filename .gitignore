@@ -10,3 +10,4 @@ debian/.debhelper
 debian/ian
 debian/debhelper*
 .vagrant/*
+ian.1

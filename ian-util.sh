@@ -40,8 +40,8 @@ function host-arch {
 }
 
 function _control-arch {
-    # $1: package name
-    local index=$(grep "Package:" debian/control | grep -n $1 | cut -f1 -d":"  | head -n1)
+    local package_name="$1"
+    local index=$(grep "Package:" debian/control | grep -n $package_name | cut -f1 -d":"  | head -n1)
     grep "Architecture:" debian/control | tail -n +$index | head -n1 | cut -f2 -d:  | tr -d " "
 }
 
@@ -59,7 +59,7 @@ function package {
 
 # repo, build, path, summary
 function binary-names {
-    # get binary package names from control
+    # get binary package names from 'control'
     grep "^Package:" debian/control | cut -f2 -d:  | tr -d " "
 }
 
@@ -97,7 +97,7 @@ function upstream-version {
 
 function version-upstream {
 	upstream-version
-	(>&2 echo "function 'version-upstream' is DEPRECATED! Use 'upstream-version'")
+	(>&2 ian-warning "function 'version-upstream' is DEPRECATED! Use 'upstream-version'")
 }
 
 # build, summary

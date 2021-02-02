@@ -26,7 +26,7 @@ function load-config {
 
 function load-config-files {
     if sc-directory-exists $IAN_CONFIG; then
-       log-warning "'$IAN_LEGACY_CONFIG' is deprecated, rename it as '$IAN_CONFIG'"
+       (>&2 log-warning "'$IAN_LEGACY_CONFIG' is DEPRECATED, rename it as '$IAN_CONFIG'")
        if [ -e $IAN_LEGACY_CONFIG ]; then
            source $IAN_LEGACY_CONFIG
        fi

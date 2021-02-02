@@ -177,6 +177,7 @@ function _builddeps-assure {
 
     log-warning "installing build deps: $deps"
 
+	# FIXME: can use "apt-get build-dep"? (require deb-src)
     # if [ -n "$deps" ]; then
 	# 	ian-sudo "mk-build-deps --arch $(host-arch) --tool \"apt-get -y\" --install --remove debian/control"
     # fi

@@ -17,12 +17,11 @@ function cmd:orig {
     local mode="${__args__[@]}"
     assert-no-more-args
 
-	  if [ -f $(orig-path) ]; then
-	      log-error "orig $(orig-path) is present"
-	      return
-	  fi
+	if [ -f $(orig-path) ]; then
+	    log-error "orig $(orig-path) is present"
+	    return
+	fi
 
-    echo "--->" $mode
 
     if [ -z $mode ]; then
         local mode=$(_detect-orig-mode)
@@ -66,15 +65,15 @@ function cmd:orig {
 }
 
 function cmd:orig-from-rule {
-    log-warning "command orig-from-rule is deprecated. Use 'ian orig rule'"
+    (>&2 log-warning "command orig-from-rule is DEPRECATED. Use 'ian orig rule'")
 }
 
 function cmd:orig-uscan {
-    log-warning "command orig-uscan is deprecated. Use 'ian orig uscan'"
+    (>&2 log-warning "command orig-uscan is DEPRECATED. Use 'ian orig uscan'")
 }
 
 function cmd:orig-from-local {
-    log-warning "command orig-from-local is deprecated. Use 'ian orig local'"
+    (>&2 log-warning "command orig-from-local is DEPRECATED. Use 'ian orig local'")
 }
 
 
