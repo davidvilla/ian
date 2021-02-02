@@ -6,7 +6,7 @@
 # - uscan
 # - from "local" files
 function cmd:orig {
-##:015:cmd:generate or download the .orig. file (see 'ian help orig')
+##:015:cmd:generate or download the .orig. file. See 'ian help orig'.
 ##:015:usage:ian orig [mode]
 ##:015:usage:  mode;    the way to create orig [rule|uscan|local]
 ##:015:usage:

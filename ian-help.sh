@@ -29,8 +29,8 @@ function _help-command-summary() {
     echo -e "\nCommands:"
     _print-command-synopsis "ian-map"
 
-    # echo -e "\nCombos:"
-    # print_docstrings "^\##:combo:"
+
+    echo -e "\nrun 'ian help <cmd>' for details."
 }
 
 function _print-command-synopsis {

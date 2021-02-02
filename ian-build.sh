@@ -19,7 +19,7 @@ function quilt-pop {
 }
 
 function cmd:build {
-##:040:cmd:build all binary packages
+##:040:cmd:build all binary packages. See 'ian help build'.
 ##:040:usage:ian build [-b] [-c] [-f] [-i] [-m] [-s] [-x]
 ##:040:usage:  -b;  skip 'source' target. See 'dpkg-buildpackage -b'
 ##:040:usage:  -c;  run "ian clean" then "build"
