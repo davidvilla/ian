@@ -106,9 +106,7 @@ function cmd:build {
         if [ "$skip_lintian" = true ]; then
 		    log-info "lintian was skipped as requested"
 		else
-		    changes=$(changes-path)
-		    log-info "lintian $changes"
-		    ian-run "unbuffer lintian -I $changes"
+		    run-lintian
 		fi
 
 		sc-assert-files-exist $(binary-paths)

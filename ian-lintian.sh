@@ -1,5 +1,17 @@
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
 
+function run-lintian() {
+    if ! command -v lintian >2 /dev/null; then
+        log-warning "lintian is not available"
+        return
+    fi
+
+    changes=$(changes-path)
+    log-info "lintian $changes"
+    ian-run "unbuffer lintian -I $changes"
+}
+
+
 function cmd:lintian-fix() {
 ##:140:cmd:try to automatically solve some lintian issues
     assert-no-more-args
