@@ -261,7 +261,7 @@ function sc-log-notify {
 	elif [ $1 = "FF" ]; then
 		level="fail"
 		color=$red;
-	elif [ $1 = "WW" ]; then
+	elif [ $1 = "WW" ] || [ $1 = "DEPRECATED" ]; then
 #		if [  $LOGLEVEL -lt $LEVEL_WARN ]; then
 #			return
 #		fi

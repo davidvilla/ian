@@ -24,6 +24,13 @@ function log-ok {
     sc-log-notify OK "$(_logger): $1"
 }
 
+function deprecation {
+    echo
+    sc-log-notify DEPRECATED "$(_logger): $1"
+    echo
+    sleep 2
+}
+
 # main, build, util, summary
 function uses-svn {
     (svn pl debian | grep mergeWithUpstream) &> /dev/null
