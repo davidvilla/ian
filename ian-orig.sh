@@ -23,7 +23,7 @@ function cmd:orig {
 	fi
 
 
-    if [ -z $mode ]; then
+    if [ -z "$mode" ]; then
         local mode=$(_detect-orig-mode)
         log-ok "aplying detected orig mode: $mode"
     else
@@ -65,15 +65,21 @@ function cmd:orig {
 }
 
 function cmd:orig-from-rule {
-    (>&2 log-warning "command orig-from-rule is DEPRECATED. Use 'ian orig rule'")
+    (>&2 deprecation "command orig-from-rule is DEPRECATED. Use 'ian orig rule'")
+    __args__="rule"
+    cmd:orig
 }
 
 function cmd:orig-uscan {
-    (>&2 log-warning "command orig-uscan is DEPRECATED. Use 'ian orig uscan'")
+    (>&2 deprecation "command orig-uscan is DEPRECATED. Use 'ian orig uscan'")
+    __args__="uscan"
+    cmd:orig
 }
 
 function cmd:orig-from-local {
-    (>&2 log-warning "command orig-from-local is DEPRECATED. Use 'ian orig local'")
+    (>&2 deprecation "command orig-from-local is DEPRECATED. Use 'ian orig local'")
+    __args__="local"
+    cmd:orig
 }
 
 
