@@ -257,7 +257,7 @@ FAQ
 
 * **gpg stalls for a while, then says "Timeout"**
 
-  *  gpg is asking for a password though gpg-agent. You may force tty asking adding ``pinentry-program /usr/bin/pinentry-tty`` to your ``~/.gnupg/gpg-agent.conf``. Also install pinentry-tty package.
+  *  gpg is asking for a password though gpg-agent. You may force tty asking adding ``pinentry-program /usr/bin/pinentry-tty`` to your ``~/.gnupg/gpg-agent.conf``. Also install package ``pinentry-tty``.
   
 
 
