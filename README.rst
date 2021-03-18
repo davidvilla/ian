@@ -208,7 +208,7 @@ ian may execute user provided shell functions at important events in the process
 You may provide these functions in your **~/.config/ian** file or the by-project **.ian** file.
 
 
-Compiling i386 packages in a amd64 computer
+Compiling i386 packages in an amd64 computer
 ===========================================
 
 ::
@@ -250,6 +250,15 @@ You may upload binaries compiled in a different architecture (ie: RPi armhf) fro
 Then, at your desktop (amd64), just upload indicating package architecture::
 
   foo/mypackage$ ian upload armhf
+
+
+FAQ
+===
+
+* **gpg stalls for a while, then says "Timeout"**
+
+  *  gpg is asking for a password though gpg-agent. You may force tty ask adding `pinentry-program /usr/bin/pinentry-tty` to your `~/.gnupg/gpg-agent.conf`. Also install pinentry-tty package.
+  
 
 
 Similar software
