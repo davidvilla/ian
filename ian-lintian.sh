@@ -1,7 +1,7 @@
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
 
 function run-lintian() {
-    if ! command -v lintian >2 /dev/null; then
+    if ! command -v lintian 2> /dev/null; then
         log-warning "lintian is not available"
         return
     fi
