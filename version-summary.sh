@@ -19,7 +19,7 @@ function py_version() {
 		return
 	fi
 
-	python setup.py --version 2> /dev/null
+	python3 setup.py --version 2> /dev/null
 }
 
 function pypi_version() {
