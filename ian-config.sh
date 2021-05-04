@@ -11,9 +11,11 @@ function load-config {
 
     for var in $config_vars; do
         if sc-var-defined "env_$var"; then
-            log-warning "environ variable supersedes config files: $var=\"${!var}\""
             ref="env_$var"
-            eval "$var=\"${!ref}\""
+			if [ "${!var}" != "${!ref}" ]; then
+				log-warning "environ variable supersedes config files: $var=\"${!ref}\""
+				eval "$var=\"${!ref}\""
+			fi
         fi
         superseded=true
     done
