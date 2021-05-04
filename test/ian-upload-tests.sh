@@ -61,4 +61,32 @@ function test-orig-already-registered {
 	ian remove -y
 }
 
+function test-pool-unknown-maintainer {
+	# upload without gpg fingerprint in conf/uploaders
+
+	local pool="/tmp/ian-pool"
+	rm -rf $pool
+	cp -r $HOME/repos/ian-test-pool/docs $pool
+	echo "# empty" > $pool/conf/uploaders
+	export DEBPOOL=$pool
+
+	(
+	cd examples/hello-ian
+    git checkout debian 2> /dev/null
+	ian remove -y
+
+	ian release -y
+	ian build -c
+
+	local dupload_err=/tmp/$(uuidgen)
+	ian upload > $dupload_err
+	ian clean
+
+	ian remove -y
+	git checkout debian 2> /dev/null
+
+	grep "dupload: error: Post-upload" $dupload_err
+	)
+}
+
 run-testsuit
