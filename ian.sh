@@ -42,12 +42,13 @@ DIM=$(tput dim)
 BLUE=$(tput setf 1)
 GREY=$(tput setf 7)
 
-OUT_SIGN=" |"
-ERR_SIGN=">|"
+OUT_SIGN="     |"
+ERR_SIGN="    e|"
 CHECK_OUT_SIGN="$BLUE$OUT_SIGN$NORMAL"
 CHECK_ERR_SIGN="$BLUE$ERR_SIGN$NORMAL"
 SU_OUT_SIGN="$RED$OUT_SIGN$NORMAL"
 SU_ERR_SIGN="$RED$ERR_SIGN$NORMAL"
+TERM_COLS=$(tput cols)
 
 __file__=$0
 __cmd__=$1

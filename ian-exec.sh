@@ -27,5 +27,7 @@ function ian-run {
 }
 
 function _indent {
-    sed "s/^/    $1/g"
+    #local width=$(( $TERM_COLS - ${#1} ))
+    #fold -w $width | sed "s/^/$1/g"
+    sed "s/^/$1/g"
 }
