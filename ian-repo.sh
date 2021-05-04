@@ -105,12 +105,13 @@ function _do-upload {
 
 	notify-upload-start
 
+	# FIXME: may be infinite loop
     while true; do
-		sc-assert-run "LANG=$NATIVE_LANG debsign -k$DEBSIGN_KEYID --no-re-sign $changes_path"
+		check-run "LANG=$NATIVE_LANG debsign -k$DEBSIGN_KEYID --no-re-sign $changes_path"
 
 		local -a outputs
+		sc-log-info "dupload -c $(_dupload-filename) -f $changes_path"
 		sc-call-out-err outputs "dupload -c $(_dupload-filename) -f $changes_path"
-		echo "dupload -c $(_dupload-filename) -f $changes_path"
 		local rcode=$?
 
 		if [ $rcode -eq 0 ]; then
@@ -126,11 +127,11 @@ function _do-upload {
     log-info "dupload output"
 
     if [ $rcode -eq 0 ]; then
-		ian-run "cat ${outputs[1]}"
+	    cat ${outputs[1]} > >(_indent "$OUT_SIGN")
 		log-ok "upload"
 		notify-upload-end
     else
-		ian-run "cat ${outputs[2]}"
+	    cat ${outputs[2]} > >(_indent "$ERR_SIGN")
 		log-fail "upload"
     fi
 
