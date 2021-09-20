@@ -1,3 +1,20 @@
-[FF] ian: apt-get install python-all (>= 2.6.6-3) 
+[FF] ian: apt-get install python-all (>= 2.6.6-3)
     >|/usr/share/ian/ian-exec.sh: eval: line 8: syntax error near unexpected token `('
     >|/usr/share/ian/ian-exec.sh: eval: line 8: `sudo apt-get install python-all (>= 2.6.6-3)'
+
+====
+
+~/repos/python-commodity$ ian upload
+[WW] ian: Variable DEBREPO_URL is now DEPRECATED. Rename to DEBPOOL
+[WW] ian: Variable DEBREPO_LOCAL_DIR is now DEPRECATED. Rename to DEBPOOL
+[II] ian: Debian pool: /home/david/repos/arco-debian/docs
+[II] ian: creating /tmp/david-dupload.config
+[II] ian: exec ian-upload-start-hook
+     |Already up to date.
+[II] ian: LANG=es_ES.UTF-8 debsign -k9489E3DCBBDFCBEB43BBB825065DDB7C201B8868 --no-re-sign ../python-commodity_0.20210424-1_amd64.changes
+    e|Leaving current signature unchanged.
+[II] dupload -c /tmp/david-dupload.config -f ../python-commodity_0.20210424-1_amd64.changes
+grep: debian/control: No such file or directory
+grep: debian/control: No such file or directory
+grep: debian/control: No such file or directory
+[infinite loop]
