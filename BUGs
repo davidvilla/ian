@@ -18,3 +18,36 @@ grep: debian/control: No such file or directory
 grep: debian/control: No such file or directory
 grep: debian/control: No such file or directory
 [infinite loop]
+
+~/repos/python-commodity$  dupload -c /tmp/david-dupload.config -f ../python-commodity_0.20210424-1_amd64.changes
+dupload: warning: mail options disabled, cannot run '/usr/sbin/sendmail': No such file or directory
+
+dupload: warning: %postupload hooks defined as scalars are deprecateddupload note: no announcement will be sent.
+Checking OpenPGP signatures before upload...OpenPGP signature cannot be checked, probably because of missing keys
+Uploading (copy) to eckert:/home/david/repos/arco-debian/docs/incoming/
+[ Preparing job python-commodity_0.20210424-1_amd64 from python-commodity_0.20210424-1_amd64.changes
+ python-commodity_0.20210424.orig.tar.gz, size ok, md5sum ok, sha1sum ok, sha256sum ok
+ python-commodity_0.20210424-1.debian.tar.xz, size ok, md5sum ok, sha1sum ok, sha256sum ok
+ python3-commodity_0.20210424-1_all.deb, size ok, md5sum ok, sha1sum ok, sha256sum ok
+ python-commodity_0.20210424-1_amd64.buildinfo, size ok, md5sum ok, sha1sum ok, sha256sum ok
+ python-commodity_0.20210424-1.dsc, size ok, md5sum ok, sha1sum ok, sha256sum ok
+ python-commodity_0.20210424-1_amd64.changes ok ]
+Uploading (copy) to default (eckert)
+[ Uploading job python-commodity_0.20210424-1_amd64
+ python-commodity_0.20210424.orig.tar.gz 35.5 kB, ok (0 s, 35.54 kB/s)
+ python-commodity_0.20210424-1.debian.tar.xz 2.8 kB, ok (0 s, 2.80 kB/s)
+ python3-commodity_0.20210424-1_all.deb 22.3 kB, ok (0 s, 22.29 kB/s)
+ python-commodity_0.20210424-1_amd64.buildinfo 6.3 kB, ok (0 s, 6.27 kB/s)
+ python-commodity_0.20210424-1.dsc 2.0 kB, ok (0 s, 2.03 kB/s)
+ python-commodity_0.20210424-1_amd64.changes 2.8 kB, ok (0 s, 2.80 kB/s) ]
+File "pool/main/p/python-commodity/python-commodity_0.20210424-1.dsc" is already registered with different checksums!
+md5 expected: bb2c774383b9416da374b94b0e4de654, got: 932198cf5679cd330f9636bb5fb4ba6c
+sha1 expected: 11a0b44038c69793c533c45d062726dae706970f, got: edc38adccec80ae4d8c8df453bfd32b7771835fa
+sha256 expected: aed3a48c0ab8d4ddc9505c7bedfdeb1721e3737877df5e219d8ad3e97e8370ca, got: 58f1b69c465651bd4c0384e3a3ab32a8f00c31a9a34d1e30858235537e4b299e
+deleting '/home/david/repos/arco-debian/docs/incoming/python-commodity_0.20210424-1.debian.tar.xz'...
+deleting '/home/david/repos/arco-debian/docs/incoming/python-commodity_0.20210424-1_amd64.buildinfo'...
+deleting '/home/david/repos/arco-debian/docs/incoming/python-commodity_0.20210424-1.dsc'...
+deleting '/home/david/repos/arco-debian/docs/incoming/python-commodity_0.20210424.orig.tar.gz'...
+deleting '/home/david/repos/arco-debian/docs/incoming/python3-commodity_0.20210424-1_all.deb'...
+deleting '/home/david/repos/arco-debian/docs/incoming/python-commodity_0.20210424-1_amd64.changes'...
+There have been errors!
