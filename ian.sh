@@ -24,7 +24,7 @@
 ##:ian-map:101:pool-ls
 ##:ian-map:120:create
 ##:ian-map:140:lintian-fix
-##:ian-map:200:vagrant-gen-files
+##:ian-map:200:vagrant-provision
 ##:ian-map:201:vagrant-build
 ##:ian-map:202:vagrant-clean
 

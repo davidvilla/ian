@@ -4,19 +4,28 @@
 
 VAGRANT_FILES="Vagrantfile playbook.yml"
 
-function cmd:vagrant-gen-files {
-##:200:cmd:generate vagrant related files to boxed compilation
+function cmd:vagrant-provision {
+##:200:cmd:prepare vagrant images to boxed build
     assert-no-more-args
 
     (
     assert-preconditions
 
     for i in $VAGRANT_FILES; do
-	cp $IAN_ROOT/$i .
+        cp $IAN_ROOT/vagrant/$i .
     done
 
     log-ok "generated: $VAGRANT_FILES"
+
+    check-run "cmd:clean"
+    check-run "vagrant up --provision i386"
+    check-run "vagrant up --provision amd64"
     )
+
+    echo -e "\n# In case of 'Suite' value change issues run:"
+    echo "$ vagrant ssh {vm} -c \"sudo apt update; sudo apt install apt-transport-https\""
+    echo "and run 'ian vagrant-provision' again"
+
 }
 
 function cmd:vagrant-build {
@@ -29,11 +38,8 @@ function cmd:vagrant-build {
 
     local ian_pwd=$(basename $(pwd))
 
-	echo \# Run this to build amd64 and i386 binaries
-	echo ian clean
-    echo vagrant up --provision i386
+	echo \# Run commands above to build amd64 and i386 binaries
     echo "vagrant ssh i386 -c \"cd /vagrant/$ian_pwd; ian build -mb\""
-    echo vagrant up --provision amd64
     echo "vagrant ssh amd64 -c \"cd /vagrant/$ian_pwd; ian build -m\""
     )
 }

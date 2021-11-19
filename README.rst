@@ -213,7 +213,7 @@ Compiling i386 packages in an amd64 computer
 
 ::
 
-  $ ian vagrant-gen-files
+  $ ian vagrant provision
   ian: generated: Vagrantfile playbook.yml
 
   $ ian vagrant-build
@@ -246,7 +246,7 @@ You may upload binaries compiled in a different architecture (ie: RPi armhf) fro
     mypackage_0.20201223.orig.tar.gz
     mypackage/
       debian/
-           
+
 Then, at your desktop (amd64), just upload indicating package architecture::
 
   foo/mypackage$ ian upload armhf
@@ -258,7 +258,7 @@ FAQ
 * **gpg stalls for a while, then says "Timeout"**
 
   *  gpg is asking for a password though gpg-agent. You may force tty asking adding ``pinentry-program /usr/bin/pinentry-tty`` to your ``~/.gnupg/gpg-agent.conf``. Also install package ``pinentry-tty``.
-  
+
 
 
 Similar software
