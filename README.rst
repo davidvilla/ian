@@ -185,8 +185,8 @@ ian requires you define some environment variables. An example::
   DEBPOOL=john.doe@debian.repository.org/var/repo
 
 
-The latter two are required only if you want upload you package to a remote Debian
-repository.
+Variables **DEBPOOL** and **DEBSIGN_KEYID** are required only if you want upload you package to a remote Debian
+repository. **DEBSIGN_KEYID** is your GPG key fingerprint (keyID).
 
 ``ian`` can load these variables from a **~/.config/ian/config**.
 
