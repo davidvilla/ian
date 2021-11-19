@@ -10,8 +10,8 @@ function cmd:create() {
     sc-assert sc-directory-absent ./debian "There is already a debian directory here"
     assert-debvars
 
-    log-info "Check Makefile"
-    if ! grep install Makefile > /dev/null; then
+    log-info "Checking your Makefile..."
+    if ! grep install Makefile 2> /dev/null; then
         sc-log-error "Your Makefile should have an 'install' rule. See created 'Makefile.example'"
         _create-makefile
         exit 1
