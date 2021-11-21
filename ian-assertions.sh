@@ -33,7 +33,7 @@ function assert-debvars {
 
 function assert-preconditions {
     if [ "$PRECONDITIONS_CHECKED" = true ]; then
-	return 0
+        return 0
     fi
 
     assert-debvars
