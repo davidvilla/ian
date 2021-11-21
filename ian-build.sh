@@ -76,7 +76,7 @@ function cmd:build {
 
 		if [ "$clean" = true ]; then
 			# force orig create
-			rm -f $(orig-path)
+			rm -f $(find-orig-path)
 		fi
 
 		if [ "$local" = true ]; then
@@ -125,9 +125,9 @@ function _build-merging-upstream {
     mkdir -p $tmp_build_dir
 
     log-info "merging with uptream in a temp build area: $tmp_build_area"
-    tar --no-same-owner --no-same-permissions --extract --gzip --file $(orig-path) --directory $tmp_build_area/
+    tar --no-same-owner --no-same-permissions --extract --gzip --file $(find-orig-path) --directory $tmp_build_area/
     cp -r ./debian $tmp_build_dir/
-    cp $(orig-path) $tmp_build_area/
+    cp $(find-orig-path) $tmp_build_area/
     chmod -R u+r+w+X,g+r-w+X,o+r-w+X -- $tmp_build_dir
 
     (

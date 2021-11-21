@@ -17,11 +17,7 @@ function cmd:orig {
     local mode="${__args__[@]}"
     assert-no-more-args
 
-	if [ -f $(orig-path) ]; then
-	    log-error "orig $(orig-path) is present"
-	    return
-	fi
-
+    sc-assert-file-absent "$(find-orig-path)"
 
     if [ -z "$mode" ]; then
         local mode=$(_detect-orig-mode)
@@ -51,15 +47,15 @@ function cmd:orig {
 
     (
     assert-preconditions
-	  if [ ! -f $(orig-path) ]; then
-	      log-warning "missing orig '$(orig-path)', getting/creating it"
-	  fi
+	if [ ! -z $(find-orig-path) ]; then
+	    log-warning "missing orig '$(_orig-pattern)', getting/creating it"
+	fi
     cmd:clean
     sc-assure-dir $(orig-dir)
 
     $orig_func
 
-    sc-assert-files-exist $(orig-path)
+    sc-assert-any-file-exists "$(orig-dir)" "$(_orig-pattern)"
     log-ok "orig"
     )
 }
@@ -87,7 +83,7 @@ function orig-from-rule {
     sc-assert _has-rule get-orig-source "missing 'get-orig-source' in 'debian/rules'"
 
     check-run "make -f ./debian/rules get-orig-source"
-    mv -v $(orig-filename) $(orig-dir)/
+    mv -v $(eval echo _orig-pattern) $(orig-dir)/
 }
 
 # http://people.debian.org/~piotr/uscan-dl
@@ -104,9 +100,10 @@ function orig-from-local {
     local EXCLUDE="--exclude=$orig_tmp --exclude=./debian --exclude=\*~ --exclude-vcs --exclude=\*.pyc --exclude .pc"
 
     tar $EXCLUDE -cf - . | ( cd $orig_tmp && tar xf - )
-    tar czf $(orig-path) $orig_tmp
+    tar czf $(_orig-default) $orig_tmp
     \rm -rf $orig_tmp
-	  log-ok "orig file created: $(orig-path)"
+
+	log-ok "orig file created: $(find-orig-path)"
 }
 
 # clean, orig
@@ -114,13 +111,29 @@ function orig-dir {
     echo ..
 }
 
-# repo, orig, path
-function orig-filename {
-    echo $(package)_$(upstream-version).orig.tar.gz
+function _orig-pattern {
+    echo $(package)_$(upstream-version).orig.tar.'{g,x}'z
 }
+
+function _orig-default {
+    echo $(orig-dir)/$(package)_$(upstream-version).orig.tar.gz
+}
+
+# repo, orig, path
+function find-orig-filename {
+    if [ -z "$1" ]; then
+        basename "$1"
+    fi
+}
+
 # orig, build, summary
-function orig-path {
-    echo $(orig-dir)/$(orig-filename)
+function find-orig-path {
+    for fname in $(eval echo $(_orig-pattern)); do
+        if sc-file-exists "$(orig-dir)/$fname"; then
+            echo "$(orig-dir)/$fname"
+            return
+        fi
+    done
 }
 
 function _detect-orig-mode {
@@ -130,10 +143,10 @@ function _detect-orig-mode {
 # summary
 function orig-modes {
     if _has-rule get-orig-source; then
-		methods[0]='rule'
+        methods[0]='rule'
     fi
     if valid-watch-present; then
-		methods[1]='uscan'
+        methods[1]='uscan'
     fi
     # if [ $(ls | wc -l) -gt 1 ]; then
 		methods[2]='local'

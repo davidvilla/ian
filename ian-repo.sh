@@ -149,7 +149,7 @@ function _check-dupload-errors {
     local ORIG_ALREADY_REGISTERED=".orig.tar.gz\" is already registered with different checksums"
 
     if _file-contains "$stderr" "$NOT_YET_REGISTERED"; then
-		log-warning "missing $(orig-filename) in repository, fixing..."
+		log-warning "missing orig file in repository, fixing..."
 		check-run "dpkg-genchanges -sa > $changes_path"
 		return
     elif _file-contains "$stderr" "$DSC_ALREADY_REGISTERED"; then

@@ -26,7 +26,7 @@ function cmd:clean {
 function _clean-common {
     (
     assert-preconditions
-    ian-run "rm -vf $(product-paths) $(binary-paths)"
+    ian-run "rm -vf $(find-orig-path) $(product-paths) $(binary-paths)"
     )
 }
 

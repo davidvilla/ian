@@ -13,7 +13,7 @@ function cmd:summary {
 	echo "watch:              " $(_upstream-version-uscan)
     fi
     echo "version:            " $(debian-version)
-    echo "orig:               " $(orig-path)
+    echo "orig:               " $(find-orig-path)
     echo "orig modes:         " $(orig-modes)
     echo "changes:            " $(changes-path)
     echo "binaries:           " $(binary-names)
