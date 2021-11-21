@@ -11,7 +11,6 @@ function cmd:ls {
 
     assert-preconditions
 	_product-filenames
-#    _binary-filenames
 
 	if ! _some-product; then
         log-error "package was not built yet"
@@ -22,6 +21,12 @@ function _binary-filenames {
     for pkg in $(binary-names); do
         echo ${pkg}_$(debian-version)_$(_binary-arch $pkg).deb
     done
+}
+
+function _dbgsym-filenames {
+	for pkg in $(binary-names); do
+		echo ${pkg}-dbgsym_$(debian-version)_$(_binary-arch $pkg).deb
+	done
 }
 
 # clean
@@ -74,21 +79,10 @@ function product-paths {
     done
 }
 
-# function _product-filenames-old {
-#     orig-filename
-#     changes-filename
-#     dsc-filename
-#     local deb_prefix=$(package)_$(debian-version)
-#     _debian-source-filename
-#     echo $deb_prefix.diff.gz
-#     echo $deb_prefix.upload
-# }
-
 function _product-filenames {
 	for pattern in $(_product-patterns); do
 	    if ls $(build-dir)/$pattern > /dev/null 2>&1; then
 	        basename $(ls $(build-dir)/$pattern)
-			some=true
 		fi
 	done
 }
@@ -98,16 +92,14 @@ function _some-product {
 }
 
 function _product-patterns {
-	echo $(package)_$(upstream-version).orig.tar.gz
 	echo $(package)_$(debian-version)_$(host-arch).upload
     echo $(package)_$(debian-version)_$(host-arch).changes
 	echo $(package)_$(debian-version)_$(host-arch).buildinfo
 	echo $(package)_$(debian-version).dsc
 	echo $(package)_$(debian-version).debian.tar.*
 	echo $(package)_$(debian-version).diff.gz
-	for fname in $(_binary-filenames); do
-        echo $fname
-	done
+	echo $(_binary-filenames)
+	echo $(_dbgsym-filenames)
 }
 
 function _binary-arch {
