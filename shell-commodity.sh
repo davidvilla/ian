@@ -90,7 +90,22 @@ function sc-is-substring {
 }
 
 function sc-file-exists {
-    [ -e "$1" ]
+    [ ! -z "$1" ] && [ -e "$1" ]
+}
+
+function sc-file-absent {
+	[ ! -e "$1" ]
+}
+
+function sc-any-file-exists {
+	local dir="$1"
+	shift
+	for fname in $*; do
+		if sc-file-exists "$dir/$fname"; then
+			return 0
+		fi
+	done
+	return 1
 }
 
 function sc-directory-exists {
@@ -188,6 +203,18 @@ function sc-assert-files-exist {
 	for file in $*; do
 		sc-assert sc-file-exists "$file" "File required: $file"
 	done
+}
+
+function sc-assert-file-absent {
+	sc-assert sc-file-absent "$1" "File present: $1"
+}
+
+function sc-assert-any-file-exists {
+	local dir="$1"
+	if ! sc-any-file-exists "$dir" "$(eval echo $2)"; then
+		sc-log-fail "File required: $1"
+		exit 1
+	fi
 }
 
 function sc-assert-directory-exists {
