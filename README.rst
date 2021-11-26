@@ -213,7 +213,7 @@ Compiling i386 packages in an amd64 computer
 
 ::
 
-  $ ian vagrant provision
+  $ ian vagrant-gen-files
   ian: generated: Vagrantfile playbook.yml
 
   $ ian vagrant-build
@@ -246,7 +246,7 @@ You may upload binaries compiled in a different architecture (ie: RPi armhf) fro
     mypackage_0.20201223.orig.tar.gz
     mypackage/
       debian/
-
+           
 Then, at your desktop (amd64), just upload indicating package architecture::
 
   foo/mypackage$ ian upload armhf
@@ -258,8 +258,24 @@ FAQ
 * **gpg stalls for a while, then says "Timeout"**
 
   *  gpg is asking for a password though gpg-agent. You may force tty asking adding ``pinentry-program /usr/bin/pinentry-tty`` to your ``~/.gnupg/gpg-agent.conf``. Also install package ``pinentry-tty``.
+  
 
+GPG setup
+=========
 
+You need a GPG key to sign and upload compiled debian packages. That's a brief recipe to create and publish your key.
+Create key::
+
+  $ gpg --gen-key
+  
+Key related files (and revocation certificate) are saved at ``./gnupg``. You may export your private key for secure. Save both (private key and revocation certificate) in a private and secure place until your death::
+
+  $ gpg --export-secret-keys -a <your_key_id> > ~/private-key.asc
+  
+Your GPG public key must be uploaded to a key server::
+
+  $ gpg --keyserver keys.openpgp.org --send-key <your_key_id>
+  
 
 Similar software
 ================
