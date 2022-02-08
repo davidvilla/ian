@@ -19,7 +19,7 @@ def versions(package_name):
 
 
 if len(sys.argv) != 2:
-    print "usage: {} <package-name>".format(sys.argv[0])
+    print("usage: {} <package-name>".format(sys.argv[0]))
     sys.exit(1)
 
-print versions(sys.argv[1])[-1]
+print(versions(sys.argv[1])[-1])
