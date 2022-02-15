@@ -3,18 +3,18 @@
 
 import sys
 import json
-import urllib2
+from urllib.request import urlopen, Request, HTTPError
 from distutils.version import StrictVersion
 
 
 def versions(package_name):
     try:
         url = "https://pypi.python.org/pypi/%s/json" % (package_name,)
-        data = json.load(urllib2.urlopen(urllib2.Request(url)))
-        versions = data["releases"].keys()
+        data = json.load(urlopen(Request(url)))
+        versions = list(data["releases"].keys())
         versions.sort(key=StrictVersion)
         return versions
-    except urllib2.HTTPError:
+    except HTTPError:
         return [None]
 
 
