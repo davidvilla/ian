@@ -79,10 +79,12 @@ function cmd:build {
 			rm -f $(find-orig-path)
 		fi
 
-		if [ "$local" = true ]; then
-			sc-assert cmd:orig-from-local
-		else
-			sc-assert cmd:orig
+		if  ! sc-file-exists "$(find-orig-path)"; then
+			if [ "$local" = true ]; then
+				sc-assert cmd:orig-from-local
+			else
+				sc-assert cmd:orig
+			fi
 		fi
 
 		_assert-user-is-uploader $force
