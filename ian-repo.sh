@@ -105,7 +105,7 @@ function _do-upload {
 
 	notify-upload-start
 
-	# FIXME: may be infinite loop
+	local second_try=false
     while true; do
 		check-run "LANG=$NATIVE_LANG debsign -k$DEBSIGN_KEYID --no-re-sign $changes_path"
 
@@ -122,6 +122,12 @@ function _do-upload {
 		if [ $? -eq 1 ]; then
 			break
 		fi
+
+		if $second_try; then
+			log-error "automatic fix failed"
+			break
+		fi
+		second_try=true
     done
 
     log-info "dupload output"
@@ -143,10 +149,12 @@ function _do-upload {
 function _check-dupload-errors {
     local stderr="$1"
 
-    local NOT_YET_REGISTERED="not yet registered in the pool and not found in '$(changes-filename)'"
+    local NOT_YET_REGISTERED="not yet registered in the pool and not found in"
     local DSC_ALREADY_REGISTERED=".dsc\" is already registered with different checksums"
     local DEB_ALREADY_REGISTERED=".deb\" is already registered with different checksums"
     local ORIG_ALREADY_REGISTERED=".orig.tar.gz\" is already registered with different checksums"
+	local POOL_VERSION_NEWER="while there already is the stricly newer"
+
 
     if _file-contains "$stderr" "$NOT_YET_REGISTERED"; then
 		log-warning "missing orig file in repository, fixing..."
@@ -163,13 +171,15 @@ function _check-dupload-errors {
 		fi
     elif _file-contains "$stderr" "$DEB_ALREADY_REGISTERED"; then
 		sc-log-error "deb already uploaded! Create a new release."
-    fi
+    elif _file-contains "$stderr" "$POOL_VERSION_NEWER"; then
+		sc-log-error "newer version already uploaded! Get last version source."
+	fi
 
-    return 1
+    return 1  # not fixed
 }
 
 function _file-contains {
-    cat "$1" | grep "$2"
+    cat "$1" | grep "$2" > /dev/null
 }
 
 function _reprepro-cmd {
