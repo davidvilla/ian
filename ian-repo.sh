@@ -71,7 +71,7 @@ package config;
    dinstall_runs => 1,
 };
 
-\$postupload{'changes'} = 'ssh $(_pool-account) "reprepro -V -b $(_pool-path) processincoming sid-process"';
+\$postupload{'changes'} = ['ssh $(_pool-account) "reprepro -V -b $(_pool-path) processincoming sid-process"'];
 
 1;  # DO NOT remove this line!
 EOF
@@ -90,7 +90,7 @@ package config;
    dinstall_runs => 1,
 };
 
-\$postupload{'changes'} = 'reprepro -V -b $DEBPOOL processincoming sid-process';
+\$postupload{'changes'} = ['reprepro -V -b $DEBPOOL processincoming sid-process'];
 
 1;  # DO NOT remove this line!
 EOF
