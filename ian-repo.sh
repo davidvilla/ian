@@ -110,8 +110,9 @@ function _do-upload {
 		check-run "LANG=$NATIVE_LANG debsign -k$DEBSIGN_KEYID --no-re-sign $changes_path"
 
 		local -a outputs
-		sc-log-info "dupload -c $(_dupload-filename) -f $changes_path"
-		sc-call-out-err outputs "dupload -c $(_dupload-filename) -f $changes_path"
+		local cmd="dupload --skip-hook=openpgp-check -c $(_dupload-filename) -f $changes_path"
+		sc-log-info "$cmd"
+		sc-call-out-err outputs "$cmd"
 		local rcode=$?
 
 		if [ $rcode -eq 0 ]; then
