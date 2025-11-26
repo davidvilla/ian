@@ -60,7 +60,7 @@ Section: utils
 Priority: optional
 Maintainer: $DEBFULLNAME <$DEBEMAIL>
 Build-Depends: debhelper (>= 7.0.50~), debhelper-compat (= 12), quilt
-Standards-Version: 4.6.2
+Standards-Version: 4.7.2
 
 Package: $pkgname
 Architecture: all
