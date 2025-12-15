@@ -48,7 +48,7 @@ function cmd:orig {
     (
     assert-preconditions
 	if [ ! -z $(find-orig-path) ]; then
-	    log-warning "missing orig '$(_orig-pattern)', getting/creating it"
+        log-warning "missing orig '$(_orig-pattern)', getting/creating it"
 	fi
     cmd:clean
     sc-assure-dir $(orig-dir)
@@ -112,6 +112,7 @@ function orig-dir {
 }
 
 function _orig-pattern {
+    # find . -type f \( -name "$(package)_$(upstream-version).orig.tar.xz" -o -name "$(package)_$(upstream-version).orig.tar.gz" \)
     echo $(package)_$(upstream-version).orig.tar.'{g,x}'z
 }
 

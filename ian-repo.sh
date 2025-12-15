@@ -134,11 +134,11 @@ function _do-upload {
     log-info "dupload output"
 
     if [ $rcode -eq 0 ]; then
-	    cat ${outputs[1]} > >(_indent "$OUT_SIGN")
+		cat ${outputs[1]} > >(_indent "$OUT_SIGN")
 		log-ok "upload"
 		notify-upload-end
     else
-	    cat ${outputs[2]} > >(_indent "$ERR_SIGN")
+		cat ${outputs[2]} > >(_indent "$ERR_SIGN")
 		log-fail "upload"
     fi
 
