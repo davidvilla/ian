@@ -4,7 +4,7 @@
 import sys
 import json
 from urllib.request import urlopen, Request, HTTPError
-from distutils.version import StrictVersion
+from packaging.version import Version
 
 
 def versions(package_name):
@@ -12,7 +12,7 @@ def versions(package_name):
         url = "https://pypi.python.org/pypi/%s/json" % (package_name,)
         data = json.load(urlopen(Request(url)))
         versions = list(data["releases"].keys())
-        versions.sort(key=StrictVersion)
+        versions.sort(key=Version)
         return versions
     except HTTPError:
         return [None]
