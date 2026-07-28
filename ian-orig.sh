@@ -62,19 +62,19 @@ function cmd:orig {
 
 function cmd:orig-from-rule {
     (>&2 deprecation "command orig-from-rule is DEPRECATED. Use 'ian orig rule'")
-    __args__="rule"
+    __args__=(rule)
     cmd:orig
 }
 
 function cmd:orig-uscan {
     (>&2 deprecation "command orig-uscan is DEPRECATED. Use 'ian orig uscan'")
-    __args__="uscan"
+    __args__=(uscan)
     cmd:orig
 }
 
 function cmd:orig-from-local {
     (>&2 deprecation "command orig-from-local is DEPRECATED. Use 'ian orig local'")
-    __args__="local"
+    __args__=(local)
     cmd:orig
 }
 

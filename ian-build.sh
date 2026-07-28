@@ -25,7 +25,7 @@ function cmd:build {
 ##:040:usage:  -c;  run "ian clean" then "build"
 ##:040:usage:  -f;  force build
 ##:040:usage:  -i;  run "ian build" then "install"
-##:040:usage:  -l;  creates orig with "ian orig-from-local"
+##:040:usage:  -l;  creates orig with "ian orig local"
 ##:040:usage:  -m;  merge ./debian with upstream .orig. bypassing directory contents
 ##:040:usage:  -s;  include full source. See 'dpkg-genchanges -sa'
 ##:040:usage:  -x;  skip lintian

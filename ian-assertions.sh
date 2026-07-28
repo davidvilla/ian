@@ -61,5 +61,5 @@ function assert-no-more-args {
 		exit 1
 	fi
 
-    __args__=""
+    __args__=()
 }
