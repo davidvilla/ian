@@ -81,7 +81,8 @@ function cmd:build {
 
 		if  ! sc-file-exists "$(find-orig-path)"; then
 			if [ "$local" = true ]; then
-				sc-assert cmd:orig-from-local
+				__args__=(local)
+				sc-assert cmd:orig
 			else
 				sc-assert cmd:orig
 			fi

@@ -88,7 +88,7 @@ there are several available options:
 * **-c**: run "ian clean" before "build"
 * **-f**: force build
 * **-i**: run "ian install" after "build"
-* **-l**: creates orig with "ian orig-from-local"
+* **-l**: creates orig with "ian orig local"
 * **-m**: merge ./debian with upstream .orig. bypassing directory contents
 * **-s**: include full source. See 'dpkg-genchanges -sa'
 
