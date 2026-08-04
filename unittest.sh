@@ -1,5 +1,3 @@
-#!/bin/bash --
-# -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
 
 source shell-commodity.sh
 

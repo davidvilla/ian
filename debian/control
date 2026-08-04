@@ -2,8 +2,8 @@ Source: ian
 Section: shells
 Priority: optional
 Maintainer: David Villa Alises <David.Villa@gmail.com>
-Build-Depends: debhelper (>= 7.0.50~), quilt, python3-docutils
-Standards-Version: 4.5.0
+Build-Depends: debhelper (>= 10~), quilt, python3-docutils
+Standards-Version: 4.7.4
 Homepage: https://bitbucket.org/DavidVilla/ian
 
 Package: ian
