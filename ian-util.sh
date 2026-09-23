@@ -92,6 +92,20 @@ function debian-release {
 	debian-version | cut -d'-' -f2
 }
 
+# build, repo
+# guesses whether the orig was already uploaded, by looking at the debian
+# release alone: true for the first release of an upstream version, including
+# non numeric ones such as "1arco1" or "1~bpo12+1", and for native packages
+function orig-seems-new {
+	local version=$(debian-version)
+
+	if [[ "$version" != *-* ]]; then
+		return 0
+	fi
+
+	[[ "$(debian-release)" =~ ^1([^0-9.].*)?$ ]]
+}
+
 # orig, build
 function upstream-fullname {
     echo $(package)-$(upstream-version)

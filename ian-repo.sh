@@ -167,7 +167,7 @@ function _check-dupload-errors {
 		return
     elif _file-contains "$stderr" "$ORIG_ALREADY_REGISTERED"; then
 		sc-log-error "1. orig already uploaded! Try 'ian build -b' and upload again"
-		if [ $(debian-release) -ne 1 ]; then
+		if ! orig-seems-new; then
 			sc-log-error "different orig already uploaded! Create a new release."
 		fi
     elif _file-contains "$stderr" "$DEB_ALREADY_REGISTERED"; then
