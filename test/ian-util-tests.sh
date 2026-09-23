@@ -57,6 +57,7 @@ function _make-orig {
 	local tmp=$(mktemp -d)
 
 	mkdir -p $tmp/src/hello-1.0/debian
+	mkdir $tmp/src/hello-1.0/src
 	touch $tmp/src/hello-1.0/setup.py $tmp/src/hello-1.0/README
 	tar --create --gzip --file $tmp/hello_1.0.orig.tar.gz --directory $tmp/src hello-1.0
 	echo $tmp
@@ -74,6 +75,13 @@ function test-upstream-sources-present {
 
 	cd $tmp/src/hello-1.0
 	sc-assert-false _upstream-sources-missing $tmp/hello_1.0.orig.tar.gz
+}
+
+function test-upstream-sources-missing-with-leftover-dir {
+	local tmp=$(_make-orig)
+
+	mkdir $tmp/packaging && cd $tmp/packaging && mkdir debian src
+	sc-assert _upstream-sources-missing $tmp/hello_1.0.orig.tar.gz
 }
 
 function test-upstream-sources-without-orig {

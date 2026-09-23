@@ -88,6 +88,11 @@ function cmd:build {
 			fi
 		fi
 
+		if [ "$merge" != true ] && _upstream-sources-missing "$(find-orig-path)"; then
+			merge=true
+			log-warning "no upstream sources here, merging ./debian with $(basename $(find-orig-path)) as '-m' does"
+		fi
+
 		_assert-user-is-uploader $force
 		_assert-user-last-changelog-entry $force
 
@@ -122,6 +127,28 @@ function cmd:build {
 	)
 }
 
+# true when none of the regular files the .orig. provides is in the working
+# directory, ie. the package holds the packaging only and must be built
+# merging (see -m). Directories are ignored, as build leftovers often match
+function _upstream-sources-missing {
+	local orig="$1"
+	local fname=
+
+	if ! sc-file-exists "$orig"; then
+		return 1
+	fi
+
+	for fname in $(tar --list --file "$orig" | cut -d/ -f2- | cut -d/ -f1 | sort -u); do
+		if [ -z "$fname" ] || [ "$fname" == debian ]; then
+			continue
+		fi
+
+		if [ -f "$fname" ]; then
+			return 1
+		fi
+	done
+}
+
 function _build-merging-upstream {
     local tmp_build_area=$(mktemp -d)
     local tmp_build_dir=$tmp_build_area/$(upstream-fullname)
@@ -153,9 +180,9 @@ function _build-standard {
     assert-preconditions
 
 	local buildopts=
-	if [ -z $BUILDOPTIONS ] && [ $(debian-release) -ne 1 ]; then
+	if [ -z "$BUILDOPTIONS" ] && ! orig-seems-new; then
 		BUILDOPTIONS='-b'
-		log-info "no source code included because debian revision > 1"
+		log-info "no source code included because the orig was probably already uploaded"
 	fi
 
     local build_command="dpkg-buildpackage -uc -us $BUILDOPTIONS"
