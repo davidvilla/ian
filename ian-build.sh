@@ -112,13 +112,15 @@ function cmd:build {
 		sc-clear-trap
 
         if [ "$skip_lintian" = true ]; then
-		    log-info "lintian was skipped as requested"
+			log-info "lintian was skipped as requested"
 		else
-		    run-lintian
+			run-lintian
 		fi
 
 		sc-assert-files-exist $(binary-paths)
 		log-ok "build"
+		log-info "generated files:"
+		cmd:ls
 		notify-build-end
 
 		if [ "$install" = true ]; then
