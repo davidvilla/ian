@@ -11,6 +11,8 @@ debian/ian
 debian/debhelper*
 .vagrant/*
 ian.1
+last-pypi-version.1
+version-summary.1
 examples/*.buildinfo
 examples/hello-ian/content
 examples/hello-ian/debian

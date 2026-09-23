@@ -16,6 +16,7 @@ tests: export DEBPOOL=$HOME/repos/ian-test-pool/docs
 tests:
 	@git checkout test/fixtures/hello-ian/debian 2> /dev/null
 	test/shell-commodity-tests.sh
+	test/ian-util-tests.sh
 	test/ian-release-tests.sh
 	test/ian-upload-tests.sh
 	@git checkout test/fixtures/hello-ian/debian 2> /dev/null
@@ -24,7 +25,8 @@ install:
 	install -vd $(BASE)
 	install -v -m 444 shell-commodity.sh  $(BASE)/
 	install -v -m 444 unittest.sh  $(BASE)/
-	install -v -m 555 ian*.sh $(BASE)
+	install -v -m 555 ian.sh $(BASE)
+	install -v -m 444 ian-*.sh $(BASE)
 	install -vd $(BASE)/vagrant
 	install -v -m 444 vagrant/* $(BASE)/vagrant/
 
@@ -36,7 +38,7 @@ install:
 	install -v -m 644 completion $(DESTDIR)/usr/share/bash-completion/completions/ian
 
 	install -vd $(DESTDIR)/usr/share/man/man1
-	install ian.1 $(DESTDIR)/usr/share/man/man1
+	install ian.1 last-pypi-version.1 version-summary.1 $(DESTDIR)/usr/share/man/man1
 
 push:
 	git push
