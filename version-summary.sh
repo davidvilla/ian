@@ -1,7 +1,7 @@
 #!/bin/bash --
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
 
-LANG=C
+export LC_ALL=C
 
 # if [ "$#" -eq 0 ]; then
 #   echo "usage: $(basename $0) <package-name> [debian-package-name]"
