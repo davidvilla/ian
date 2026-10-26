@@ -252,6 +252,31 @@ Then, at your desktop (amd64), just upload indicating package architecture::
   foo/mypackage$ ian upload armhf
 
 
+Claude Code plugin
+==================
+
+This repository is also a `Claude Code <https://claude.com/claude-code>`_ plugin. It provides
+an ``ian`` skill that tells Claude how to use ian: which commands only read and which ones
+change your system or the pool, how to avoid the interactive prompts (``release -y -m``,
+``remove -y``, sudo, GPG), and the usual release workflow.
+
+Install it from a Claude Code session::
+
+  /plugin install ian --marketplace davidvilla/ian
+
+On Claude Code versions older than 2.1.275, add the marketplace first::
+
+  /plugin marketplace add davidvilla/ian
+  /plugin install ian@ian
+
+To try a local checkout, use its path as the marketplace::
+
+  /plugin marketplace add ~/repos/ian
+
+The skill is loaded automatically when you ask Claude to build, release, install or upload
+a Debian package. Its source is at ``skills/ian/SKILL.md``.
+
+
 FAQ
 ===
 

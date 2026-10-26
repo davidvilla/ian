@@ -1,0 +1,12 @@
+{
+  "name": "ian",
+  "description": "Skill to drive ian, a frontend for the official Debian packaging tools",
+  "author": {
+    "name": "David Villa Alises",
+    "email": "David.Villa@gmail.com"
+  },
+  "homepage": "https://github.com/davidvilla/ian",
+  "repository": "https://github.com/davidvilla/ian",
+  "license": "GPL-2.0-or-later",
+  "keywords": ["debian", "packaging", "deb"]
+}

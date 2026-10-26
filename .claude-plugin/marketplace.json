@@ -1,0 +1,14 @@
+{
+  "name": "ian",
+  "owner": {
+    "name": "David Villa Alises",
+    "email": "David.Villa@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "ian",
+      "source": "./",
+      "description": "Skill to drive ian, a frontend for the official Debian packaging tools"
+    }
+  ]
+}
