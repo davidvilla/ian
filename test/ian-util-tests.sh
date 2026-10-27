@@ -4,7 +4,9 @@
 source shell-commodity.sh
 source unittest.sh
 source ian-util.sh
+source ian-exec.sh
 source ian-build.sh
+source ian-orig.sh
 
 export TERM=xterm
 
@@ -86,6 +88,32 @@ function test-upstream-sources-missing-with-leftover-dir {
 
 function test-upstream-sources-without-orig {
 	sc-assert-false _upstream-sources-missing /nonexistent.orig.tar.gz
+}
+
+# a package whose "get-orig-source" rule writes its orig at $1 (relative to the package dir)
+function _make-rule-package {
+	local tmp=$(mktemp -d)
+
+	mkdir -p $tmp/hello-1.0/debian
+	printf 'get-orig-source:\n\ttouch %s\n' "$1" > $tmp/hello-1.0/debian/rules
+	echo $tmp
+}
+
+function test-orig-from-rule-moves-orig-to-orig-dir {
+	local tmp=$(_make-rule-package hello_1.0.orig.tar.gz)
+
+	cd $tmp/hello-1.0
+	_PACKAGE=hello _DEBIAN_VERSION=1.0-1 orig-from-rule
+	sc-assert-files-exist $tmp/hello_1.0.orig.tar.gz
+	sc-assert-file-absent hello_1.0.orig.tar.gz
+}
+
+function test-orig-from-rule-orig-already-in-orig-dir {
+	local tmp=$(_make-rule-package ../hello_1.0.orig.tar.gz)
+
+	cd $tmp/hello-1.0
+	_PACKAGE=hello _DEBIAN_VERSION=1.0-1 orig-from-rule
+	sc-assert-files-exist $tmp/hello_1.0.orig.tar.gz
 }
 
 run-testsuit

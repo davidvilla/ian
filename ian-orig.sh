@@ -83,7 +83,14 @@ function orig-from-rule {
     sc-assert _has-rule get-orig-source "missing 'get-orig-source' in 'debian/rules'"
 
     check-run "make -f ./debian/rules get-orig-source"
-    mv -v $(eval echo _orig-pattern) $(orig-dir)/
+
+    # the rule may leave the orig here or directly in the orig dir
+    local fname
+    for fname in $(eval echo $(_orig-pattern)); do
+        if [ -f "$fname" ]; then
+            mv -v "$fname" $(orig-dir)/
+        fi
+    done
 }
 
 # http://people.debian.org/~piotr/uscan-dl
