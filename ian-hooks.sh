@@ -4,10 +4,10 @@
 # Hooks are shell functions the user defines in ~/.config/ian or in the project's .ian file, which ian runs around
 # each of its commands ("run-cmd"). Every command has the same four:
 #
-#   ian-<cmd>-pre-hook     before the command
-#   ian-<cmd>-post-hook    after it, whatever it did
-#   ian-<cmd>-ok-hook      after "post", only when the command succeeded
-#   ian-<cmd>-fail-hook    after "post", only when it failed
+#   ian-<cmd>-pre-hook       before the command
+#   ian-<cmd>-post-hook      after it, whatever it did
+#   ian-<cmd>-success-hook   after "post", only when the command succeeded
+#   ian-<cmd>-fail-hook      after "post", only when it failed
 #
 # They also run when a command is run by another one: "ian build" runs those of "orig", which runs those of
 # "clean", and, with "-i", those of "install". A hook cannot stop the command: its exit code is ignored.
@@ -24,10 +24,10 @@ ian-clean-hook:ian-clean-post-hook
 ian-release-hook:ian-release-post-hook
 ian-build-hook:ian-build-post-hook
 ian-build-start-hook:ian-build-pre-hook
-ian-build-end-hook:ian-build-ok-hook
+ian-build-end-hook:ian-build-success-hook
 ian-install-hook:ian-install-post-hook
 ian-upload-start-hook:ian-upload-pre-hook
-ian-upload-end-hook:ian-upload-ok-hook
+ian-upload-end-hook:ian-upload-success-hook
 ian-remove-hook:ian-remove-post-hook
 "
 
@@ -50,7 +50,7 @@ function run-cmd {
 	run-hook $cmd post
 
 	if [ $rcode -eq 0 ]; then
-		run-hook $cmd ok
+		run-hook $cmd success
 	else
 		run-hook $cmd fail
 	fi
@@ -62,7 +62,7 @@ function _hookless-command {
 	[[ " $IAN_HOOKLESS_COMMANDS " == *" $1 "* ]]
 }
 
-# run the hook of a command for one stage: pre, post, ok or fail
+# run the hook of a command for one stage: pre, post, success or fail
 function run-hook {
 	local hook="ian-$1-$2-hook"
 	local old=

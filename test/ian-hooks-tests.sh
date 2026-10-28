@@ -36,18 +36,18 @@ function test-hooks-of-a-command-that-succeeds {
 	_setup
 	function ian-thing-pre-hook { echo pre >> $TRACE; }
 	function ian-thing-post-hook { echo post >> $TRACE; }
-	function ian-thing-ok-hook { echo ok >> $TRACE; }
+	function ian-thing-success-hook { echo success >> $TRACE; }
 	function ian-thing-fail-hook { echo fail >> $TRACE; }
 
 	run-cmd thing
-	sc-assert-equals "$(_trace)" "pre thing post ok"
+	sc-assert-equals "$(_trace)" "pre thing post success"
 }
 
 function test-hooks-of-a-command-that-fails {
 	_setup
 	function ian-broken-pre-hook { echo pre >> $TRACE; }
 	function ian-broken-post-hook { echo post >> $TRACE; }
-	function ian-broken-ok-hook { echo ok >> $TRACE; }
+	function ian-broken-success-hook { echo success >> $TRACE; }
 	function ian-broken-fail-hook { echo fail >> $TRACE; }
 
 	run-cmd broken
@@ -111,7 +111,7 @@ function test-a-command-that-only-shows-information-has-no-hooks {
 	_setup
 	function ian-summary-pre-hook { echo pre >> $TRACE; }
 	function ian-summary-post-hook { echo post >> $TRACE; }
-	function ian-summary-ok-hook { echo ok >> $TRACE; }
+	function ian-summary-success-hook { echo success >> $TRACE; }
 
 	run-cmd summary
 	sc-assert-equals "$(_trace)" "summary"
@@ -133,7 +133,7 @@ function test-deprecated-build-start-hook-runs-as-pre {
 	sc-assert-equals "$(_trace)" "deprecated old build"
 }
 
-function test-deprecated-build-end-hook-runs-as-ok {
+function test-deprecated-build-end-hook-runs-as-success {
 	_setup
 	function ian-build-end-hook { echo old >> $TRACE; }
 

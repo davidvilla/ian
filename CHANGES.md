@@ -5,14 +5,14 @@ still in `CHANGES.rst`).
 
 ## Unreleased
 
-### The hooks of a command: pre, post, ok and fail (2026-10-28)
+### The hooks of a command: pre, post, success and fail (2026-10-28)
 
 Every command now has the same four hooks, which the user defines in `~/.config/ian` or in the project's `.ian`
 file (see the *hooks* section of `README.rst`):
 
 - `ian-<cmd>-pre-hook`: before the command.
 - `ian-<cmd>-post-hook`: after the command, whatever it did.
-- `ian-<cmd>-ok-hook`: after `post`, only when the command succeeded.
+- `ian-<cmd>-success-hook`: after `post`, only when the command succeeded.
 - `ian-<cmd>-fail-hook`: after `post`, only when it failed.
 
 The commands that only show information have no hooks: `help`, `name`, `summary`, `config`, `binary-contents`,
@@ -28,21 +28,21 @@ The hooks of previous versions still run, in the place of the hook that replaces
 are deprecated. If both a deprecated hook and its replacement are defined, only the replacement runs and ian warns
 that the deprecated one was discarded.
 
-| deprecated              | replaced by             |
-|-------------------------|-------------------------|
-| `ian-clean-hook`        | `ian-clean-post-hook`   |
-| `ian-release-hook`      | `ian-release-post-hook` |
-| `ian-build-hook`        | `ian-build-post-hook`   |
-| `ian-build-start-hook`  | `ian-build-pre-hook`    |
-| `ian-build-end-hook`    | `ian-build-ok-hook`     |
-| `ian-install-hook`      | `ian-install-post-hook` |
-| `ian-upload-start-hook` | `ian-upload-pre-hook`   |
-| `ian-upload-end-hook`   | `ian-upload-ok-hook`    |
-| `ian-remove-hook`       | `ian-remove-post-hook`  |
+| deprecated              | replaced by               |
+|-------------------------|---------------------------|
+| `ian-clean-hook`        | `ian-clean-post-hook`     |
+| `ian-release-hook`      | `ian-release-post-hook`   |
+| `ian-build-hook`        | `ian-build-post-hook`     |
+| `ian-build-start-hook`  | `ian-build-pre-hook`      |
+| `ian-build-end-hook`    | `ian-build-success-hook`  |
+| `ian-install-hook`      | `ian-install-post-hook`   |
+| `ian-upload-start-hook` | `ian-upload-pre-hook`     |
+| `ian-upload-end-hook`   | `ian-upload-success-hook` |
+| `ian-remove-hook`       | `ian-remove-post-hook`    |
 
 Two of them do not run exactly where they used to: `ian-build-start-hook` now runs before the whole `build`
 command (before the orig and the build dependencies), and not just before `dpkg-buildpackage`; and
 `ian-clean-hook` after the `clean` command instead of at its end. `ian-build-end-hook` and `ian-upload-end-hook`
-became `ok` hooks, and not `post` ones, because they were only called when the command succeeded.
+became `success` hooks, and not `post` ones, because they were only called when the command succeeded.
 
 Tests: `test/ian-hooks-tests.sh`.
