@@ -1,3 +1,9 @@
+ian (0.20261028.3-1) unstable; urgency=low
+
+  * New release: remove vagrant commands
+
+ -- David Villa Alises <David.Villa@gmail.com>  Wed, 28 Oct 2026 15:07:19 +0100
+
 ian (0.20261028.2-1) unstable; urgency=low
 
   * New release: term colors for stdout

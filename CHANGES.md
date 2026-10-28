@@ -46,3 +46,9 @@ command (before the orig and the build dependencies), and not just before `dpkg-
 became `success` hooks, and not `post` ones, because they were only called when the command succeeded.
 
 Tests: `test/ian-hooks-tests.sh`.
+
+### The vagrant commands are gone (2026-10-28)
+
+`vagrant-provision`, `vagrant-build` and `vagrant-clean` removed, with `ian-vagrant.sh` and `vagrant/`. They
+built i386 packages in amd64, an architecture Debian no longer releases, and the boxes were Debian 10 (EOL).
+Use `sbuild` for clean or foreign architecture builds, and `ian upload <arch>` for binaries built elsewhere.

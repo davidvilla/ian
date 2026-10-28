@@ -243,23 +243,6 @@ command (the orig, the build dependencies), and not just before ``dpkg-buildpack
 after the ``clean`` command instead of at its end.
 
 
-Compiling i386 packages in an amd64 computer
-===========================================
-
-::
-
-  $ ian vagrant-gen-files
-  ian: generated: Vagrantfile playbook.yml
-
-  $ ian vagrant-build
-  vagrant up --provision amd64
-  vagrant ssh amd64 -c "cd /vagrant/<package-directory>; ian build -m"
-  vagrant up --provision i386
-  vagrant ssh i386 -c "cd /vagrant/<package-directory>; ian build -bm"
-
-  $ ian vagrant-clean
-
-
 Sign and upload externally compiled packages
 ==============================
 

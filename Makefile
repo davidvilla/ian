@@ -28,8 +28,6 @@ install:
 	install -v -m 444 unittest.sh  $(BASE)/
 	install -v -m 555 ian.sh $(BASE)
 	install -v -m 444 ian-*.sh $(BASE)
-	install -vd $(BASE)/vagrant
-	install -v -m 444 vagrant/* $(BASE)/vagrant/
 
 	install -vd $(DESTDIR)/usr/bin
 	install -v -m 555 last-pypi-version.py $(DESTDIR)/usr/bin/last-pypi-version

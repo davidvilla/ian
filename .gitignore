@@ -9,7 +9,6 @@ debian/*.substvars
 debian/.debhelper
 debian/ian
 debian/debhelper*
-.vagrant/*
 ian.1
 last-pypi-version.1
 version-summary.1

@@ -24,9 +24,6 @@
 ##:ian-map:101:pool-ls
 ##:ian-map:120:create
 ##:ian-map:140:lintian-fix
-##:ian-map:200:vagrant-provision
-##:ian-map:201:vagrant-build
-##:ian-map:202:vagrant-clean
 
 IAN_LEGACY_CONFIG=$HOME/.config/ian/config
 IAN_CONFIG=$HOME/.config/ian
@@ -84,7 +81,6 @@ source $IAN_ROOT/ian-install.sh
 source $IAN_ROOT/ian-lintian.sh
 source $IAN_ROOT/ian-repo.sh
 source $IAN_ROOT/ian-clean.sh
-source $IAN_ROOT/ian-vagrant.sh
 
 
 function ian {
