@@ -135,7 +135,7 @@ function _do-upload {
 		cat ${outputs[1]} > >(_indent "$OUT_SIGN")
 		log-ok "upload"
     else
-		cat ${outputs[2]} > >(_indent "$ERR_SIGN")
+		cat ${outputs[2]} > >(_indent "$ERR_SIGN" "$ERR_COLOR")
 		log-fail "upload"
     fi
 

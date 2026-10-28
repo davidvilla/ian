@@ -34,22 +34,6 @@ IAN_CWD_CONFIG=./.ian
 BUILDOPTIONS=${BUILDOPTIONS:-""}
 TODAY=$(date +%Y%m%d)
 
-NORMAL=$(tput sgr0)
-BOLD=$(tput bold)
-GREEN=$(tput setf 2)
-RED=$(tput setf 4)
-DIM=$(tput dim)
-BLUE=$(tput setf 1)
-GREY=$(tput setf 7)
-
-OUT_SIGN="     |"
-ERR_SIGN="    *|"
-CHECK_OUT_SIGN="$BLUE$OUT_SIGN$NORMAL"
-CHECK_ERR_SIGN="$BLUE$ERR_SIGN$NORMAL"
-SU_OUT_SIGN="$RED$OUT_SIGN$NORMAL"
-SU_ERR_SIGN="$RED$ERR_SIGN$NORMAL"
-# TERM_COLS=$(tput cols)
-
 __file__=$0
 __cmd__=$1
 shift
@@ -60,6 +44,28 @@ NATIVE_LANG="$LANG"
 LANG=C
 
 source $IAN_ROOT/shell-commodity.sh
+
+# colors, only if the terminal supports them
+if sc-terminal-has-colors; then
+	NORMAL=$(tput sgr0)
+	BOLD=$(tput bold)
+	GREEN=$(tput setf 2)
+	RED=$(tput setf 4)
+	DIM=$(tput dim)
+	BLUE=$(tput setf 1)
+	GREY=$(tput setf 7)
+	SOFT_RED=$(tput setaf 1)
+fi
+
+OUT_SIGN="     |"
+ERR_SIGN="    *|"
+ERR_COLOR="$SOFT_RED"
+CHECK_OUT_SIGN="$BLUE$OUT_SIGN$NORMAL"
+CHECK_ERR_SIGN="$BLUE$ERR_SIGN$NORMAL"
+SU_OUT_SIGN="$RED$OUT_SIGN$NORMAL"
+SU_ERR_SIGN="$RED$ERR_SIGN$NORMAL"
+# TERM_COLS=$(tput cols)
+
 source $IAN_ROOT/ian-util.sh
 source $IAN_ROOT/ian-config.sh
 load-config

@@ -5,7 +5,7 @@ function ian-sudo {
     local msg="ian: $command"
 
     sc-log-info "$msg"
-    if ! eval sudo $command 2> >(_indent "$SU_ERR_SIGN") > >(_indent "$SU_OUT_SIGN"); then
+    if ! eval sudo $command 2> >(_indent "$SU_ERR_SIGN" "$ERR_COLOR") > >(_indent "$SU_OUT_SIGN"); then
 	sc-log-fail "$msg"
 	exit 1
     fi
@@ -16,18 +16,25 @@ function check-run() {
     local msg="ian: $command"
 
     sc-log-info "$msg"
-    if ! eval $command 2> >(_indent "$CHECK_ERR_SIGN") > >(_indent "$CHECK_OUT_SIGN"); then
+    if ! eval $command 2> >(_indent "$CHECK_ERR_SIGN" "$ERR_COLOR") > >(_indent "$CHECK_OUT_SIGN"); then
 		sc-log-fail "$msg"
 		exit 1
     fi
 }
 
 function ian-run {
-    eval $1 2> >(_indent "$ERR_SIGN") > >(_indent "$OUT_SIGN")
+    eval $1 2> >(_indent "$ERR_SIGN" "$ERR_COLOR") > >(_indent "$OUT_SIGN")
 }
 
 function _indent {
-    #local width=$(( $TERM_COLS - ${#1} ))
-    #fold -w $width | sed "s/^/$1/g"
-    sed "s/^/$1/g"
+    local sign="$1"
+    local color="$2"
+
+    #local width=$(( $TERM_COLS - ${#sign} ))
+    #fold -w $width | sed "s/^/$sign/g"
+    if [[ -z "$color" ]]; then
+		sed "s/^/$sign/g"
+    else
+		sed -e "s/^/$color$sign$color/g" -e "s/$/$NORMAL/g"
+    fi
 }

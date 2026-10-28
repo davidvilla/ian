@@ -124,6 +124,10 @@ function sc-bin-exists {
 	type -t "$1" > /dev/null
 }
 
+function sc-terminal-has-colors {
+	[ -z "$NO_COLOR" ] && [ -t 1 ] && [ "$(tput colors 2> /dev/null || echo 0)" -ge 8 ]
+}
+
 function sc-function-exists {
 	type -t "$1" | grep "function" > /dev/null
 }
@@ -265,14 +269,23 @@ function sc-assure-deb-pkg-installed {
 #
 #LOGLEVEL=$LEVEL_ERROR
 
-bold="\033[1m"
+if sc-terminal-has-colors; then
+	bold="\033[1m"
+	norm="\e[0m"
+	sc_red="\e[1;31m"
+	sc_green="\e[1;32m"
+	sc_yellow="\e[1;33m"
+	sc_blue="\e[1;34m"
+else
+	bold=""
+	norm=""
+	sc_red=""
+	sc_green=""
+	sc_yellow=""
+	sc_blue=""
+fi
 
 function sc-log-notify {
-	local red="\e[1;31m"
-	local green="\e[1;32m"
-	local yellow="\e[1;33m"
-	local blue="\e[1;34m"
-	local norm="\e[0m"
 	local color=""
 
 	local message=$2
@@ -284,25 +297,25 @@ function sc-log-notify {
 
 	if [ $1 = "EE" ]; then
 		level="error"
-		color=$red;
+		color=$sc_red;
 	elif [ $1 = "FF" ]; then
 		level="fail"
-		color=$red;
+		color=$sc_red;
 	elif [ $1 = "WW" ] || [ $1 = "DEPRECATED" ]; then
 #		if [  $LOGLEVEL -lt $LEVEL_WARN ]; then
 #			return
 #		fi
 		level="warning"
-		color=$yellow;
+		color=$sc_yellow;
 		message=$bold$message$norm
 	elif [ $1 = "II" ]; then
 #		if [  $LOGLEVEL -lt $LEVEL_INFO ]; then
 #			return
 #		fi
-		color=$blue;
+		color=$sc_blue;
 	elif [ $1 = "OK" ]; then
 		level="ok"
-		color=$green;
+		color=$sc_green;
 	fi
 
 	printf "[$color$1$norm] $message \n"
