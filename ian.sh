@@ -93,6 +93,14 @@ function ian {
 		unknown-command "$__cmd__"
     fi
 
+	for arg in "${__args__[@]}"; do
+		if [[ "$arg" == "-h" || "$arg" == "--help" ]]; then
+			__args__=("$__cmd__")
+			cmd:help
+			return
+		fi
+	done
+
 	eval cmd:$__cmd__
 }
 

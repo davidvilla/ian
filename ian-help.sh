@@ -30,7 +30,7 @@ function _help-command-summary() {
     _print-command-synopsis "ian-map"
 
 
-    echo -e "\nrun 'ian help <cmd>' for details."
+    echo -e "\nrun 'ian help <cmd>' or 'ian <cmd> -h' for details."
 }
 
 function _print-command-synopsis {
