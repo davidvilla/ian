@@ -39,6 +39,7 @@ usuario ha pedido):
 | `ian orig [rule\|uscan\|local]` | Genera o descarga el `.orig`. Sin modo, usa el primero disponible de `ian summary` (rule → uscan → local). Falla si ya existe |
 | `ian build [opciones]` | Compila (ver abajo) |
 | `ian clean` | `debian/rules clean` y borra los ficheros generados en `..`, **incluido el `.orig`** |
+| `ian clean-uscan` | Borra los tarballs que haya descargado uscan |
 | `ian lintian-fix` | Intenta corregir algunos avisos de lintian (watch ausente, manpages, Standards-Version) |
 | `ian create` | Crea un `debian/` mínimo en un proyecto sin empaquetar (requiere un `Makefile` con regla `install`) |
 
@@ -114,10 +115,31 @@ por la cantidad de salida.
 ## Configuración
 
 Variables `DEBFULLNAME`, `DEBEMAIL`, `DEBSIGN_KEYID`, `DEBPOOL` y `EDITOR`,
-leídas de `~/.config/ian` y del fichero `.ian` del proyecto (que también puede
-definir hooks como `ian-build-end-hook`). Las variables de entorno tienen
-prioridad. `DEBPOOL` es `usuario@host/ruta` para un pool remoto o una ruta
-absoluta para uno local. `IAN_DISABLE_HOOKS=1` desactiva los hooks.
+leídas de `~/.config/ian` y del fichero `.ian` del proyecto. Las variables de
+entorno tienen prioridad. `DEBPOOL` es `usuario@host/ruta` para un pool remoto
+o una ruta absoluta para uno local.
+
+## Hooks
+
+Esos mismos ficheros definen hooks: funciones de shell que ian ejecuta
+alrededor de cada comando, cuatro por comando (`ian-build-pre-hook`,
+`ian-upload-success-hook`, `ian-remove-fail-hook`...):
+
+- `ian-<cmd>-pre-hook`: antes del comando.
+- `ian-<cmd>-post-hook`: después, haya ido como haya ido.
+- `ian-<cmd>-success-hook`: tras `post`, solo si el comando tuvo éxito.
+- `ian-<cmd>-fail-hook`: tras `post`, solo si falló.
+
+Los comandos de solo lectura no tienen hooks. Se ejecutan también cuando un
+comando llama a otro: `ian build` lanza los de `orig` (que lanza los de
+`clean`) y, con `-i`, los de `install`. Un hook no puede abortar su comando.
+`IAN_DISABLE_HOOKS=1` los desactiva todos.
+
+Los nombres de versiones anteriores (`ian-build-hook`, `ian-build-start-hook`,
+`ian-build-end-hook`, `ian-clean-hook`...) siguen funcionando en el lugar del
+hook que los sustituye, con un aviso `[DEPRECATED]` que indica el nombre nuevo.
+Si aparece ese aviso, lo que procede es renombrar el hook en `~/.config/ian` o
+en el `.ian` del proyecto.
 
 ## Herramientas incluidas en el paquete
 

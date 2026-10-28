@@ -205,7 +205,7 @@ named after it:
 For instance ``ian-build-pre-hook``, ``ian-upload-success-hook`` or ``ian-remove-fail-hook``.
 
 Hooks also run when a command is run by another one: ``ian build`` runs those of ``orig`` (which runs those of
-``clean``), those of ``ls`` and, with ``-i``, those of ``install``.
+``clean``) and, with ``-i``, those of ``install``.
 
 The commands that only show information have no hooks: ``help``, ``name``, ``summary``, ``config``,
 ``binary-contents``, ``pool-ls`` and ``ls``.
