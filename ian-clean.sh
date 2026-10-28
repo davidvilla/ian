@@ -14,11 +14,10 @@ function cmd:clean {
     _clean-common
 
     if valid-watch-present; then
-	cmd:clean-uscan
+	run-cmd clean-uscan
     fi
 
     log-ok "clean"
-    notify-clean
     return 0
     )
 }

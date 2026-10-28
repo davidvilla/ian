@@ -83,7 +83,7 @@ source $IAN_ROOT/ian-vagrant.sh
 
 function ian {
 	if [[ -z "$__cmd__" ]]; then
-		cmd:help
+		run-cmd help
 		return 1
 	fi
 
@@ -96,12 +96,12 @@ function ian {
 	for arg in "${__args__[@]}"; do
 		if [[ "$arg" == "-h" || "$arg" == "--help" ]]; then
 			__args__=("$__cmd__")
-			cmd:help
+			run-cmd help
 			return
 		fi
 	done
 
-	eval cmd:$__cmd__
+	run-cmd $__cmd__
 }
 
 eval $(basename $__file__)

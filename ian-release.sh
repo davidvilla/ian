@@ -139,7 +139,6 @@ EOF
 		$EDITOR debian/changelog
 	fi
 
-    notify-release
     )
 }
 

@@ -11,7 +11,6 @@ function cmd:install {
 
     log-info "install"
     ian-sudo "dpkg -i $(binary-paths)"
-    notify-install
     log-ok "install"
     )
 }
@@ -19,15 +18,15 @@ function cmd:install {
 function cmd:build-and-install {
 ##:combo:010:build-and-install: run "ian build" + "ian install"
     (
-    sc-assert cmd:build
-    sc-assert cmd:install
+    sc-assert "run-cmd build"
+    sc-assert "run-cmd install"
     )
 }
 
 function cmd:clean-build-and-install {
 ##:combo:020:clean-build-and-install: run "ian clean" + "ian build" + "ian install"
     (
-    sc-assert cmd:clean
-    sc-assert cmd:build-and-install
+    sc-assert "run-cmd clean"
+    sc-assert "run-cmd build-and-install"
     )
 }

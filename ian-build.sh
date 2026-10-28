@@ -82,9 +82,9 @@ function cmd:build {
 		if  ! sc-file-exists "$(find-orig-path)"; then
 			if [ "$local" = true ]; then
 				__args__=(local)
-				sc-assert cmd:orig
+				sc-assert "run-cmd orig"
 			else
-				sc-assert cmd:orig
+				sc-assert "run-cmd orig"
 			fi
 		fi
 
@@ -98,8 +98,6 @@ function cmd:build {
 
 		_builddeps-assure
 		log-info "build"
-
-		notify-build-start
 
 		sc-set-trap quilt-pop
 		if uses-svn; then
@@ -120,11 +118,10 @@ function cmd:build {
 		sc-assert-files-exist $(binary-paths)
 		log-ok "build"
 		log-info "generated files:"
-		cmd:ls
-		notify-build-end
+		run-cmd ls
 
 		if [ "$install" = true ]; then
-			cmd:install
+			run-cmd install
 		fi
 	)
 }

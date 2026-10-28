@@ -165,5 +165,5 @@ EOF
 function cmd:config {
 ##:012:cmd:show found environment variables
 ##:012:usage:ian config
-	cmd:debvars
+	run-cmd debvars
 }

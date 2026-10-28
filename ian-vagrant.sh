@@ -17,7 +17,7 @@ function cmd:vagrant-provision {
 
     log-ok "generated: $VAGRANT_FILES"
 
-    check-run "cmd:clean"
+    check-run "run-cmd clean"
     check-run "vagrant up --provision i386"
     check-run "vagrant up --provision amd64"
     )

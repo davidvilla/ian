@@ -50,7 +50,7 @@ function cmd:orig {
 	if [ ! -z $(find-orig-path) ]; then
         log-warning "missing orig '$(_orig-pattern)', getting/creating it"
 	fi
-    cmd:clean
+    run-cmd clean
     sc-assure-dir $(orig-dir)
 
     $orig_func
@@ -63,19 +63,19 @@ function cmd:orig {
 function cmd:orig-from-rule {
     (>&2 deprecation "command orig-from-rule is DEPRECATED. Use 'ian orig rule'")
     __args__=(rule)
-    cmd:orig
+    run-cmd orig
 }
 
 function cmd:orig-uscan {
     (>&2 deprecation "command orig-uscan is DEPRECATED. Use 'ian orig uscan'")
     __args__=(uscan)
-    cmd:orig
+    run-cmd orig
 }
 
 function cmd:orig-from-local {
     (>&2 deprecation "command orig-from-local is DEPRECATED. Use 'ian orig local'")
     __args__=(local)
-    cmd:orig
+    run-cmd orig
 }
 
 

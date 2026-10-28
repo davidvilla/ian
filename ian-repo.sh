@@ -103,8 +103,6 @@ function _do-upload {
 	# sc-assert-files-exist ~/.gnupg/secring.gpg
     sc-assert-files-exist $changes_path $(binary-paths) $(_dupload-filename)
 
-	notify-upload-start
-
 	local second_try=false
     while true; do
 		check-run "LANG=$NATIVE_LANG debsign -k$DEBSIGN_KEYID --no-re-sign $changes_path"
@@ -136,7 +134,6 @@ function _do-upload {
     if [ $rcode -eq 0 ]; then
 		cat ${outputs[1]} > >(_indent "$OUT_SIGN")
 		log-ok "upload"
-		notify-upload-end
     else
 		cat ${outputs[2]} > >(_indent "$ERR_SIGN")
 		log-fail "upload"
@@ -219,7 +216,7 @@ function cmd:remove {
     assert-no-more-args $OPTIND
 
     echo "Listing pool files in '$DEBPOOL' for package '$(package)':"
-    cmd:pool-ls
+    run-cmd pool-ls
     echo
 
     if [ $quiet = false ]; then
@@ -232,7 +229,6 @@ function cmd:remove {
 		_remove-package "$pkg" "$arch"
     done
 
-	notify-remove
 }
 
 function _user-confirm {

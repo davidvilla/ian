@@ -2,7 +2,7 @@
 
 function cmd:list-products {
 	(>&2 log-warning "command \"list-products\" is DEPRECATED. Use \"ian ls\"")
-	cmd:ls
+	run-cmd ls
 }
 
 

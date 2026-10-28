@@ -194,18 +194,53 @@ repository. ``DEBSIGN_KEYID`` is your GPG key fingerprint (keyID).
 hooks
 =====
 
-ian may execute user provided shell functions at important events in the process. Allowed hooks are:
+ian may execute user provided shell functions at important events in the process. Every command has four hooks,
+named after it:
 
-* ian-clean-hook
-* ian-release-hook
-* ian-build-start-hook
-* ian-build-end-hook
-* ian-install-hook
-* ian-upload-start-hook
-* ian-run ian-upload-end-hook
-* ian-run ian-remove-hook
+* ``ian-<cmd>-pre-hook``: before the command.
+* ``ian-<cmd>-post-hook``: after the command, whatever it did.
+* ``ian-<cmd>-ok-hook``: after ``post``, only when the command succeeded.
+* ``ian-<cmd>-fail-hook``: after ``post``, only when it failed.
+
+For instance ``ian-build-pre-hook``, ``ian-upload-ok-hook`` or ``ian-remove-fail-hook``.
+
+Hooks also run when a command is run by another one: ``ian build`` runs those of ``orig`` (which runs those of
+``clean``), those of ``ls`` and, with ``-i``, those of ``install``.
+
+The commands that only show information have no hooks: ``help``, ``name``, ``summary``, ``config``,
+``binary-contents``, ``pool-ls`` and ``ls``.
+
+A hook cannot stop its command: its exit code is ignored. Each one runs in a subshell and in the package root
+directory, where the commands run, so it may change directory or exit without affecting ian. Defining
+``IAN_DISABLE_HOOKS`` disables all of them.
 
 You may provide these functions in your **~/.config/ian** file or the by-project **.ian** file.
+
+
+deprecated hooks
+----------------
+
+The hooks of previous versions of ian still run, in the place of the hook that replaces each one, warning that
+they are deprecated. If both the deprecated hook and its replacement are defined, only the replacement runs and
+ian warns that the deprecated one was discarded, so you can remove it.
+
+=========================  ==========================
+deprecated                 replaced by
+=========================  ==========================
+ian-clean-hook             ian-clean-post-hook
+ian-release-hook           ian-release-post-hook
+ian-build-hook             ian-build-post-hook
+ian-build-start-hook       ian-build-pre-hook
+ian-build-end-hook         ian-build-ok-hook
+ian-install-hook           ian-install-post-hook
+ian-upload-start-hook      ian-upload-pre-hook
+ian-upload-end-hook        ian-upload-ok-hook
+ian-remove-hook            ian-remove-post-hook
+=========================  ==========================
+
+Two of them do not run exactly where they used to: ``ian-build-start-hook`` now runs before the whole ``build``
+command (the orig, the build dependencies), and not just before ``dpkg-buildpackage``; and ``ian-clean-hook``
+after the ``clean`` command instead of at its end.
 
 
 Compiling i386 packages in an amd64 computer
