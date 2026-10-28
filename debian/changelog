@@ -1,3 +1,9 @@
+ian (0.20261028.1-1) unstable; urgency=low
+
+  * New release: hook "ok" -> "success"
+
+ -- David Villa Alises <David.Villa@gmail.com>  Wed, 28 Oct 2026 14:19:49 +0100
+
 ian (0.20261028-1) unstable; urgency=low
 
   * New release: new hooks.
