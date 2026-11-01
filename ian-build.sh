@@ -1,7 +1,7 @@
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
 
 function cmd:binary-contents {
-##:060:cmd:show binary package file listings
+##:binary-contents:cmd:show binary package file listings
 	assert-no-more-args
 
     (
@@ -19,16 +19,16 @@ function quilt-pop {
 }
 
 function cmd:build {
-##:040:cmd:build all binary packages. See 'ian help build'.
-##:040:usage:ian build [-b] [-c] [-f] [-i] [-m] [-s] [-x]
-##:040:usage:  -b;  skip 'source' target. See 'dpkg-buildpackage -b'
-##:040:usage:  -c;  run "ian clean" then "build"
-##:040:usage:  -f;  force build
-##:040:usage:  -i;  run "ian build" then "install"
-##:040:usage:  -l;  creates orig with "ian orig local"
-##:040:usage:  -m;  merge ./debian with upstream .orig. bypassing cwd
-##:040:usage:  -s;  include full source. See 'dpkg-genchanges -sa'
-##:040:usage:  -x;  skip lintian
+##:build:cmd:build all binary packages. See 'ian help build'.
+##:build:usage:ian build [-b] [-c] [-f] [-i] [-m] [-s] [-x]
+##:build:usage:  -b;  skip 'source' target. See 'dpkg-buildpackage -b'
+##:build:usage:  -c;  run "ian clean" then "build"
+##:build:usage:  -f;  force build
+##:build:usage:  -i;  run "ian build" then "install"
+##:build:usage:  -l;  creates orig with "ian orig local"
+##:build:usage:  -m;  merge ./debian with upstream .orig. bypassing cwd
+##:build:usage:  -s;  include full source. See 'dpkg-genchanges -sa'
+##:build:usage:  -x;  skip lintian
 
 
     local clean=false build_binary=false force=false install=false local=false merge=false include_source=false

@@ -2,7 +2,7 @@
 #-- clean ------------------------------------------------------------
 
 function cmd:clean {
-##:030:cmd:clean product files and revert patches
+##:clean:cmd:clean product files and revert patches
     assert-no-more-args
 
     (
@@ -30,7 +30,7 @@ function _clean-common {
 }
 
 function cmd:clean-uscan {
-##:031:cmd:clean uscan related files
+##:clean-uscan:cmd:clean uscan related files
     assert-no-more-args
 
     log-info "clean-uscan"

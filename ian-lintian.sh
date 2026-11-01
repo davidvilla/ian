@@ -13,7 +13,7 @@ function run-lintian() {
 
 
 function cmd:lintian-fix() {
-##:140:cmd:try to automatically solve some lintian issues
+##:lintian-fix:cmd:try to automatically solve some lintian issues
     assert-no-more-args
     assert-preconditions
     sc-assert-files-exist $(changes-path)

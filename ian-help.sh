@@ -2,21 +2,21 @@
 
 function cmd:completions {
     assert-no-more-args
-    get-command-list "ian-map"
+    get-command-list
 }
 
 function cmd:help {
-##:000:cmd:show this help
-##:000:usage:ian help [command]
+##:help:cmd:show this help
+##:help:usage:ian help [command]
 
     local cmd="${__args__[0]}"
 
     if ! [[ -z $cmd ]]; then
-		if ! get-command-list "ian-map" | grep "$cmd" > /dev/null; then
+		if ! get-command-list | grep -qx -- "$cmd"; then
 			unknown-command "$cmd"
 		fi
 
-		_print-usage-details "ian-map" "$cmd"
+		_print-usage-details "$cmd"
 		return
     fi
 
@@ -27,19 +27,20 @@ function _help-command-summary() {
     echo "usage: ian <cmd>"
 
     echo -e "\nCommands:"
-    _print-command-synopsis "ian-map"
-
+    _print-command-synopsis
 
     echo -e "\nrun 'ian help <cmd>' or 'ian <cmd> -h' for details."
 }
 
+# command table: '##:ian-map:<cmd>' lines in ian.sh, in display order
+# command docs: '##:<cmd>:cmd:<description>' and '##:<cmd>:usage:<line>' in ian-*.sh
+
 function _print-command-synopsis {
-    local map="$1"
-    for cmd in $(get-command-list "$map"); do
-	printf "  \033[1m%-24s\033[0m" $cmd
-	local code=$(_get-command-code "$map" "$cmd")
-	_print-usage $code
-    done
+    awk -F: '
+	FNR == NR { if (/^##:ian-map:/) cmds[++n] = $3; next }
+	/^##:[^:]+:cmd:/ { desc[$2] = $4 }
+	END { for (i = 1; i <= n; i++) printf "  \033[1m%-24s\033[0m%s\n", cmds[i], desc[cmds[i]] }
+	' $IAN_ROOT/ian.sh $IAN_ROOT/ian-*.sh
 }
 
 # main
@@ -49,54 +50,25 @@ function unknown-command() {
     exit 1
 }
 
-function _command-map {
-    local map="$1"
-    grep "$map" $IAN_ROOT/ian.sh | grep "^##" | sort -n | awk -F":" '{printf "%s:%s:\n", $3, $4}'
-}
-
 # main
-# FIXME: w/o args should return all commands
 function get-command-list() {
-    local map="$1"
-    grep "$map" $IAN_ROOT/ian.sh | grep "^##" | sort -n | cut -d: -f4
-}
-
-function _get-command-code {
-    local map="$1"
-    local cmd="$2"
-    _command-map "$map" | grep ":$cmd:" | cut -d: -f1
-}
-
-
-function _print-usage {
-    local code="$1"
-    grep -h "^##:$code:cmd:" $IAN_ROOT/ian-*.sh | cut -d: -f4
+    awk -F: '/^##:ian-map:/ { print $3 }' $IAN_ROOT/ian.sh
 }
 
 function _print-usage-details() {
-    local map="$1"
-    local cmd="$2"
-    local code=$(_get-command-code "$map" "$cmd")
+    local cmd="$1"
 
-    local usage=$(grep -h "^##:$code:usage:" $IAN_ROOT/ian-*.sh | cut -d: -f4 | tr ';' ':')
-    local usage_lines=$(echo "$usage" | wc -l)
-
-    if [[ -z "$usage" ]]; then
-	printf "ian $cmd\n\n"
-	_print-usage "$code"
-	return
-    fi
-
-    echo "$usage" | head -n 1
-    echo
-    _print-usage "$code"
-
-    if [ "$usage_lines" -lt 2 ]; then
-	return
-    fi
-
-    printf "\noptions:\n\n"
-    echo "$usage" | tail -n "$(($usage_lines-1))"
+    awk -F: -v cmd="$cmd" '
+	$1 == "##" && $2 == cmd && $3 == "cmd" { desc = $4 }
+	$1 == "##" && $2 == cmd && $3 == "usage" { gsub(";", ":", $4); usage[++n] = $4 }
+	END {
+		if (n == 0) { printf "ian %s\n\n%s\n", cmd, desc; exit }
+		printf "%s\n\n%s\n", usage[1], desc
+		if (n < 2) exit
+		printf "\noptions:\n\n"
+		for (i = 2; i <= n; i++) print usage[i]
+	}
+	' $IAN_ROOT/ian-*.sh
 }
 
 function cmd:version {
@@ -163,7 +135,7 @@ EOF
 }
 
 function cmd:config {
-##:012:cmd:show found environment variables
-##:012:usage:ian config
+##:config:cmd:show found environment variables
+##:config:usage:ian config
 	ian-run debvars
 }

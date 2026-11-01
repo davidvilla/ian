@@ -1,7 +1,7 @@
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
 
 function cmd:summary {
-##:010:cmd:show package info
+##:summary:cmd:show package info
 
     assert-no-more-args
 
@@ -27,7 +27,7 @@ function cmd:summary {
 }
 
 function cmd:name {
-##:009:cmd:show package name and current version
+##:name:cmd:show package name and current version
 
     assert-no-more-args
 

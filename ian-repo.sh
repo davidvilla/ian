@@ -2,9 +2,9 @@
 #-- pool actions -----------------------------------------------------
 
 function cmd:upload {
-##:090:cmd:sign and upload binary packages to the configured pool
-##:090:usage:ian upload [arch]
-##:090:usage:  arch;  overwrite detected package architecture, for a cross-compiled package.
+##:upload:cmd:sign and upload binary packages to the configured pool
+##:upload:usage:ian upload [arch]
+##:upload:usage:  arch;  overwrite detected package architecture, for a cross-compiled package.
 
 
 	local arch="${__args__[@]}"
@@ -193,9 +193,9 @@ function _pool-is-remote {
 }
 
 function cmd:remove {
-##:100:cmd:remove package from configured remote pool
-##:100:usage:ian remove [-y]
-##:100:usage:  -y;  do not ask for confirmation
+##:remove:cmd:remove package from configured remote pool
+##:remove:usage:ian remove [-y]
+##:remove:usage:  -y;  do not ask for confirmation
 
     local quiet=false
     local OPTIND=1 OPTARG OPTION
@@ -283,8 +283,8 @@ function _pool-path {
 }
 
 function cmd:pool-ls {
-##:101:cmd:list related packages in the configured pool repository
-##:101:usage:ian pool-ls [-y]
+##:pool-ls:cmd:list related packages in the configured pool repository
+##:pool-ls:usage:ian pool-ls [-y]
 
     for pkg in $(sc-filter-dups $(binary-names) $(dbgsym-names) $(package)); do
 		_reprepro-cmd list sid $pkg

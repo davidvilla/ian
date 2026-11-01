@@ -7,7 +7,7 @@ function cmd:list-products {
 
 
 function cmd:ls {
-##:150:cmd:list generated files
+##:ls:cmd:list generated files
 
     assert-preconditions
 	_product-filenames

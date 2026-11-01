@@ -1,11 +1,11 @@
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
 
 function cmd:release {
-##:020:cmd:add a new changelog entry
-##:020:usage:ian release [-i] [-y] [-m release-message]
-##:020:usage:  -i;      increment debian version suffix (like 'dch -i')
-##:020:usage:  -y;      don't ask for a release message
-##:020:usage:  -m MSG;  release message for debian/changelog entry
+##:release:cmd:add a new changelog entry
+##:release:usage:ian release [-i] [-y] [-m release-message]
+##:release:usage:  -i;      increment debian version suffix (like 'dch -i')
+##:release:usage:  -y;      don't ask for a release message
+##:release:usage:  -m MSG;  release message for debian/changelog entry
 
     local quiet=false msg="New release" revision=false
     local OPTIND=1 OPTARG OPTION
@@ -51,11 +51,11 @@ function _do-release-standard {
 }
 
 function cmd:release-date {
-##:021:cmd:add a new package version based on date: 0.20010101
-##:021:usage:ian release-date [-i] [-y] [-m release-message]
-##:021:usage:  -i;      increment final version component (like 'dch -i')
-##:021:usage:  -y;      do not ask for a release message
-##:021:usage:  -m MSG;  release message for debian/changelog entry
+##:release-date:cmd:add a new package version based on date: 0.20010101
+##:release-date:usage:ian release-date [-i] [-y] [-m release-message]
+##:release-date:usage:  -i;      increment final version component (like 'dch -i')
+##:release-date:usage:  -y;      do not ask for a release message
+##:release-date:usage:  -m MSG;  release message for debian/changelog entry
 
     local quiet=false msg="New release" revision=false
     local OPTIND=1 OPTARG OPTION

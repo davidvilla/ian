@@ -1,7 +1,7 @@
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
 
 function cmd:create() {
-##:120:cmd:create sample files for a new debian package
+##:create:cmd:create sample files for a new debian package
     assert-no-more-args
 
     local pkgname=$(basename $(pwd))

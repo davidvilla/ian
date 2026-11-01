@@ -4,27 +4,27 @@
 #-- command table --
 
 #- info -
-##:ian-map:000:help
-##:ian-map:009:name
-##:ian-map:010:summary
-##:ian-map:012:config
-##:ian-map:060:binary-contents
-##:ian-map:150:ls
+##:ian-map:help
+##:ian-map:name
+##:ian-map:summary
+##:ian-map:config
+##:ian-map:binary-contents
+##:ian-map:ls
 
 #- actions -
-##:ian-map:015:orig
-##:ian-map:020:release
-##:ian-map:021:release-date
-##:ian-map:030:clean
-##:ian-map:031:clean-uscan
-##:ian-map:040:build
-##:ian-map:070:install
-##:ian-map:090:upload
-##:ian-map:095:ship
-##:ian-map:100:remove
-##:ian-map:101:pool-ls
-##:ian-map:120:create
-##:ian-map:140:lintian-fix
+##:ian-map:orig
+##:ian-map:release
+##:ian-map:release-date
+##:ian-map:clean
+##:ian-map:clean-uscan
+##:ian-map:build
+##:ian-map:install
+##:ian-map:upload
+##:ian-map:ship
+##:ian-map:remove
+##:ian-map:pool-ls
+##:ian-map:create
+##:ian-map:lintian-fix
 
 IAN_LEGACY_CONFIG=$HOME/.config/ian/config
 IAN_CONFIG=$HOME/.config/ian

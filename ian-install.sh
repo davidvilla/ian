@@ -2,7 +2,7 @@
 #-- install ----------------------------------------------------------
 
 function cmd:install {
-##:070:cmd:install (sudo dpkg) all binary packages
+##:install:cmd:install (sudo dpkg) all binary packages
     assert-no-more-args
 
     (
@@ -32,7 +32,7 @@ function cmd:clean-build-and-install {
 }
 
 function cmd:ship {
-##:095:cmd:run clean + release-date -y + orig + build + ian install + upload + git commit
+##:ship:cmd:run clean + release-date -y + orig + build + ian install + upload + git commit
     assert-no-more-args
 
     (

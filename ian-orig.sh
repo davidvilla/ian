@@ -6,13 +6,13 @@
 # - uscan
 # - from "local" files
 function cmd:orig {
-##:015:cmd:generate or download the .orig. file. See 'ian help orig'.
-##:015:usage:ian orig [mode]
-##:015:usage:  mode;    the way to create orig [rule|uscan|local]
-##:015:usage:
-##:015:usage:  - rule;  run debian/rules "get-orig-source" rule to get/build .orig.
-##:015:usage:  - uscan; run uscan to download the .orig.
-##:015:usage:  - local; create an .orig. from current directory contents.
+##:orig:cmd:generate or download the .orig. file. See 'ian help orig'.
+##:orig:usage:ian orig [mode]
+##:orig:usage:  mode;    the way to create orig [rule|uscan|local]
+##:orig:usage:
+##:orig:usage:  - rule;  run debian/rules "get-orig-source" rule to get/build .orig.
+##:orig:usage:  - uscan; run uscan to download the .orig.
+##:orig:usage:  - local; create an .orig. from current directory contents.
 
     local mode="${__args__[@]}"
     assert-no-more-args
