@@ -116,4 +116,31 @@ function test-orig-from-rule-orig-already-in-orig-dir {
 	sc-assert-files-exist $tmp/hello_1.0.orig.tar.gz
 }
 
+# the orig is extracted into the build dir whatever its compression and the name
+# of its top directory (hello-1.0 in a python-hello build, as PyPI tarballs)
+function _make-orig-as {
+	local compression="$1"
+	local tmp=$(mktemp -d)
+
+	mkdir -p $tmp/src/hello-1.0/src
+	touch $tmp/src/hello-1.0/setup.py
+	tar --create --$compression --file $tmp/orig --directory $tmp/src hello-1.0
+	echo $tmp
+}
+
+function test-extract-orig-gzip-into-another-dir-name {
+	local tmp=$(_make-orig-as gzip)
+
+	_extract-orig $tmp/orig $tmp/build/python-hello-1.0
+	sc-assert sc-file-exists $tmp/build/python-hello-1.0/setup.py
+	sc-assert sc-directory-exists $tmp/build/python-hello-1.0/src
+}
+
+function test-extract-orig-xz-into-another-dir-name {
+	local tmp=$(_make-orig-as xz)
+
+	_extract-orig $tmp/orig $tmp/build/python-hello-1.0
+	sc-assert sc-file-exists $tmp/build/python-hello-1.0/setup.py
+}
+
 run-testsuit

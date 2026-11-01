@@ -148,13 +148,21 @@ function _upstream-sources-missing {
 	done
 }
 
+# Extract the orig into dir: tar detects the compression (gz, xz) and the top directory of the tarball is dropped, whatever its name (PyPI tarballs are <upstream>-<version>, not <source package>-<version>)
+function _extract-orig {
+    local orig="$1"
+    local dir="$2"
+
+    mkdir -p "$dir"
+    tar --no-same-owner --no-same-permissions --extract --file "$orig" --directory "$dir" --strip-components=1
+}
+
 function _build-merging-upstream {
     local tmp_build_area=$(mktemp -d)
     local tmp_build_dir=$tmp_build_area/$(upstream-fullname)
-    mkdir -p $tmp_build_dir
 
     log-info "merging with uptream in a temp build area: $tmp_build_area"
-    tar --no-same-owner --no-same-permissions --extract --gzip --file $(find-orig-path) --directory $tmp_build_area/
+    _extract-orig $(find-orig-path) $tmp_build_dir
     cp -r ./debian $tmp_build_dir/
     cp $(find-orig-path) $tmp_build_area/
     chmod -R u+r+w+X,g+r-w+X,o+r-w+X -- $tmp_build_dir
