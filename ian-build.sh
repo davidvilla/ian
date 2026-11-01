@@ -14,7 +14,7 @@ function cmd:binary-contents {
 function quilt-pop {
 	if grep quilt debian/source/format > /dev/null; then
 		sc-log-info "quilt pop"
-		ian-run "quilt pop -a"
+		sh-run "quilt pop -a"
 	fi
 }
 
@@ -81,10 +81,9 @@ function cmd:build {
 
 		if  ! sc-file-exists "$(find-orig-path)"; then
 			if [ "$local" = true ]; then
-				__args__=(local)
-				sc-assert "run-cmd orig"
+				ian-check orig local
 			else
-				sc-assert "run-cmd orig"
+				ian-check orig
 			fi
 		fi
 
@@ -118,10 +117,10 @@ function cmd:build {
 		sc-assert-files-exist $(binary-paths)
 		log-ok "build"
 		log-info "generated files:"
-		run-cmd ls
+		ian-run ls
 
 		if [ "$install" = true ]; then
-			run-cmd install
+			ian-run install
 		fi
 	)
 }
@@ -210,7 +209,7 @@ function _build-standard {
 	fi
 
     local build_command="dpkg-buildpackage -uc -us $BUILDOPTIONS"
-    check-run "$build_command"
+    sh-check "$build_command"
 }
 
 function _build-svn {
@@ -218,7 +217,7 @@ function _build-svn {
     assert-uses-svn
     #	sc-assure-dir ../build-area
     log-info "running svn-buildpackage"
-    check-run "svn-buildpackage -rfakeroot -us -uc --svn-ignore --svn-ignore-new --svn-move --svn-noninteractive --svn-override origDir=.."
+    sh-check "svn-buildpackage -rfakeroot -us -uc --svn-ignore --svn-ignore-new --svn-move --svn-noninteractive --svn-override origDir=.."
 }
 
 function _builddeps-assure {
@@ -231,15 +230,15 @@ function _builddeps-assure {
 
 	# FIXME: can use "apt-get build-dep"? (require deb-src)
     # if [ -n "$deps" ]; then
-	# 	ian-sudo "mk-build-deps --arch $(host-arch) --tool \"apt-get -y\" --install --remove debian/control"
+	# 	sh-sudo "mk-build-deps --arch $(host-arch) --tool \"apt-get -y\" --install --remove debian/control"
     # fi
 
     local deps=$(builddeps)
     if [ -n "$deps" ]; then
-		ian-sudo "apt-get install $deps"
+		sh-sudo "apt-get install $deps"
     fi
 
-    ian-sudo "apt-get install ian"
+    sh-sudo "apt-get install ian"
     local deps=$(builddeps)
     if [ -n "$deps" ]; then
 		log-error "Unmet build dependencies: $deps"

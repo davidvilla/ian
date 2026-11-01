@@ -50,7 +50,7 @@ function cmd:orig {
 	if [ ! -z $(find-orig-path) ]; then
         log-warning "missing orig '$(_orig-pattern)', getting/creating it"
 	fi
-    run-cmd clean
+    ian-run clean
     sc-assure-dir $(orig-dir)
 
     $orig_func
@@ -62,27 +62,24 @@ function cmd:orig {
 
 function cmd:orig-from-rule {
     (>&2 deprecation "command orig-from-rule is DEPRECATED. Use 'ian orig rule'")
-    __args__=(rule)
-    run-cmd orig
+    ian-run orig rule
 }
 
 function cmd:orig-uscan {
     (>&2 deprecation "command orig-uscan is DEPRECATED. Use 'ian orig uscan'")
-    __args__=(uscan)
-    run-cmd orig
+    ian-run orig uscan
 }
 
 function cmd:orig-from-local {
     (>&2 deprecation "command orig-from-local is DEPRECATED. Use 'ian orig local'")
-    __args__=(local)
-    run-cmd orig
+    ian-run orig local
 }
 
 
 function orig-from-rule {
     sc-assert _has-rule get-orig-source "missing 'get-orig-source' in 'debian/rules'"
 
-    check-run "make -f ./debian/rules get-orig-source"
+    sh-check "make -f ./debian/rules get-orig-source"
 
     # the rule may leave the orig here or directly in the orig dir
     local fname
@@ -97,7 +94,7 @@ function orig-from-rule {
 function orig-uscan {
     _assert-valid-watch
 
-    check-run "uscan --verbose --download-current-version --force-download --repack --rename --destdir $(orig-dir)"
+    sh-check "uscan --verbose --download-current-version --force-download --repack --rename --destdir $(orig-dir)"
 }
 
 function orig-from-local {

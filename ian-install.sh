@@ -10,7 +10,7 @@ function cmd:install {
     sc-assert-files-exist $(binary-paths)
 
     log-info "install"
-    ian-sudo "dpkg -i $(binary-paths)"
+    sh-sudo "dpkg -i $(binary-paths)"
     log-ok "install"
     )
 }
@@ -18,16 +18,16 @@ function cmd:install {
 function cmd:build-and-install {
 ##:combo:010:build-and-install: run "ian build" + "ian install"
     (
-    sc-assert "run-cmd build"
-    sc-assert "run-cmd install"
+    ian-check build
+    ian-check install
     )
 }
 
 function cmd:clean-build-and-install {
 ##:combo:020:clean-build-and-install: run "ian clean" + "ian build" + "ian install"
     (
-    sc-assert "run-cmd clean"
-    sc-assert "run-cmd build-and-install"
+    ian-check clean
+    ian-check build-and-install
     )
 }
 
@@ -36,14 +36,11 @@ function cmd:ship {
     assert-no-more-args
 
     (
-    sc-assert "run-cmd clean"
-    # the commands read their options from __args__, not from their parameters
-    __args__=(-y)
-    sc-assert "run-cmd release-date"
-    __args__=()
-    sc-assert "run-cmd build"
-    sc-assert "run-cmd install"
-    sc-assert "run-cmd upload"
+    ian-check clean
+    ian-check release-date -y
+    ian-check build
+    ian-check install
+    ian-check upload
     _commit-release
     )
 }
@@ -58,7 +55,5 @@ function _commit-release {
     unset _DEBIAN_VERSION
     local msg="new-release: $(debian-version)"
 
-    log-info "git commit: $msg"
-    sc-assert "ian-run \"git commit -am '$msg'\""
-    log-ok "git commit"
+    sh-check "git commit -am '$msg'"
 }

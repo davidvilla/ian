@@ -1,6 +1,6 @@
 # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-
 
-function ian-sudo {
+function sh-sudo {
     local command="$1"
     local msg="ian: $command"
 
@@ -11,7 +11,7 @@ function ian-sudo {
     fi
 }
 
-function check-run() {
+function sh-check() {
     local command="$1"
     local msg="ian: $command"
 
@@ -22,7 +22,7 @@ function check-run() {
     fi
 }
 
-function ian-run {
+function sh-run {
     eval $1 2> >(_indent "$ERR_SIGN" "$ERR_COLOR") > >(_indent "$OUT_SIGN")
 }
 

@@ -9,12 +9,12 @@ function cmd:clean {
     assert-preconditions
     log-info "clean"
 
-    ian-run "fakeroot make -f ./debian/rules clean"
+    sh-run "fakeroot make -f ./debian/rules clean"
 
     _clean-common
 
     if valid-watch-present; then
-	run-cmd clean-uscan
+	ian-run clean-uscan
     fi
 
     log-ok "clean"
@@ -25,7 +25,7 @@ function cmd:clean {
 function _clean-common {
     (
     assert-preconditions
-    ian-run "rm -vf $(find-orig-path) $(product-paths) $(binary-paths)"
+    sh-run "rm -vf $(find-orig-path) $(product-paths) $(binary-paths)"
     )
 }
 

@@ -105,7 +105,7 @@ function _do-upload {
 
 	local second_try=false
     while true; do
-		check-run "LANG=$NATIVE_LANG debsign -k$DEBSIGN_KEYID --no-re-sign $changes_path"
+		sh-check "LANG=$NATIVE_LANG debsign -k$DEBSIGN_KEYID --no-re-sign $changes_path"
 
 		local -a outputs
 		local cmd="dupload --skip-hook=openpgp-check -c $(_dupload-filename) -f $changes_path"
@@ -156,11 +156,11 @@ function _check-dupload-errors {
 
     if _file-contains "$stderr" "$NOT_YET_REGISTERED"; then
 		log-warning "missing orig file in repository, fixing..."
-		check-run "dpkg-genchanges -sa > $changes_path"
+		sh-check "dpkg-genchanges -sa > $changes_path"
 		return
     elif _file-contains "$stderr" "$DSC_ALREADY_REGISTERED"; then
 		log-warning "$(dsc-filename) already in repository, fixing..."
-		check-run "dpkg-genchanges -b > $changes_path"
+		sh-check "dpkg-genchanges -b > $changes_path"
 		return
     elif _file-contains "$stderr" "$ORIG_ALREADY_REGISTERED"; then
 		sc-log-error "1. orig already uploaded! Try 'ian build -b' and upload again"
@@ -182,9 +182,9 @@ function _file-contains {
 
 function _reprepro-cmd {
 	if _pool-is-remote; then
-		ian-run "ssh $(_pool-account) \"reprepro --nothingiserror -b $(_pool-path) $*\""
+		sh-run "ssh $(_pool-account) \"reprepro --nothingiserror -b $(_pool-path) $*\""
 	else
-		ian-run "reprepro --nothingiserror -b $DEBPOOL $*"
+		sh-run "reprepro --nothingiserror -b $DEBPOOL $*"
 	fi
 }
 
@@ -216,7 +216,7 @@ function cmd:remove {
     assert-no-more-args $OPTIND
 
     echo "Listing pool files in '$DEBPOOL' for package '$(package)':"
-    run-cmd pool-ls
+    ian-run pool-ls
     echo
 
     if [ $quiet = false ]; then

@@ -8,7 +8,7 @@ function run-lintian() {
 
     changes=$(changes-path)
     log-info "lintian $changes"
-    ian-run "unbuffer lintian -I $changes"
+    sh-run "unbuffer lintian -I $changes"
 }
 
 

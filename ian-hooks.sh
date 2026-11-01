@@ -2,7 +2,7 @@
 #-- hooks ------------------------------------------------------------
 
 # Hooks are shell functions the user defines in ~/.config/ian or in the project's .ian file, which ian runs around
-# each of its commands ("run-cmd"). Every command has the same four:
+# each of its commands ("ian-run"). Every command has the same four:
 #
 #   ian-<cmd>-pre-hook       before the command
 #   ian-<cmd>-post-hook      after it, whatever it did
@@ -31,10 +31,12 @@ ian-upload-end-hook:ian-upload-success-hook
 ian-remove-hook:ian-remove-post-hook
 "
 
-# run a command (its name, without the "cmd:" prefix) with its hooks, returning what the command returned
-function run-cmd {
+# run a command (its name, without the "cmd:" prefix) and its options with its hooks, returning what the command
+# returned. The command reads its options from __args__, local here: the caller's __args__ is restored on return
+function ian-run {
 	local cmd="$1"
 	shift
+	local __args__=("$@")
 
 	if _hookless-command $cmd; then
 		cmd:$cmd "$@"
@@ -56,6 +58,14 @@ function run-cmd {
 	fi
 
 	return $rcode
+}
+
+# like ian-run, but exit if the command fails
+function ian-check {
+	if ! ian-run "$@"; then
+		sc-log-fail "ian: command failed: $*"
+		exit 1
+	fi
 }
 
 function _hookless-command {
@@ -106,6 +116,6 @@ function _exec-hook {
 		cd "$root"
 	fi
 
-	ian-run $1
+	sh-run $1
 	)
 }

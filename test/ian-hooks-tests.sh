@@ -39,7 +39,7 @@ function test-hooks-of-a-command-that-succeeds {
 	function ian-thing-success-hook { echo success >> $TRACE; }
 	function ian-thing-fail-hook { echo fail >> $TRACE; }
 
-	run-cmd thing
+	ian-run thing
 	sc-assert-equals "$(_trace)" "pre thing post success"
 }
 
@@ -50,33 +50,75 @@ function test-hooks-of-a-command-that-fails {
 	function ian-broken-success-hook { echo success >> $TRACE; }
 	function ian-broken-fail-hook { echo fail >> $TRACE; }
 
-	run-cmd broken
+	ian-run broken
 	sc-assert-equals "$(_trace)" "pre broken post fail"
 }
 
-function test-run-cmd-returns-the-command-code {
+function test-ian-run-returns-the-command-code {
 	_setup
 	local rcode=0
 
-	run-cmd broken || rcode=$?
+	ian-run broken || rcode=$?
 	sc-assert-equals $rcode 3
 }
 
-function test-run-cmd-survives-an-exit-of-the-command {
+function test-ian-run-survives-an-exit-of-the-command {
 	_setup
 	function cmd:aborted { echo aborted >> $TRACE; exit 1; }
 	function ian-aborted-fail-hook { echo fail >> $TRACE; }
 
-	run-cmd aborted
+	ian-run aborted
 	sc-assert-equals "$(_trace)" "aborted fail"
+}
+
+function test-ian-run-passes-the-options-in-args {
+	_setup
+	function cmd:echo-args { echo "${__args__[*]}" >> $TRACE; }
+
+	ian-run echo-args -y -m msg
+	sc-assert-equals "$(_trace)" "-y -m msg"
+}
+
+function test-ian-run-restores-the-caller-args {
+	_setup
+	__args__=(outer)
+
+	ian-run thing -y
+	sc-assert-equals "${__args__[*]}" "outer"
+}
+
+function test-ian-run-does-not-pass-the-caller-args {
+	_setup
+	function cmd:echo-args { echo "[${__args__[*]}]" >> $TRACE; }
+	function cmd:outer { ian-run echo-args; }
+
+	ian-run outer -y
+	sc-assert-equals "$(_trace)" "[]"
+}
+
+function test-ian-check-goes-on-if-the-command-succeeds {
+	_setup
+
+	ian-check thing
+	echo after >> $TRACE
+	sc-assert-equals "$(_trace)" "thing after"
+}
+
+function test-ian-check-exits-if-the-command-fails {
+	_setup
+	local rcode=0
+
+	( ian-check broken; echo after >> $TRACE ) 2> /dev/null || rcode=$?
+	sc-assert-equals "$(_trace)" "broken"
+	sc-assert-equals $rcode 1
 }
 
 function test-hooks-of-a-command-run-by-another-one {
 	_setup
-	function cmd:outer { run-cmd thing; }
+	function cmd:outer { ian-run thing; }
 	function ian-thing-pre-hook { echo pre >> $TRACE; }
 
-	run-cmd outer
+	ian-run outer
 	sc-assert-equals "$(_trace)" "pre thing"
 }
 
@@ -85,7 +127,7 @@ function test-hooks-disabled {
 	function ian-thing-pre-hook { echo pre >> $TRACE; }
 
 	export IAN_DISABLE_HOOKS=1
-	run-cmd thing
+	ian-run thing
 	unset IAN_DISABLE_HOOKS
 	sc-assert-equals "$(_trace)" "thing"
 }
@@ -94,7 +136,7 @@ function test-a-hook-does-not-stop-the-command {
 	_setup
 	function ian-thing-pre-hook { echo pre >> $TRACE; exit 1; }
 
-	run-cmd thing
+	ian-run thing
 	sc-assert-equals "$(_trace)" "pre thing"
 }
 
@@ -103,7 +145,7 @@ function test-a-hook-does-not-change-the-directory-of-ian {
 	function ian-thing-post-hook { cd /; }
 	local before=$(pwd)
 
-	run-cmd thing
+	ian-run thing
 	sc-assert-equals "$(pwd)" "$before"
 }
 
@@ -113,7 +155,7 @@ function test-a-command-that-only-shows-information-has-no-hooks {
 	function ian-summary-post-hook { echo post >> $TRACE; }
 	function ian-summary-success-hook { echo success >> $TRACE; }
 
-	run-cmd summary
+	ian-run summary
 	sc-assert-equals "$(_trace)" "summary"
 }
 
@@ -121,7 +163,7 @@ function test-deprecated-hook-runs-as-post {
 	_setup
 	function ian-clean-hook { echo old >> $TRACE; }
 
-	run-cmd clean
+	ian-run clean
 	sc-assert-equals "$(_trace)" "clean deprecated old"
 }
 
@@ -129,7 +171,7 @@ function test-deprecated-build-start-hook-runs-as-pre {
 	_setup
 	function ian-build-start-hook { echo old >> $TRACE; }
 
-	run-cmd build
+	ian-run build
 	sc-assert-equals "$(_trace)" "deprecated old build"
 }
 
@@ -137,7 +179,7 @@ function test-deprecated-build-end-hook-runs-as-success {
 	_setup
 	function ian-build-end-hook { echo old >> $TRACE; }
 
-	run-cmd build
+	ian-run build
 	sc-assert-equals "$(_trace)" "build deprecated old"
 }
 
@@ -146,7 +188,7 @@ function test-deprecated-hook-discarded-when-its-replacement-is-defined {
 	function ian-clean-hook { echo old >> $TRACE; }
 	function ian-clean-post-hook { echo new >> $TRACE; }
 
-	run-cmd clean
+	ian-run clean
 	sc-assert-equals "$(_trace)" "clean discarded new"
 }
 

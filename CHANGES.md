@@ -26,7 +26,7 @@ file (see the *hooks* section of `README.rst`):
 The commands that only show information have no hooks: `help`, `name`, `summary`, `config`, `binary-contents`,
 `pool-ls` and `ls`.
 
-Each command runs through `run-cmd` (`ian-hooks.sh`), which calls its hooks, also when a command is run by another
+Each command runs through `ian-run` (`ian-hooks.sh`), which calls its hooks, also when a command is run by another
 one: `ian build` runs the hooks of `orig`, which runs those of `clean`, and, with `-i`, those of `install`. The
 command runs in a subshell, so that an `exit` of a failed assertion does not skip its `post` and `fail` hooks, and
 each hook runs in a subshell too, in the package root directory, so that a hook that changes directory or exits

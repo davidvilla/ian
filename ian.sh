@@ -86,7 +86,7 @@ source $IAN_ROOT/ian-clean.sh
 
 function ian {
 	if [[ -z "$__cmd__" ]]; then
-		run-cmd help
+		ian-run help
 		return 1
 	fi
 
@@ -98,13 +98,12 @@ function ian {
 
 	for arg in "${__args__[@]}"; do
 		if [[ "$arg" == "-h" || "$arg" == "--help" ]]; then
-			__args__=("$__cmd__")
-			run-cmd help
+			ian-run help "$__cmd__"
 			return
 		fi
 	done
 
-	run-cmd $__cmd__
+	ian-run $__cmd__ "${__args__[@]}"
 }
 
 eval $(basename $__file__)
