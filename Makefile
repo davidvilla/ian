@@ -14,13 +14,11 @@ clean:
 export IAN_DISABLE_HOOKS
 tests: export DEBPOOL=$HOME/repos/ian-test-pool/docs
 tests:
-	@git checkout test/fixtures/hello-ian/debian 2> /dev/null
 	test/shell-commodity-tests.sh
 	test/ian-util-tests.sh
 	test/ian-hooks-tests.sh
 	test/ian-release-tests.sh
 	test/ian-upload-tests.sh
-	@git checkout test/fixtures/hello-ian/debian 2> /dev/null
 
 install:
 	install -vd $(BASE)

@@ -7,8 +7,7 @@ source unittest.sh
 function test-deb-already-registered {
 	# same upstream-version and debian-release but different package contents
 
-	cd examples/hello-ian
-	git checkout debian 2> /dev/null
+	cd-fixture examples/hello-ian
 	ian remove -y
 
 	echo 1 > content
@@ -27,8 +26,7 @@ function test-deb-already-registered {
 function test-orig-not-yet-registered {
 	# Upload a -2 version with no previous upload, so no sources in the pool
 
-	cd examples/hello-ian
-	git checkout debian 2> /dev/null
+	cd-fixture examples/hello-ian
 	ian remove -y
 
 	echo 1 > content
@@ -43,8 +41,7 @@ function test-orig-not-yet-registered {
 function test-orig-already-registered {
 	# A different orig was uploaded for the same upstream version
 
-	cd examples/hello-ian
-    git checkout debian 2> /dev/null
+	cd-fixture examples/hello-ian
 	ian remove -y
 
 	echo 1 > content
@@ -64,26 +61,24 @@ function test-orig-already-registered {
 function test-pool-unknown-maintainer {
 	# upload without gpg fingerprint in conf/uploaders
 
-	local pool="/tmp/ian-pool"
-	rm -rf $pool
+	local pool=$(mktemp -d -p "$__test_tmp__")
+	rmdir $pool
 	cp -r $HOME/repos/ian-test-pool/docs $pool
 	echo "# empty" > $pool/conf/uploaders
 	export DEBPOOL=$pool
 
 	(
-	cd examples/hello-ian
-    git checkout debian 2> /dev/null
+	cd-fixture examples/hello-ian
 	ian remove -y
 
 	ian release -y
 	ian build -c
 
-	local dupload_err=/tmp/$(uuidgen)
+	local dupload_err=$(mktemp -p "$__test_tmp__")
 	ian upload > $dupload_err
 	ian clean
 
 	ian remove -y
-	git checkout debian 2> /dev/null
 
 	grep "dupload: error: Post-upload" $dupload_err
 	)

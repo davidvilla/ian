@@ -15,7 +15,7 @@ function test-user-is-uploader-ok {
 
     source ian-util.sh
     source ian-build.sh
-    cd test/fixtures/hello-ian
+    cd-fixture test/fixtures/hello-ian
 
     _assert-user-is-uploader
 }
@@ -25,7 +25,7 @@ function test-user-is-uploader-fail {
 
     source ian-util.sh
     source ian-build.sh
-    cd test/fixtures/hello-ian
+    cd-fixture test/fixtures/hello-ian
 
     sc-negative-test
     _assert-user-is-uploader
@@ -37,7 +37,7 @@ function test-user-last-changelog-entry-ok {
 
     source ian-util.sh
     source ian-build.sh
-    cd test/fixtures/hello-ian
+    cd-fixture test/fixtures/hello-ian
 
     _assert-user-last-changelog-entry
 }
@@ -47,7 +47,7 @@ function test-user-last-changelog-entry-fail {
 
     source ian-util.sh
     source ian-build.sh
-    cd test/fixtures/hello-ian
+    cd-fixture test/fixtures/hello-ian
 
     sc-negative-test
     _assert-user-last-changelog-entry
@@ -97,7 +97,7 @@ function _define-debvars {
 
 function test-release-0_1-1 {
 	_define-debvars
-	cd test/fixtures/hello-ian
+	cd-fixture test/fixtures/hello-ian
 
 	_set-changelog-version "0.1-1"
 	$IAN release -y
@@ -107,7 +107,7 @@ function test-release-0_1-1 {
 
 function test-release-i-0_1-1 {
 	_define-debvars
-	cd test/fixtures/hello-ian
+	cd-fixture test/fixtures/hello-ian
 
 	_set-changelog-version "0.1-1"
 	$IAN release -iy
@@ -117,7 +117,7 @@ function test-release-i-0_1-1 {
 
 function test-release-0_0_1-1 {
 	_define-debvars
-	cd test/fixtures/hello-ian
+	cd-fixture test/fixtures/hello-ian
 
 	_set-changelog-version "0.0.1-1"
 	$IAN release -y
@@ -127,7 +127,7 @@ function test-release-0_0_1-1 {
 
 function test-release-i-0_0_1-1 {
 	_define-debvars
-	cd test/fixtures/hello-ian
+	cd-fixture test/fixtures/hello-ian
 
 	_set-changelog-version "0.0.1-1"
 	$IAN release -iy
@@ -137,7 +137,7 @@ function test-release-i-0_0_1-1 {
 
 function test-release-0_date-1 {
 	_define-debvars
-	cd test/fixtures/hello-ian
+	cd-fixture test/fixtures/hello-ian
 
 	_set-changelog-version "0.19990203-1"
 	$IAN release -y
@@ -147,7 +147,7 @@ function test-release-0_date-1 {
 
 function test-release-i-0_date-1 {
 	_define-debvars
-	cd test/fixtures/hello-ian
+	cd-fixture test/fixtures/hello-ian
 
 	_set-changelog-version "0.19990203-1"
 	$IAN release -iy
@@ -157,7 +157,7 @@ function test-release-i-0_date-1 {
 
 function test-release-date-0_1-1 {
 	_define-debvars
-	cd test/fixtures/hello-ian
+	cd-fixture test/fixtures/hello-ian
 
 	_set-changelog-version "0.1-1"
 	$IAN release-date -y
@@ -167,7 +167,7 @@ function test-release-date-0_1-1 {
 
 function test-release-date-i-0_1-1 {
 	_define-debvars
-	cd test/fixtures/hello-ian
+	cd-fixture test/fixtures/hello-ian
 
 	_set-changelog-version "0.1-1"
 	$IAN release-date -iy
@@ -177,7 +177,7 @@ function test-release-date-i-0_1-1 {
 
 function test-release-date-0_0_1-1 {
 	_define-debvars
-	cd test/fixtures/hello-ian
+	cd-fixture test/fixtures/hello-ian
 
 	_set-changelog-version "0.0.1-1"
 	$IAN release-date -y
@@ -187,7 +187,7 @@ function test-release-date-0_0_1-1 {
 
 function test-release-date-i-0_0_1-1 {
 	_define-debvars
-	cd test/fixtures/hello-ian
+	cd-fixture test/fixtures/hello-ian
 
 	_set-changelog-version "0.0.1-1"
 	$IAN release-date -iy
@@ -197,7 +197,7 @@ function test-release-date-i-0_0_1-1 {
 
 function test-release-date-0_date-1 {
 	_define-debvars
-	cd test/fixtures/hello-ian
+	cd-fixture test/fixtures/hello-ian
 
 	_set-changelog-version "0.19990203-1"
 	$IAN release-date -y
@@ -207,7 +207,7 @@ function test-release-date-0_date-1 {
 
 function test-release-date-i-0_date-1 {
 	_define-debvars
-	cd test/fixtures/hello-ian
+	cd-fixture test/fixtures/hello-ian
 
 	_set-changelog-version "0.19990203-1"
 	$IAN release-date -iy
@@ -217,7 +217,7 @@ function test-release-date-i-0_date-1 {
 
 function test-release-date-0_date_2-1 {
 	_define-debvars
-	cd test/fixtures/hello-ian
+	cd-fixture test/fixtures/hello-ian
 
 	_set-changelog-version "0.19990203.2-1"
 	$IAN release-date -y
@@ -227,7 +227,7 @@ function test-release-date-0_date_2-1 {
 
 function test-release-date-i-0_date_2-1 {
 	_define-debvars
-	cd test/fixtures/hello-ian
+	cd-fixture test/fixtures/hello-ian
 
 	_set-changelog-version "0.19990203.2-1"
 	$IAN release-date -iy
@@ -237,7 +237,7 @@ function test-release-date-i-0_date_2-1 {
 
 function test-release-date-0_today-1 {
 	_define-debvars
-	cd test/fixtures/hello-ian
+	cd-fixture test/fixtures/hello-ian
 
 	_set-changelog-version "0.$TODAY-1"
 	$IAN release-date -y
@@ -247,7 +247,7 @@ function test-release-date-0_today-1 {
 
 function test-release-date-0_today_1-1 {
 	_define-debvars
-	cd test/fixtures/hello-ian
+	cd-fixture test/fixtures/hello-ian
 
 	_set-changelog-version "0.$TODAY.1-1"
 	$IAN release-date -y

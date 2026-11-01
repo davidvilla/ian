@@ -4,6 +4,16 @@ source shell-commodity.sh
 __file__=$0
 __testname__=$1
 
+__test_tmp__=$(mktemp -d)
+trap "rm -rf $__test_tmp__" EXIT
+
+# copy a fixture directory to a fresh temp dir and cd into it
+function cd-fixture {
+	local dir=$(mktemp -d -p "$__test_tmp__")
+	cp -r "$1" "$dir"
+	cd "$dir/$(basename "$1")"
+}
+
 function __test-log-ok {
     sc-log-ok $__test_name
 }
