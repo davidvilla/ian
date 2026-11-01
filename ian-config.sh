@@ -1,6 +1,6 @@
 function load-config {
     local superseded
-    local config_vars="DEBFULLNAME DEBEMAIL DEBSIGN_KEYD DEBPOOL EDITOR"
+    local config_vars="DEBFULLNAME DEBEMAIL DEBSIGN_KEYID DEBPOOL EDITOR"
 
     for var in $config_vars; do
         ref="env_$var"
