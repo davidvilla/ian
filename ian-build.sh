@@ -148,13 +148,30 @@ function _upstream-sources-missing {
 	done
 }
 
-# Extract the orig into dir: tar detects the compression (gz, xz) and the top directory of the tarball is dropped, whatever its name (PyPI tarballs are <upstream>-<version>, not <source package>-<version>)
+# Extract the orig into dir: tar detects the compression (gz, xz) and, if the whole tarball is inside one top directory, that directory is dropped, whatever its name (PyPI tarballs are <upstream>-<version>, not <source package>-<version>)
 function _extract-orig {
     local orig="$1"
     local dir="$2"
+    local strip=
+
+    if _orig-has-top-directory "$orig"; then
+        strip=--strip-components=1
+    fi
 
     mkdir -p "$dir"
-    tar --no-same-owner --no-same-permissions --extract --file "$orig" --directory "$dir" --strip-components=1
+    tar --no-same-owner --no-same-permissions --extract --file "$orig" --directory "$dir" $strip
+}
+
+# true if every entry of the tarball is inside the same top directory
+function _orig-has-top-directory {
+    local orig="$1"
+    local entries=$(tar --list --file "$orig" | sed 's|^\./||' | grep -v '^$')
+
+    # a file at the top level (no "/" in its name) is not inside a directory
+    if echo "$entries" | grep -qv '/'; then
+        return 1
+    fi
+    [ $(echo "$entries" | cut -d/ -f1 | sort -u | wc -l) -eq 1 ]
 }
 
 function _build-merging-upstream {

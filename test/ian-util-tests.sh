@@ -143,4 +143,16 @@ function test-extract-orig-xz-into-another-dir-name {
 	sc-assert sc-file-exists $tmp/build/python-hello-1.0/setup.py
 }
 
+function test-extract-orig-without-top-directory {
+	local tmp=$(mktemp -d)
+
+	mkdir -p $tmp/src/src
+	touch $tmp/src/setup.py
+	tar --create --gzip --file $tmp/orig --directory $tmp/src setup.py src
+
+	_extract-orig $tmp/orig $tmp/build/hello-1.0
+	sc-assert sc-file-exists $tmp/build/hello-1.0/setup.py
+	sc-assert sc-directory-exists $tmp/build/hello-1.0/src
+}
+
 run-testsuit
