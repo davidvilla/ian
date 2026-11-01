@@ -32,7 +32,7 @@ function cmd:clean-build-and-install {
 }
 
 function cmd:ship {
-##:095:cmd:run "ian clean" + "ian release-date -y" + "ian orig" + "ian build" + "ian install" + "ian upload" + "git commit"
+##:095:cmd:run clean + release-date -y + orig + build + ian install + upload + git commit
     assert-no-more-args
 
     (
