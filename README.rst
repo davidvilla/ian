@@ -142,6 +142,14 @@ upload binary packages to the configured package repository.
 * configure and run ``dupload``
 
 
+ian ship
+--------
+
+run ``ian clean``, ``ian release-date -y``, ``ian build``, ``ian install`` and ``ian upload``, stopping at the
+first one that fails. The new changelog entry gets the default message, without opening the editor. If all of
+them succeed and the package is in a git repository, it runs ``git commit -am "new-release: <version>"``.
+
+
 ian remove
 ----------
 

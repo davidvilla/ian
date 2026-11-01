@@ -20,6 +20,7 @@
 ##:ian-map:040:build
 ##:ian-map:070:install
 ##:ian-map:090:upload
+##:ian-map:095:ship
 ##:ian-map:100:remove
 ##:ian-map:101:pool-ls
 ##:ian-map:120:create
