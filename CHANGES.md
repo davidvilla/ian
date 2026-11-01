@@ -7,8 +7,8 @@ still in `CHANGES.rst`).
 
 ### New command `ian ship` (2026-11-01)
 
-`ian ship` runs `ian clean`, `ian release-date -y`, `ian build`, `ian install` and `ian upload`, and stops at the
-first one that fails. The new changelog entry gets the default message, without opening the editor. If all of
+`ian ship` runs `ian clean`, `ian release-date -y`, `ian orig`, `ian build`, `ian install` and `ian upload`, and
+stops at the first one that fails. The new changelog entry gets the default message, without opening the editor. If all of
 them succeed and the package is in a git repository, it commits the changes with `git commit -am "new-release:
 <version>"`. Each step
 runs its own hooks, as well as those of `ship` itself.

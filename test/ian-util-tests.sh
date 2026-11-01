@@ -155,4 +155,41 @@ function test-extract-orig-without-top-directory {
 	sc-assert sc-directory-exists $tmp/build/hello-1.0/src
 }
 
+# a package with a "hello" binary, never built
+function _make-package {
+	local tmp=$(mktemp -d)
+
+	mkdir -p $tmp/hello-1.0/debian
+	printf 'Source: hello\n\nPackage: hello\n' > $tmp/hello-1.0/debian/control
+	echo $tmp/hello-1.0
+}
+
+function test-orig-not-needs-clean-on-clean-tree {
+	cd $(_make-package)
+	sc-assert-false _orig-needs-clean local
+}
+
+function test-orig-needs-clean-after-build {
+	cd $(_make-package)
+	touch debian/files
+	sc-assert _orig-needs-clean local
+}
+
+function test-orig-rule-needs-clean-on-clean-tree {
+	cd $(_make-package)
+	sc-assert _orig-needs-clean rule
+}
+
+function test-orig-needs-clean-with-binary-dir {
+	cd $(_make-package)
+	mkdir debian/hello
+	sc-assert _orig-needs-clean local
+}
+
+function test-orig-uscan-not-needs-clean-after-build {
+	cd $(_make-package)
+	touch debian/files
+	sc-assert-false _orig-needs-clean uscan
+}
+
 run-testsuit

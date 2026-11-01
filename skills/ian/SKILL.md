@@ -51,7 +51,7 @@ lo haya pedido explícitamente en ese mismo mensaje:
 | `ian install` | `sudo dpkg -i` de todos los .deb generados |
 | `ian build -i` | Compila e instala |
 | `ian upload [arch]` | Firma (`debsign`) y sube al pool (`dupload` + `reprepro`). `arch` para paquetes compilados en otra arquitectura |
-| `ian ship` | `clean` + `release-date -y` (nueva versión por fecha, sin abrir el editor) + `build` + `install` + `upload` + `git commit -am "new-release: <versión>"` (si es un repo git); se detiene en el primero que falle |
+| `ian ship` | `clean` + `release-date -y` (nueva versión por fecha, sin abrir el editor) + `orig` + `build` + `install` + `upload` + `git commit -am "new-release: <versión>"` (si es un repo git); se detiene en el primero que falle |
 | `ian remove [-y]` | Borra el paquete (fuente y binarios) del pool |
 
 ## `ian build`

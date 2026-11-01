@@ -9,7 +9,7 @@
 #   ian-<cmd>-success-hook   after "post", only when the command succeeded
 #   ian-<cmd>-fail-hook      after "post", only when it failed
 #
-# They also run when a command is run by another one: "ian build" runs those of "orig", which runs those of
+# They also run when a command is run by another one: "ian build" runs those of "orig", which may run those of
 # "clean", and, with "-i", those of "install". A hook cannot stop the command: its exit code is ignored.
 # IAN_DISABLE_HOOKS disables all of them.
 

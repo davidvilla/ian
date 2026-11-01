@@ -50,7 +50,9 @@ function cmd:orig {
 	if [ ! -z $(find-orig-path) ]; then
         log-warning "missing orig '$(_orig-pattern)', getting/creating it"
 	fi
-    ian-run clean
+    if _orig-needs-clean $mode; then
+        ian-run clean
+    fi
     sc-assure-dir $(orig-dir)
 
     $orig_func
@@ -58,6 +60,37 @@ function cmd:orig {
     sc-assert-any-file-exists "$(orig-dir)" "$(_orig-pattern)"
     log-ok "orig"
     )
+}
+
+# uscan downloads the orig. "local" packs the working directory: build products must not get into the orig, but on a clean tree, as in "ian clean" + "ian build", cleaning again is useless. "rule" is up to the package, so it always cleans, just in case
+function _orig-needs-clean {
+    local mode="$1"
+
+    case $mode in
+    uscan) return 1 ;;
+    rule)  return 0 ;;
+    *)     _tree-seems-built ;;
+    esac
+}
+
+# true if a build left its products in the working directory and no "clean" removed them since
+function _tree-seems-built {
+    local path=
+
+    for path in debian/files debian/debhelper-build-stamp debian/.debhelper debian/tmp \
+                debian/*.debhelper.log debian/*.substvars; do
+        if [ -e "$path" ]; then
+            return 0
+        fi
+    done
+
+    for path in $(binary-names); do
+        if [ -d "debian/$path" ]; then
+            return 0
+        fi
+    done
+
+    return 1
 }
 
 function cmd:orig-from-rule {
