@@ -7,6 +7,10 @@ source unittest.sh
 IAN=$(pwd)/ian
 export TERM=xterm
 
+# sandbox: no user config
+export HOME=$__test_tmp__/home
+mkdir -p $HOME
+
 
 TODAY=$(date +%Y%m%d)
 

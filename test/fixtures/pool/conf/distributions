@@ -1,0 +1,9 @@
+Origin: ian-test-pool
+Label: ian-test-pool
+Suite: unstable
+Codename: sid
+Architectures: source amd64
+Components: main
+Description: ian test pool repository (fixture for the ian test suite)
+SignWith: yes
+Uploaders: uploaders

@@ -12,7 +12,6 @@ clean:
 
 # export DEBUG=true
 export IAN_DISABLE_HOOKS
-tests: export DEBPOOL=$HOME/repos/ian-test-pool/docs
 tests:
 	test/shell-commodity-tests.sh
 	test/ian-util-tests.sh

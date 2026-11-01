@@ -1,0 +1,6 @@
+Name: sid-process
+IncomingDir: incoming
+TempDir: /tmp
+Allow: sid
+Cleanup: on_deny on_error unused_files
+Permit: unused_files
