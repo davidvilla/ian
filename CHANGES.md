@@ -5,6 +5,13 @@ still in `CHANGES.rst`).
 
 ## Unreleased
 
+### `ian orig local` in a git repository: only the files git knows (2026-11-05)
+
+In a git repository, `ian orig local` takes the files git knows (`git ls-files`), as they are in the working
+tree, without `debian/`: not those it ignores or does not have, like a virtualenv (`.venv/`) or what the build
+leaves, which made lintian take minutes checking the source package. Out of git it takes the folder, as before;
+now it really leaves out the backups (`*~`) and `*.pyc`: their patterns kept a backslash and matched nothing.
+
 ### `ian ship` for packages with upstream versions: `ian release -u` (2026-11-03)
 
 `ian release -u` takes the newest upstream version that uscan finds (`uscan --report --dehs`): if it is newer than

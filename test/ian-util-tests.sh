@@ -192,4 +192,41 @@ function test-orig-uscan-not-needs-clean-after-build {
 	sc-assert-false _orig-needs-clean uscan
 }
 
+function _orig-files {
+	tar --list --file "$1" | grep -v '/$' | cut -d/ -f2- | sort | tr '\n' ' '
+}
+
+function test-orig-local-in-git-only-what-git-knows {
+	cd $(_make-package)
+	export _PACKAGE=hello
+	_set-version "1.0-1"
+	git init -q .
+	printf 'build/\n' > .gitignore
+	echo code > hello.c
+	echo changed > readme
+	git add .gitignore hello.c readme debian
+	echo "changed, not committed" > readme
+	mkdir -p .venv/bin build
+	touch .venv/bin/python build/hello.o notes
+
+	orig-from-local > /dev/null
+
+	sc-assert-equals "$(_orig-files ../hello_1.0.orig.tar.gz)" ".gitignore hello.c readme "
+	sc-assert-equals "$(tar -xOzf ../hello_1.0.orig.tar.gz hello-1.0/readme)" "changed, not committed"
+	unset _PACKAGE
+}
+
+function test-orig-local-out-of-git-all-but-debian {
+	cd $(_make-package)
+	export _PACKAGE=hello
+	_set-version "1.0-1"
+	echo code > hello.c
+	touch hello.c~
+
+	orig-from-local > /dev/null
+
+	sc-assert-equals "$(_orig-files ../hello_1.0.orig.tar.gz)" "hello.c "
+	unset _PACKAGE
+}
+
 run-testsuit

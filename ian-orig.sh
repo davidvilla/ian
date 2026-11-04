@@ -134,13 +134,24 @@ function orig-from-local {
     local orig_tmp=$(upstream-fullname)
     mkdir -p $orig_tmp
 
-    local EXCLUDE="--exclude=$orig_tmp --exclude=./debian --exclude=\*~ --exclude-vcs --exclude=\*.pyc --exclude .pc"
-
-    tar $EXCLUDE -cf - . | ( cd $orig_tmp && tar xf - )
+    if _in-git-work-tree; then
+        # the files git knows, as they are in the working tree: not those it ignores or does not
+        # have (a virtualenv, what the build leaves...)
+        git ls-files -z -- . ':!debian' ":!$orig_tmp" \
+            | tar --null --files-from=- --ignore-failed-read -cf - | ( cd $orig_tmp && tar xf - )
+    else
+        local exclude=(--exclude="./$orig_tmp" --exclude=./debian --exclude='*~' --exclude-vcs --exclude='*.pyc' --exclude=.pc)
+        tar "${exclude[@]}" -cf - . | ( cd $orig_tmp && tar xf - )
+    fi
     tar czf $(_orig-default) $orig_tmp
     \rm -rf $orig_tmp
 
 	log-ok "orig file created: $(find-orig-path)"
+}
+
+# orig
+function _in-git-work-tree {
+    git rev-parse --is-inside-work-tree > /dev/null 2>&1
 }
 
 # clean, orig
