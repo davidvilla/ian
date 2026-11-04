@@ -2,15 +2,16 @@
 
 function cmd:release {
 ##:release:cmd:add a new changelog entry
-##:release:usage:ian release [-i] [-y] [-m release-message]
+##:release:usage:ian release [-i] [-u] [-y] [-m release-message]
 ##:release:usage:  -i;      increment debian version suffix (like 'dch -i')
+##:release:usage:  -u;      the upstream version uscan finds, or the next debian revision if it is not newer
 ##:release:usage:  -y;      don't ask for a release message
 ##:release:usage:  -m MSG;  release message for debian/changelog entry
 
-    local quiet=false msg="New release" revision=false
+    local quiet=false msg="New release" revision=false upstream=false
     local OPTIND=1 OPTARG OPTION
 
-    while getopts m:yi OPTION "${__args__[@]}"; do
+    while getopts m:yiu OPTION "${__args__[@]}"; do
 		case $OPTION in
 			m)
 				msg="$OPTARG" ;;
@@ -18,6 +19,8 @@ function cmd:release {
 				quiet=true ;;
 			i)
 				revision=true ;;
+			u)
+				upstream=true ;;
 			\?)
 				echo "invalid option: -$OPTARG"
 				exit 1 ;;
@@ -35,7 +38,37 @@ function cmd:release {
 		return
     fi
 
+    if [ "$upstream" = true ]; then
+		_do-release-upstream "$quiet" "$msg"
+		return
+    fi
+
     _do-release-standard "$quiet" "$msg"
+}
+
+# the version is upstream's (debian/watch): a new upstream version if uscan
+# finds one newer than the current, the next debian revision otherwise
+function _do-release-upstream {
+	local quiet="$1"
+	local msg="$2"
+
+	local newest=$(_uscan-newest-version)
+	if [ -z "$newest" ]; then
+		log-error "uscan found no upstream version, see 'uscan --report --verbose'"
+		exit 1
+	fi
+
+	if dpkg --compare-versions "$newest" gt "$(upstream-version)"; then
+		do-release "$newest" 1 "$quiet" "$msg"
+	else
+		_do-release-next-revision
+	fi
+}
+
+# newest upstream version uscan finds on the remote site (uscan exits 1 when
+# it is not newer, so the exit status is not checked)
+function _uscan-newest-version {
+	uscan --report --dehs 2>/dev/null | sed -n 's|^<upstream-version>\(.*\)</upstream-version>$|\1|p'
 }
 
 function _do-release-standard {

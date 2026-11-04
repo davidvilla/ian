@@ -259,4 +259,92 @@ function test-release-date-0_today_1-1 {
 	sc-assert-equals $(_get-version) 0.$TODAY.2-1
 }
 
+# 1.0-1          | release -u (uscan 1.1)   | 1.1-1
+# 1.0-1          | release -u (uscan 1.0)   | 1.0-2
+# 1.0-3          | release -u (uscan 1.0)   | 1.0-4
+# 1.0-1          | release -u (uscan none)  | fails, 1.0-1
+
+# fake uscan: reports $version as the newest upstream (none if empty) and
+# exits 1, as uscan does when it is not newer
+function _fake-uscan {
+	local version="$1"
+	local bin=$__test_tmp__/bin
+
+	mkdir -p $bin
+	cat <<EOF > $bin/uscan
+#!/bin/bash
+echo "<dehs>"
+[ -n "$version" ] && echo "<upstream-version>$version</upstream-version>"
+echo "</dehs>"
+exit 1
+EOF
+	chmod +x $bin/uscan
+	export PATH=$bin:$PATH
+}
+
+function test-release-u-newer-upstream {
+	_define-debvars
+	cd-fixture test/fixtures/hello-ian
+
+	_set-changelog-version "1.0-1"
+	_fake-uscan 1.1
+	$IAN release -uy
+
+	sc-assert-equals $(_get-version) 1.1-1
+}
+
+function test-release-u-same-upstream {
+	_define-debvars
+	cd-fixture test/fixtures/hello-ian
+
+	_set-changelog-version "1.0-1"
+	_fake-uscan 1.0
+	$IAN release -uy
+
+	sc-assert-equals $(_get-version) 1.0-2
+}
+
+function test-release-u-same-upstream-revision-3 {
+	_define-debvars
+	cd-fixture test/fixtures/hello-ian
+
+	_set-changelog-version "1.0-3"
+	_fake-uscan 1.0
+	$IAN release -uy
+
+	sc-assert-equals $(_get-version) 1.0-4
+}
+
+function test-release-u-no-upstream {
+	_define-debvars
+	cd-fixture test/fixtures/hello-ian
+
+	_set-changelog-version "1.0-1"
+	_fake-uscan ""
+
+	sc-assert-false "$IAN release" -uy
+	sc-assert-equals $(_get-version) 1.0-1
+}
+
+function test-ship-release-uscan {
+	source ian-util.sh
+	source ian-orig.sh
+	source ian-install.sh
+	cd-fixture test/fixtures/hello-ian
+
+	echo "version=4" > debian/watch
+	echo "https://example.org/hello-(.+)\.tar\.gz" >> debian/watch
+
+	sc-assert-equals "$(_ship-release-command)" "release -u -y"
+}
+
+function test-ship-release-no-watch {
+	source ian-util.sh
+	source ian-orig.sh
+	source ian-install.sh
+	cd-fixture test/fixtures/hello-ian
+
+	sc-assert-equals "$(_ship-release-command)" "release-date -y"
+}
+
 run-testsuit

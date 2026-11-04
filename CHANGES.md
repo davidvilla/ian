@@ -5,6 +5,17 @@ still in `CHANGES.rst`).
 
 ## Unreleased
 
+### `ian ship` for packages with upstream versions: `ian release -u` (2026-11-03)
+
+`ian release -u` takes the newest upstream version that uscan finds (`uscan --report --dehs`): if it is newer than
+the current one, the new entry is `<upstream>-1`; otherwise it is the next debian revision, as `ian release -i`
+does. It fails if uscan finds no version.
+
+`ian ship` used to run `ian release-date -y` for every package, so a package whose version is upstream's (one with
+`debian/watch`, like `3.81.1-1`) got a date version (`0.20261103-1`): lower than the current one and missing in
+upstream, so `ian orig` could not download it. Now, when the detected orig mode is `uscan`, `ship` runs
+`ian release -u -y` instead; with the `rule` and `local` modes it still runs `ian release-date -y`.
+
 ### New command `ian ship` (2026-11-01)
 
 `ian ship` runs `ian clean`, `ian release-date -y`, `ian orig`, `ian build`, `ian install` and `ian upload`, and
