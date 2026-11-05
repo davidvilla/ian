@@ -1,3 +1,9 @@
+ian (0.20261105-1) unstable; urgency=low
+
+  * orig local: in a git repository, only the files git knows
+
+ -- David Villa Alises <David.Villa@gmail.com>  Thu, 05 Nov 2026 00:47:47 +0100
+
 ian (0.20261101.3-1) unstable; urgency=low
 
   * New release
