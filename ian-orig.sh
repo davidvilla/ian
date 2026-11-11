@@ -75,22 +75,25 @@ function _orig-needs-clean {
 
 # true if a build left its products in the working directory and no "clean" removed them since
 function _tree-seems-built {
+    [ -n "$(_build-leftovers)" ]
+}
+
+# the paths a build in the working directory leaves in debian/
+function _build-leftovers {
     local path=
 
     for path in debian/files debian/debhelper-build-stamp debian/.debhelper debian/tmp \
-                debian/*.debhelper.log debian/*.substvars; do
+                debian/*.debhelper.log debian/*.debhelper debian/*.substvars; do
         if [ -e "$path" ]; then
-            return 0
+            echo "$path"
         fi
     done
 
     for path in $(binary-names); do
         if [ -d "debian/$path" ]; then
-            return 0
+            echo "debian/$path"
         fi
     done
-
-    return 1
 }
 
 function cmd:orig-from-rule {
@@ -131,22 +134,29 @@ function orig-uscan {
 }
 
 function orig-from-local {
-    local orig_tmp=$(upstream-fullname)
-    mkdir -p $orig_tmp
+    local tmp=$(mktemp -d)
+
+    _copy-local-sources $tmp/$(upstream-fullname)
+    tar czf $(_orig-default) --directory $tmp $(upstream-fullname)
+    \rm -rf $tmp
+
+	log-ok "orig file created: $(find-orig-path)"
+}
+
+# copy into dir the upstream sources of the working directory, those "ian orig local" packs
+function _copy-local-sources {
+    local dir="$1"
+    mkdir -p "$dir"
 
     if _in-git-work-tree; then
         # the files git knows, as they are in the working tree: not those it ignores or does not
         # have (a virtualenv, what the build leaves...)
-        git ls-files -z -- . ':!debian' ":!$orig_tmp" \
-            | tar --null --files-from=- --ignore-failed-read -cf - | ( cd $orig_tmp && tar xf - )
+        git ls-files -z -- . ':!debian' \
+            | tar --null --files-from=- --ignore-failed-read -cf - | ( cd "$dir" && tar xf - )
     else
-        local exclude=(--exclude="./$orig_tmp" --exclude=./debian --exclude='*~' --exclude-vcs --exclude='*.pyc' --exclude=.pc)
-        tar "${exclude[@]}" -cf - . | ( cd $orig_tmp && tar xf - )
+        local exclude=(--exclude=./debian --exclude='*~' --exclude-vcs --exclude='*.pyc' --exclude=.pc)
+        tar "${exclude[@]}" -cf - . | ( cd "$dir" && tar xf - )
     fi
-    tar czf $(_orig-default) $orig_tmp
-    \rm -rf $orig_tmp
-
-	log-ok "orig file created: $(find-orig-path)"
 }
 
 # orig

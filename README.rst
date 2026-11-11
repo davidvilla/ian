@@ -77,10 +77,10 @@ compiles Debian sources to generate binary packages.
 * applies **quilt** patches if present
 * automatically install missing build depends
 
-**ian** chooses between these backends:
-
-* build-standard: compile with dpkg-buildpackage
-* build-svn:      compile with svn-buildpackage
+By default the package is built in a temporary directory, from the .orig plus ``./debian``, so the working
+directory is left untouched and the build takes exactly what will be uploaded. Native packages are built in the
+working directory. If the orig comes from the working directory (``ian orig local``) and they differ, build fails:
+run ``ian build -c`` to create the orig again or, if it was already uploaded, make a new release.
 
 there are several available options:
 
@@ -89,8 +89,9 @@ there are several available options:
 * **-f**: force build
 * **-i**: run "ian install" after "build"
 * **-l**: creates orig with "ian orig local"
-* **-m**: merge ./debian with upstream .orig. bypassing directory contents
 * **-s**: include full source. See 'dpkg-genchanges -sa'
+* **-w**: build in the working directory instead of the .orig plus ``./debian``
+* **-x**: skip lintian
 
 
 ian clean
@@ -103,7 +104,6 @@ removes all generated files and artifacts.
 **ian** chooses between these backends:
 
 * clean-common: remove deb, orig, changes, dsc, diff, upload, debian.tar.gz
-* clean-svn:    remove svn-buildpackage artifacts: tarballs/*, build-area/*
 * clean-uscan:  remove uscan downloaded files (available as "ian clean-uscan")
 
 

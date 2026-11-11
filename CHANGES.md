@@ -5,6 +5,22 @@ still in `CHANGES.rst`).
 
 ## Unreleased
 
+### `ian build` builds from the orig by default; svn support removed (2026-11-11)
+
+`ian build` now does by default what `-m` did: it builds in a temporary directory, from the orig plus `./debian`,
+so it builds exactly what will be uploaded and leaves the working directory untouched (no `debian/tmp`, stamps or
+applied patches). The new `-w` builds in the working directory, as `ian build` did before; native packages are
+always built there. `-m` is still accepted, and does nothing.
+
+When the orig comes from the working directory (`ian orig local`, or `-l`) and it already existed, `build` fails if
+the working directory differs from it: it would build the code of the orig and miss the later changes. Run
+`ian build -c` to create the orig again or, if it was already uploaded, make a new release.
+
+The temporary directory is now removed, the files a previous build left in `debian/` are not copied into it, and
+every file `dpkg-buildpackage` creates is copied back (`.udeb` included), but not `debian/files`.
+
+`svn-buildpackage` is no longer supported, nor is the `pkg vcs` line of `ian summary`.
+
 ### `ian orig local` in a git repository: only the files git knows (2026-11-05)
 
 In a git repository, `ian orig local` takes the files git knows (`git ls-files`), as they are in the working

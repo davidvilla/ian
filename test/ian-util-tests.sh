@@ -229,4 +229,72 @@ function test-orig-local-out-of-git-all-but-debian {
 	unset _PACKAGE
 }
 
+function test-is-native {
+	_set-version "1.0"
+	sc-assert is-native
+}
+
+function test-not-is-native {
+	_set-version "1.0-1"
+	sc-assert-false is-native
+}
+
+# a package in git whose orig was created from it ("ian orig local")
+function _make-local-package {
+	cd $(_make-package)
+	export _PACKAGE=hello
+	_set-version "1.0-1"
+	git init -q .
+	echo code > hello.c
+	git add hello.c debian
+	orig-from-local > /dev/null
+}
+
+# run in a subshell, as it exits when it fails
+function _orig-matches-local {
+	( _assert-orig-matches-local ../hello_1.0.orig.tar.gz ) > /dev/null 2>&1
+}
+
+function test-orig-matches-local {
+	_make-local-package
+	touch build.o
+	echo "only packaging changed" > debian/notes
+	sc-assert _orig-matches-local
+	unset _PACKAGE
+}
+
+function test-orig-not-matches-local-with-changed-file {
+	_make-local-package
+	echo "changed" > hello.c
+	sc-assert-false _orig-matches-local
+	unset _PACKAGE
+}
+
+function test-orig-not-matches-local-with-new-file {
+	_make-local-package
+	echo new > new.c
+	git add new.c
+	sc-assert-false _orig-matches-local
+	unset _PACKAGE
+}
+
+function test-orig-not-matches-local-with-removed-file {
+	_make-local-package
+	git rm -qf hello.c
+	sc-assert-false _orig-matches-local
+	unset _PACKAGE
+}
+
+function test-copy-debian-without-build-leftovers {
+	cd $(_make-package)
+	mkdir -p debian/hello/usr debian/tmp debian/patches
+	touch debian/files debian/hello.substvars debian/hello.postinst.debhelper debian/patches/series debian/rules
+	local dest=$(mktemp -d)
+
+	_copy-debian $dest
+
+	sc-assert-equals "$(cd $dest && find debian | sort | tr '\n' ' ')" \
+		"debian debian/control debian/patches debian/patches/series debian/rules "
+}
+
 run-testsuit

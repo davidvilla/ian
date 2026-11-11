@@ -59,14 +59,22 @@ lo haya pedido explícitamente en ese mismo mensaje:
 Opciones: `-b` solo binarios (sin fuente), `-c` borra el orig y lo regenera
 antes de compilar, `-f` fuerza la compilación pese a los avisos de
 mantenedor, `-i` instala al terminar, `-l` crea el orig con `ian orig local`,
-`-m` compila combinando `./debian` con el `.orig` en un directorio temporal,
-`-s` incluye el fuente completo (`-sa`), `-x` no ejecuta lintian.
+`-s` incluye el fuente completo (`-sa`), `-w` compila en el directorio de
+trabajo, `-x` no ejecuta lintian.
+
+Por defecto compila en un directorio temporal, combinando el `.orig` con
+`./debian`: el directorio de trabajo no se toca. Los paquetes nativos se
+compilan en el directorio de trabajo.
 
 Qué hace automáticamente, para no duplicarlo a mano:
 
 - Si no existe el `.orig`, lo genera (como `ian orig`).
-- Si el directorio solo contiene el empaquetado (ninguno de los ficheros del
-  `.orig` está presente), activa `-m` por su cuenta.
+- Si el orig sale del directorio de trabajo (`ian orig local`) y ya existía,
+  falla cuando el directorio difiere de él, para no compilar código antiguo.
+  Si el orig no se ha subido aún, `ian build -c` lo regenera; si ya se subió,
+  haz una nueva release.
+- Con `-w`, si el directorio solo contiene el empaquetado (ninguno de los
+  ficheros del `.orig` está presente), compila en el temporal de todos modos.
 - Si la revisión Debian no es `-1`, compila solo binarios (el orig ya se
   subió con una revisión anterior).
 - Instala con `sudo apt-get install` las dependencias de compilación que

@@ -1,3 +1,10 @@
+ian (0.20261111-1) unstable; urgency=low
+
+  * New release
+  * -m is the deafult build mode
+
+ -- David Villa Alises <David.Villa@gmail.com>  Wed, 11 Nov 2026 22:23:42 +0100
+
 ian (0.20261105-1) unstable; urgency=low
 
   * orig local: in a git repository, only the files git knows

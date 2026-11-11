@@ -41,11 +41,6 @@ function assert-preconditions {
     PRECONDITIONS_CHECKED=true
 }
 
-# build
-function assert-uses-svn {
-    sc-assert uses-svn "" "This debian package is not managed with svn-buildpackage"
-}
-
 # "all commands"
 function assert-no-more-args {
 	local end=$1

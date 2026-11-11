@@ -31,11 +31,6 @@ function deprecation {
     sleep 2
 }
 
-# main, build, util, summary
-function uses-svn {
-    (svn pl debian | grep mergeWithUpstream) &> /dev/null
-}
-
 # clean, orig, util, summary
 function valid-watch-present {
     grep -v ".*#" debian/watch &> /dev/null
@@ -90,6 +85,11 @@ function debian-version {
 
 function debian-release {
 	debian-version | cut -d'-' -f2
+}
+
+# build: a native package has no orig, its version has no debian revision
+function is-native {
+	[[ "$(debian-version)" != *-* ]]
 }
 
 # build, repo

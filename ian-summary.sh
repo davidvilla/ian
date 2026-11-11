@@ -17,7 +17,6 @@ function cmd:summary {
     echo "orig modes:         " $(orig-modes)
     echo "changes:            " $(changes-path)
     echo "binaries:           " $(binary-names)
-    echo "pkg vcs:            " $(_pkg-vcs)
 
     local missing_deps=$(builddeps)
     if [ $? -ne 0 ]; then
@@ -35,15 +34,6 @@ function cmd:name {
 	assert-preconditions
 	echo $(package)-$(debian-version)
 	)
-}
-
-function _pkg-vcs {
-    # the <VCS-buildpackage> that the maintainer uses to manage de package
-    if uses-svn; then
-	echo "svn"
-	return
-    fi
-    echo "none"
 }
 
 function _upstream-version-uscan {
