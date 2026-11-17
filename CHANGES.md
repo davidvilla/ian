@@ -5,6 +5,13 @@ still in `CHANGES.rst`).
 
 ## Unreleased
 
+### The leftovers of the build-deps package made with mk-build-deps are gone (2026-11-17)
+
+Build dependencies were once installed by building an ephemeral `<package>-build-deps` package with
+`mk-build-deps` (2014) and installing it. That code was commented out in 2020 and `ian build` has installed the
+missing build deps with `apt-get install` ever since, so the commented block is removed, with the `equivs`
+dependency of `debian/control` (used only by `mk-build-deps`) and the `ian-build-deps_*` line of `.gitignore`.
+
 ### `ian install -d` installs the missing dependencies (2026-11-17)
 
 `ian install` installs with `dpkg -i`, which fails when a package of the build needs a dependency that is not

@@ -10,7 +10,7 @@ Package: ian
 Architecture: all
 Depends: ${misc:Depends}, quilt, gnupg,
 	 dupload, build-essential, sudo,
-	 devscripts, equivs,
+	 devscripts,
 	 libwww-perl, bc,
 	 unzip, xz-utils, openssh-client, expect, python3, dh-python
 Suggests: reprepro

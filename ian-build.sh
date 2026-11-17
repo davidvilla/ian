@@ -286,11 +286,6 @@ function _builddeps-assure {
     log-warning "installing build deps: $deps"
 
 	# FIXME: can use "apt-get build-dep"? (require deb-src)
-    # if [ -n "$deps" ]; then
-	# 	sh-sudo "mk-build-deps --arch $(host-arch) --tool \"apt-get -y\" --install --remove debian/control"
-    # fi
-
-    local deps=$(builddeps)
     if [ -n "$deps" ]; then
 		sh-sudo "apt-get install $deps"
     fi

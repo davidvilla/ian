@@ -1,5 +1,4 @@
 .vscode/*
-ian-build-deps_*
 *~
 .pc
 debian/tmp
