@@ -2,17 +2,51 @@
 #-- install ----------------------------------------------------------
 
 function cmd:install {
-##:install:cmd:install (sudo dpkg) all binary packages
-    assert-no-more-args
+##:install:cmd:install (sudo dpkg) all binary packages. See 'ian help install'.
+##:install:usage:ian install [-d]
+##:install:usage:  -d;  install the missing dependencies too (apt-get instead of dpkg)
+##:install:usage:
+##:install:usage:  By default the packages are installed with "dpkg -i", which fails when
+##:install:usage:  a dependency is missing. With "-d" they are installed with "apt-get",
+##:install:usage:  which takes the missing dependencies from the repositories in the same
+##:install:usage:  transaction. It never removes a package to satisfy them. If that is
+##:install:usage:  what it takes, apt stops and says so.
+
+    local with_deps=false
+    local OPTIND=1 OPTARG OPTION
+
+    while getopts :d OPTION "${__args__[@]}"; do
+		case $OPTION in
+			d)
+				with_deps=true ;;
+			\?)
+				echo "invalid option: -$OPTARG"
+				exit 1 ;;
+		esac
+    done
+
+    assert-no-more-args $OPTIND
 
     (
     assert-preconditions
     sc-assert-files-exist $(binary-paths)
 
     log-info "install"
-    sh-sudo "dpkg -i $(binary-paths)"
+    sh-sudo "$(_install-command $with_deps)"
     log-ok "install"
     )
+}
+
+# dpkg does not install dependencies; apt-get does, and it takes a local .deb as a
+# package to install (the paths have a "/", so it does not read them as package names)
+function _install-command {
+    local with_deps="$1"
+
+    if [ "$with_deps" = true ]; then
+		echo "apt-get install --yes --no-remove $(binary-paths)"
+    else
+		echo "dpkg -i $(binary-paths)"
+    fi
 }
 
 function cmd:build-and-install {

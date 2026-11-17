@@ -5,6 +5,13 @@ still in `CHANGES.rst`).
 
 ## Unreleased
 
+### `ian install -d` installs the missing dependencies (2026-11-17)
+
+`ian install` installs with `dpkg -i`, which fails when a package of the build needs a dependency that is not
+installed. The new `ian install -d` installs the same packages with `apt-get install --yes --no-remove`, which takes
+the missing dependencies from the repositories in the same transaction. It never removes a package to satisfy a
+dependency: if that is what it takes, apt stops and says so.
+
 ### `ian build` builds from the orig by default; svn support removed (2026-11-11)
 
 `ian build` now does by default what `-m` did: it builds in a temporary directory, from the orig plus `./debian`,

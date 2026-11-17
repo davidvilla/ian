@@ -17,6 +17,7 @@ tests:
 	test/ian-util-tests.sh
 	test/ian-hooks-tests.sh
 	test/ian-release-tests.sh
+	test/ian-install-tests.sh
 	test/ian-upload-tests.sh
 
 install:

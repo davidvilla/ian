@@ -48,7 +48,8 @@ lo haya pedido explícitamente en ese mismo mensaje:
 
 | Comando | Qué hace |
 |---|---|
-| `ian install` | `sudo dpkg -i` de todos los .deb generados |
+| `ian install` | `sudo dpkg -i` de todos los .deb generados; falla si falta alguna dependencia |
+| `ian install -d` | Instala con `sudo apt-get install --yes --no-remove`, que instala también las dependencias que falten (sin quitar ningún paquete para satisfacerlas) |
 | `ian build -i` | Compila e instala |
 | `ian upload [arch]` | Firma (`debsign`) y sube al pool (`dupload` + `reprepro`). `arch` para paquetes compilados en otra arquitectura |
 | `ian ship` | `clean` + `release-date -y` (nueva versión por fecha, sin abrir el editor) + `orig` + `build` + `install` + `upload` + `git commit -am "new-release: <versión>"` (si es un repo git); se detiene en el primero que falle |
